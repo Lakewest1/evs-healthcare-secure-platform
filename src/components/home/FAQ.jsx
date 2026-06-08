@@ -1,146 +1,709 @@
-import { useState } from "react";
-import { useInView } from "../../hooks/useInView";
+import { useState, useRef, useEffect } from "react";
+import { motion, useInView, useAnimation, AnimatePresence } from "framer-motion";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Premium FAQ Section — Enterprise-Grade Accordion with Advanced Animations
+// Features: Smooth expand/collapse, 3D hover effects, animated icons, staggered reveal
+// ─────────────────────────────────────────────────────────────────────────────
+
+function useReveal(threshold = 0.1) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: threshold, margin: "-50px 0px" });
+  return [ref, isInView];
+}
+
+const faqs = [
+  {
+    id: 1,
+    q: "Do I need experience to apply?",
+    a: "Not necessarily. If you have at least 5 months of care experience, you may be eligible for immediate start. For candidates without experience, we offer mandatory training including manual handling onsite and care certification to get you work-ready.",
+    category: "Application",
+    icon: "🎓",
+  },
+  {
+    id: 2,
+    q: "How quickly can I be placed?",
+    a: "Candidates with relevant experience can often be placed within days of completing compliance checks. We work as fast as possible to match you with appropriate local shifts. Our record placement time is just 48 hours from application to first shift!",
+    category: "Placement",
+    icon: "⚡",
+  },
+  {
+    id: 3,
+    q: "What types of roles do you recruit for?",
+    a: "We recruit for Healthcare Care Assistants, Support Workers, Social Workers, RGN and RMN Nurses, Domestic Workers, and other care sector roles on both temporary and permanent basis. We have opportunities across all skill levels and specializations.",
+    category: "Roles",
+    icon: "👥",
+  },
+  {
+    id: 4,
+    q: "Do you cover enhanced DBS checks?",
+    a: "Yes, we assist with the enhanced DBS application process. We guide you through every step to ensure you're fully compliant before your first shift. Our dedicated compliance team handles all paperwork and follows up with you throughout the process.",
+    category: "Compliance",
+    icon: "✓",
+  },
+  {
+    id: 5,
+    q: "What is the pay structure?",
+    a: "We offer competitive pay rates with both weekly and monthly payment options. Holiday pay is included and rates vary by role and grade. Contact us for specific salary information for your role. We also offer bonuses for referrals and long-term placements.",
+    category: "Pay",
+    icon: "💷",
+  },
+  {
+    id: 6,
+    q: "What areas do you cover?",
+    a: "Our primary coverage is across the North-West of England, with a particular focus on Preston and surrounding Lancashire areas. Most of our shifts are local to where you live. We're expanding our coverage area based on demand.",
+    category: "Location",
+    icon: "📍",
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Premium FAQ Accordion Item Component
+// ─────────────────────────────────────────────────────────────────────────────
+function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const contentRef = useRef(null);
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setHeight(contentRef.current.scrollHeight);
+    }
+  }, [faq.a]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.96 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        delay: index * 0.08,
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+      },
+    },
+  };
+
+  return (
+    <motion.div
+      variants={itemVariants}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setMousePosition({ x: 0, y: 0 });
+      }}
+      style={{
+        position: "relative",
+        perspective: "1000px",
+      }}
+    >
+      <motion.div
+        animate={{
+          rotateX: isHovered ? 3 : 0,
+          rotateY: isHovered ? (mousePosition.x - 50) * 0.1 : 0,
+        }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        style={{
+          position: "relative",
+          background: "white",
+          borderRadius: "24px",
+          border: `1px solid ${isOpen ? "#C4972A" : isHovered ? "rgba(196,151,42,0.3)" : "#eef0f8"}`,
+          boxShadow: isOpen
+            ? "0 20px 40px -12px rgba(196,151,42,0.2)"
+            : isHovered
+            ? "0 10px 30px -10px rgba(0,0,0,0.1)"
+            : "0 2px 10px rgba(0,0,0,0.03)",
+          overflow: "hidden",
+          transition: "all 0.3s ease",
+        }}
+      >
+        {/* Dynamic Spotlight Effect */}
+        <motion.div
+          animate={{
+            opacity: isHovered ? 0.05 : 0,
+            background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(196,151,42,0.8), transparent 60%)`,
+          }}
+          transition={{ duration: 0.2 }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            borderRadius: "24px",
+          }}
+        />
+
+        {/* Question Button */}
+        <button
+          onClick={() => onToggle()}
+          style={{
+            width: "100%",
+            textAlign: "left",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "clamp(20px, 4vw, 28px) clamp(24px, 5vw, 32px)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 16,
+            position: "relative",
+            zIndex: 2,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1 }}>
+            {/* Animated Icon */}
+            <motion.div
+              animate={{
+                scale: isHovered ? 1.1 : 1,
+                rotate: isHovered ? [0, -10, 10, 0] : 0,
+              }}
+              transition={{ duration: 0.5 }}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: "14px",
+                background: isOpen
+                  ? "linear-gradient(135deg, #C4972A, #8B6914)"
+                  : "linear-gradient(135deg, rgba(196,151,42,0.1), rgba(196,151,42,0.05))",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 22,
+                flexShrink: 0,
+                transition: "background 0.3s ease",
+              }}
+            >
+              {faq.icon}
+            </motion.div>
+
+            {/* Question Text */}
+            <motion.span
+              animate={{
+                color: isOpen ? "#C4972A" : "#0f1d3d",
+                x: isHovered ? 5 : 0,
+              }}
+              transition={{ duration: 0.3 }}
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 700,
+                fontSize: "clamp(14px, 1.5vw, 16px)",
+                flex: 1,
+                lineHeight: 1.4,
+              }}
+            >
+              {faq.q}
+            </motion.span>
+          </div>
+
+          {/* Animated Plus/Minus Icon */}
+          <motion.div
+            animate={{
+              rotate: isOpen ? 45 : 0,
+              scale: isHovered ? 1.1 : 1,
+            }}
+            transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              background: isOpen || isHovered ? "rgba(196,151,42,0.1)" : "rgba(0,0,0,0.04)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              transition: "background 0.3s ease",
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke={isOpen || isHovered ? "#C4972A" : "#64748b"}
+              strokeWidth="2.5"
+              style={{ transition: "stroke 0.3s ease" }}
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </motion.div>
+        </button>
+
+        {/* Answer Section with Smooth Animation */}
+        <AnimatePresence initial={false}>
+          {isOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              style={{ overflow: "hidden" }}
+            >
+              <div
+                ref={contentRef}
+                style={{
+                  padding: "0 24px 28px 24px",
+                  paddingLeft: "clamp(24px, 5vw, 88px)",
+                }}
+              >
+                <motion.div
+                  initial={{ y: -10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.3 }}
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    color: "#64748b",
+                    fontSize: "clamp(13px, 1.5vw, 14px)",
+                    lineHeight: 1.8,
+                    borderLeft: "3px solid #C4972A",
+                    paddingLeft: 20,
+                  }}
+                >
+                  {faq.a}
+                </motion.div>
+
+                {/* Category Tag */}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                  style={{
+                    marginTop: 16,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "4px 12px",
+                    background: "rgba(196,151,42,0.08)",
+                    borderRadius: "20px",
+                  }}
+                >
+                  <span style={{ fontSize: 11 }}>📂</span>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 11,
+                      fontWeight: 500,
+                      color: "#C4972A",
+                    }}
+                  >
+                    {faq.category}
+                  </span>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Decorative Elements */}
+        <motion.div
+          animate={{
+            opacity: isOpen ? 1 : 0,
+            width: isOpen ? "100%" : "0%",
+          }}
+          transition={{ duration: 0.4 }}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            height: 2,
+            background: "linear-gradient(90deg, #C4972A, #f0c060)",
+            borderRadius: "0 0 24px 24px",
+          }}
+        />
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main FAQ Component with Premium Features
+// ─────────────────────────────────────────────────────────────────────────────
 export default function FAQ() {
-  const [ref, inView] = useInView(0.1);
-  const [open, setOpen] = useState(null);
+  const [ref, inView] = useReveal(0.1);
+  const [openIndex, setOpenIndex] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredFaqs, setFilteredFaqs] = useState(faqs);
+  const headerControls = useAnimation();
 
-  const faqs = [
-    {
-      q: "Do I need experience to apply?",
-      a: "Not necessarily. If you have at least 5 months of care experience, you may be eligible for immediate start. For candidates without experience, we offer mandatory training including manual handling onsite and care certification to get you work-ready.",
+  useEffect(() => {
+    if (inView) {
+      headerControls.start("visible");
+    }
+  }, [inView, headerControls]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = faqs.filter(
+        (faq) =>
+          faq.q.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          faq.a.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          faq.category.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredFaqs(filtered);
+    } else {
+      setFilteredFaqs(faqs);
+    }
+  }, [searchTerm]);
+
+  const headerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, staggerChildren: 0.15 },
     },
-    {
-      q: "How quickly can I be placed?",
-      a: "Candidates with relevant experience can often be placed within days of completing compliance checks. We work as fast as possible to match you with appropriate local shifts.",
-    },
-    {
-      q: "What types of roles do you recruit for?",
-      a: "We recruit for Healthcare Care Assistants, Support Workers, Social Workers, RGN and RMN Nurses, Domestic Workers, and other care sector roles on both temporary and permanent basis.",
-    },
-    {
-      q: "Do you cover enhanced DBS checks?",
-      a: "Yes, we assist with the enhanced DBS application process. We guide you through every step to ensure you're fully compliant before your first shift.",
-    },
-    {
-      q: "What is the pay structure?",
-      a: "We offer competitive pay rates with both weekly and monthly payment options. Holiday pay is included and rates vary by role and grade. Contact us for specific salary information for your role.",
-    },
-    {
-      q: "What areas do you cover?",
-      a: "Our primary coverage is across the North-West of England, with a particular focus on Preston and surrounding Lancashire areas. Most of our shifts are local to where you live.",
-    },
-  ];
+  };
+
+  const childVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
+  const categories = [...new Set(faqs.map(f => f.category))];
 
   return (
     <section
       ref={ref}
-      style={{ padding: "100px 8%", background: "#fafbff" }}
+      style={{
+        padding: "clamp(60px, 10vh, 100px) clamp(16px, 5vw, 80px)",
+        background: "linear-gradient(135deg, #fefcf8 0%, #faf9f7 100%)",
+        position: "relative",
+        overflow: "hidden",
+      }}
     >
-      <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        {/* Section header */}
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: 60,
-            opacity: inView ? 1 : 0,
-            transition: "all 0.7s",
-          }}
+      {/* Background Decorations */}
+      <div
+        style={{
+          position: "absolute",
+          top: "10%",
+          right: "5%",
+          width: 300,
+          height: 300,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(196,151,42,0.03), transparent)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "10%",
+          left: "5%",
+          width: 250,
+          height: 250,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(196,151,42,0.02), transparent)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <div style={{ maxWidth: 900, margin: "0 auto", position: "relative", zIndex: 2 }}>
+        
+        {/* Section Header */}
+        <motion.div
+          variants={headerVariants}
+          initial="hidden"
+          animate={headerControls}
+          style={{ textAlign: "center", marginBottom: 48 }}
+        >
+          {/* Eyebrow */}
+          <motion.div variants={childVariants}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 16,
+              }}
+            >
+              <div
+                style={{
+                  width: 30,
+                  height: 2,
+                  background: "#C4972A",
+                  borderRadius: 999,
+                }}
+              />
+              <span
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 11,
+                  fontWeight: 800,
+                  letterSpacing: "4px",
+                  textTransform: "uppercase",
+                  color: "#C4972A",
+                }}
+              >
+                FAQ
+              </span>
+              <div
+                style={{
+                  width: 30,
+                  height: 2,
+                  background: "#C4972A",
+                  borderRadius: 999,
+                }}
+              />
+            </div>
+          </motion.div>
+
+          {/* Main Heading */}
+          <motion.h2
+            variants={childVariants}
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
+              fontWeight: 800,
+              color: "#0f1d3d",
+              letterSpacing: "-0.02em",
+              marginBottom: 16,
+            }}
+          >
+            Common Questions{" "}
+            <span
+              style={{
+                background: "linear-gradient(135deg, #C4972A, #e8b84a)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              Answered
+            </span>
+          </motion.h2>
+
+          {/* Subtitle */}
+          <motion.p
+            variants={childVariants}
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 14,
+              color: "#64748b",
+              maxWidth: 500,
+              margin: "0 auto",
+              lineHeight: 1.65,
+            }}
+          >
+            Everything you need to know about working with EVS Healthcare
+          </motion.p>
+        </motion.div>
+
+        {/* Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          style={{ marginBottom: 32 }}
         >
           <div
             style={{
-              fontFamily: "'DM Sans', sans-serif",
-              color: "#C4972A",
-              fontSize: 13,
-              fontWeight: 600,
-              letterSpacing: 3,
-              textTransform: "uppercase",
+              position: "relative",
+              maxWidth: 400,
+              margin: "0 auto",
+            }}
+          >
+            <svg
+              style={{
+                position: "absolute",
+                left: 16,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: 18,
+                height: 18,
+                color: "#94a3b8",
+                pointerEvents: "none",
+              }}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search your question..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "14px 20px 14px 48px",
+                borderRadius: "60px",
+                border: "1px solid #eef0f8",
+                background: "#fff",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 14,
+                outline: "none",
+                transition: "all 0.3s ease",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#C4972A";
+                e.target.style.boxShadow = "0 0 0 3px rgba(196,151,42,0.1)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#eef0f8";
+                e.target.style.boxShadow = "none";
+              }}
+            />
+          </div>
+        </motion.div>
+
+        {/* FAQ Accordion Items */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {filteredFaqs.length > 0 ? (
+            filteredFaqs.map((faq, idx) => (
+              <FAQItem
+                key={faq.id}
+                faq={faq}
+                index={idx}
+                isInView={inView}
+                isOpen={openIndex === idx}
+                onToggle={() => setOpenIndex(openIndex === idx ? null : idx)}
+              />
+            ))
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              style={{
+                textAlign: "center",
+                padding: "60px 20px",
+                background: "#fff",
+                borderRadius: "24px",
+                border: "1px solid #eef0f8",
+              }}
+            >
+              <span style={{ fontSize: 48, opacity: 0.5 }}>🔍</span>
+              <h3
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 18,
+                  color: "#64748b",
+                  marginTop: 16,
+                }}
+              >
+                No questions found
+              </h3>
+              <p
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 14,
+                  color: "#94a3b8",
+                  marginTop: 8,
+                }}
+              >
+                Try a different search term or browse all questions
+              </p>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Still Have Questions Box */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          style={{
+            marginTop: 48,
+            padding: "32px 24px",
+            background: "linear-gradient(135deg, #fefcf8, #ffffff)",
+            borderRadius: "24px",
+            textAlign: "center",
+            border: "1px solid rgba(196,151,42,0.1)",
+          }}
+        >
+          <h3
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 18,
+              fontWeight: 700,
+              color: "#0f1d3d",
               marginBottom: 12,
             }}
           >
-            FAQ
-          </div>
-          <h2
+            Still have questions?
+          </h3>
+          <p
             style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(1.8rem,3vw,2.6rem)",
-              fontWeight: 900,
-              color: "#0f1d3d",
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 14,
+              color: "#64748b",
+              marginBottom: 20,
             }}
           >
-            Common Questions
-          </h2>
-        </div>
+            Can't find the answer you're looking for? Our team is here to help.
+          </p>
+          <motion.a
+            href="#contact"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              background: "linear-gradient(135deg, #C4972A, #8B6914)",
+              color: "#fff",
+              padding: "12px 32px",
+              borderRadius: "40px",
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 14,
+              fontWeight: 600,
+              textDecoration: "none",
+              boxShadow: "0 8px 20px rgba(196,151,42,0.3)",
+            }}
+          >
+            Contact Support
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </motion.a>
+        </motion.div>
 
-        {/* Accordion items */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {faqs.map((f, i) => (
-            <div
-              key={i}
-              style={{
-                background: "#fff",
-                borderRadius: 16,
-                overflow: "hidden",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-                border: `1px solid ${open === i ? "#C4972A" : "#eef0f8"}`,
-                opacity: inView ? 1 : 0,
-                transform: inView ? "none" : "translateY(15px)",
-                transition: `opacity 0.6s ease ${i * 0.07}s, transform 0.6s ease ${i * 0.07}s, border-color 0.2s`,
-              }}
-            >
-              <button
-                onClick={() => setOpen(open === i ? null : i)}
-                style={{
-                  width: "100%",
-                  textAlign: "left",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: "22px 24px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 12,
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontWeight: 600,
-                    fontSize: 15,
-                    color: "#0f1d3d",
-                  }}
-                >
-                  {f.q}
-                </span>
-                <span
-                  style={{
-                    color: "#C4972A",
-                    fontSize: 20,
-                    flexShrink: 0,
-                    transition: "transform 0.3s",
-                    transform: open === i ? "rotate(45deg)" : "none",
-                  }}
-                >
-                  +
-                </span>
-              </button>
-              {open === i && (
-                <div
-                  style={{
-                    padding: "0 24px 22px",
-                    fontFamily: "'DM Sans', sans-serif",
-                    color: "#64748b",
-                    fontSize: 14,
-                    lineHeight: 1.8,
-                  }}
-                >
-                  {f.a}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        {/* Bottom Decorative Line */}
+        <motion.div
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={inView ? { opacity: 1, scaleX: 1 } : {}}
+          transition={{ duration: 0.8, delay: 0.7 }}
+          style={{
+            marginTop: 48,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 12,
+          }}
+        >
+          <div style={{ width: 60, height: 1, background: "rgba(196,151,42,0.3)", borderRadius: 999 }} />
+          <motion.div
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.4, 1, 0.4],
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: "#C4972A",
+            }}
+          />
+          <div style={{ width: 60, height: 1, background: "rgba(196,151,42,0.3)", borderRadius: 999 }} />
+        </motion.div>
       </div>
     </section>
   );

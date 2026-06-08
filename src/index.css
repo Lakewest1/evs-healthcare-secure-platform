@@ -109,7 +109,7 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
-//HERO STYLING FOR FULL WIDTH //
+/*HERO STYLING FOR FULL WIDTH */
 
 /* ── Hard reset — removes all browser default spacing ── */
 *, *::before, *::after {

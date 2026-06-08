@@ -11,7 +11,6 @@ import { useState, useEffect, useRef, useMemo } from "react";
 // Layout:
 //   CENTER  — headline + subtext + CTAs only
 //   BOTTOM-LEFT  — testimonial card (single, cycling)
-//   BOTTOM-CENTER — trust tags + employer logos (horizontal)
 //   RIGHT   — floating open positions card (2 jobs)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -37,13 +36,6 @@ const TESTIMONIALS = [
 const JOBS = [
   { title: "Registered Nurse (RGN)", pay: "£18–£24/hr", urgent: true },
   { title: "Mental Health Nurse (RMN)", pay: "£22–£30/hr", urgent: false },
-];
-
-const TRUST_LOGOS = [
-  { label: "NHS", color: "#005EB8" },
-  { label: "CQC", color: "#007F4E" },
-  { label: "Skills for Care", color: "#4B2882" },
-  { label: "DBS Partner", color: "#1d4ed8" },
 ];
 
 // ── Testimonial Carousel Component ────────────────────────────────────────────
@@ -335,7 +327,6 @@ export default function Hero() {
 
         /* ═══════════════════════════════════════════════════════════
             RESPONSIVE OVERRIDES — Hide details on smaller screens
-            No existing code is changed or removed
         ═══════════════════════════════════════════════════════════ */
 
         /* Tablet (768px and below) — Hide secondary elements */
@@ -344,9 +335,6 @@ export default function Hero() {
             display: none !important; 
           }
           .evs-testimonial-stack { 
-            display: none !important; 
-          }
-          .evs-bottom-left-trust { 
             display: none !important; 
           }
           .evs-curtain-label { 
@@ -1019,132 +1007,10 @@ export default function Hero() {
         <TestimonialCarousel contentVisible={contentVisible} />
 
         {/* ══════════════════════════════════════════════════════════════
-            LAYER 10 — BOTTOM-LEFT: Trust tags + Employer logos
+            Trust badges have been removed from this component.
+            Import and use the TrustBadges component separately.
+            File: components/home/TrustBadges.jsx
         ══════════════════════════════════════════════════════════════ */}
-        <div
-          className="evs-bottom-left-trust"
-          style={{
-            position: "absolute",
-            bottom: 24,
-            left: 14,
-            zIndex: 10,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            gap: 10,
-            opacity: contentVisible ? 1 : 0,
-            transform: contentVisible ? "none" : "translateY(12px)",
-            transition:
-              "opacity 0.85s cubic-bezier(0.22,1,0.36,1) 1.6s, transform 0.85s cubic-bezier(0.22,1,0.36,1) 1.6s",
-          }}
-        >
-          {/* ── Trust tags row ── */}
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              flexWrap: "wrap",
-              alignItems: "center",
-              marginTop: "10%",
-            }}
-          >
-            {[
-              "DBS Checked",
-              "CQC Compliant",
-              "24/7 Support",
-              "Weekly Pay",
-            ].map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  fontFamily: "'Nunito Sans', sans-serif",
-                  color: "rgba(255,255,255,0.65)",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                <span
-                  style={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: "50%",
-                    background: "rgba(74,222,128,0.15)",
-                    border: "1px solid rgba(74,222,128,0.38)",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 8,
-                    color: "#4ade80",
-                    fontWeight: 900,
-                  }}
-                >
-                  ✓
-                </span>
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* ── Employer trust logos row ── */}
-          <div
-            style={{
-              display: "flex",
-              gap: 5,
-              flexWrap: "wrap",
-              alignItems: "center",
-              
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "'Nunito Sans', sans-serif",
-                color: "rgba(255,255,255,0.32)",
-                fontSize: 10,
-                letterSpacing: "1.5px",
-                textTransform: "uppercase",
-                fontWeight: 600,
-                marginRight: 2,
-              }}
-            >
-              Trusted by
-            </span>
-            {TRUST_LOGOS.map(({ label, color }) => (
-              <div
-                key={label}
-                style={{
-                  background: "rgba(255,255,255,0.09)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  borderRadius: 8,
-                  padding: "5px 14px",
-                  fontFamily: "'Nunito Sans', sans-serif",
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: "#fff",
-                  letterSpacing: "0.5px",
-                  transition: "all 0.2s ease",
-                  cursor: "default",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = color + "28";
-                  e.currentTarget.style.borderColor = color + "60";
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    "rgba(255,255,255,0.09)";
-                  e.currentTarget.style.borderColor =
-                    "rgba(255,255,255,0.14)";
-                  e.currentTarget.style.transform = "";
-                }}
-              >
-                {label}
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* ══════════════════════════════════════════════════════════════
             Floating Open Positions card — RIGHT, 2 jobs only
@@ -1181,8 +1047,6 @@ export default function Hero() {
               textTransform: "uppercase",
               color: "rgba(255,255,255,0.45)",
               marginBottom: 1,
-             
-              
             }}
           >
             Open Positions Today
