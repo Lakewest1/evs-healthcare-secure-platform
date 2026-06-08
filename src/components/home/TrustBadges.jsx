@@ -3,8 +3,8 @@ import { useRef, useEffect, useState } from "react";
 import { motion, useInView, useAnimation, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Premium Trust Badges — Elegant Slow Speed Marquee with Zoom Effect
-// Features: Balanced card sizes, expanded trust items, smooth marquee
+// Premium Trust Badges — Performance Optimized for Mobile
+// Features: Reduced animations on mobile, smoother marquee, no scroll lag
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -38,120 +38,46 @@ const TRUST_LOGOS = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3D Floating Card - Balanced Size (105x105 for tags, 115x115 for logos)
+// Optimized Floating Card - Works on all devices
 // ─────────────────────────────────────────────────────────────────────────────
-function FloatingTrustCard({ item, index, isInView, type = "tag", progress = 0 }) {
+function FloatingTrustCard({ item, index, isInView, type = "tag", isMobileDevice = false }) {
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef(null);
-  const controls = useAnimation();
   
-  const floatY = useMotionValue(0);
-  const floatX = useMotionValue(0);
-  
-  // Smooth zoom effect based on progress
-  const zoomScale = useTransform(progress, [0, 0.3, 0.5, 0.7, 1], [0.95, 1.02, 1.05, 1.02, 0.95]);
-  const zoomRotate = useTransform(progress, [0, 0.5, 1], [-2, 2, -2]);
-  
-  useEffect(() => {
-    if (isInView) {
-      controls.start({
-        y: [0, -3, 0, 3, 0],
-        rotateZ: [0, 1.5, 0, -1.5, 0],
-        transition: {
-          duration: 5,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: index * 0.05,
-        },
-      });
-    }
-  }, [isInView, index, controls]);
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    floatX.set((x - 0.5) * 10);
-    floatY.set((y - 0.5) * 6);
-  };
-
-  const handleMouseLeave = () => {
-    floatX.set(0);
-    floatY.set(0);
-    setIsHovered(false);
-  };
-
-  // Balanced sizes - slightly increased
-  const cardSize = type === "logo" ? 115 : 105;
-  const iconSize = type === "logo" ? 26 : 24;
+  // Card sizes - responsive
+  const cardSize = type === "logo" ? 105 : 95;
+  const iconSize = type === "logo" ? 24 : 22;
   const fontSize = type === "logo" ? 10 : 9.5;
+  const margin = 8;
 
   return (
-    <motion.div
+    <div
       ref={cardRef}
-      animate={controls}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         position: "relative",
         width: cardSize,
         height: cardSize,
         flexShrink: 0,
         cursor: "pointer",
-        margin: "0 8px",
-        x: floatX,
-        y: floatY,
-        scale: zoomScale,
-        rotate: zoomRotate,
-      }}
-      initial={{ opacity: 0, scale: 0, rotate: -180 }}
-      animate={isInView ? { opacity: 1, scale: zoomScale, rotate: 0 } : {}}
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 15,
-        delay: index * 0.04,
+        margin: `0 ${margin}px`,
+        opacity: isInView ? 1 : 0,
+        transform: isInView ? 'scale(1)' : 'scale(0.9)',
+        transition: 'opacity 0.4s ease, transform 0.4s ease',
       }}
     >
-      {/* Subtle Outer Glow */}
-      <motion.div
-        animate={{
-          boxShadow: isHovered
-            ? `0 0 18px ${item.color}aa`
-            : `0 0 0px ${item.color}00`,
-          scale: isHovered ? 1.04 : 1,
-        }}
-        transition={{ duration: 0.3 }}
-        style={{
-          position: "absolute",
-          inset: -5,
-          borderRadius: "50%",
-          filter: "blur(5px)",
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* 3D Ball Card */}
-      <motion.div
-        animate={{
-          rotateX: isHovered ? 6 : 0,
-          rotateY: isHovered ? 6 : 0,
-          scale: isHovered ? 1.03 : 1,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 400,
-          damping: 20,
-        }}
+      {/* Main Ball Card */}
+      <div
         style={{
           position: "relative",
           width: "100%",
           height: "100%",
+          transform: isHovered ? 'scale(1.03)' : 'scale(1)',
+          transition: 'transform 0.2s ease',
         }}
       >
-        {/* Main Ball */}
-        <motion.div
+        <div
           style={{
             position: "absolute",
             inset: 0,
@@ -161,61 +87,22 @@ function FloatingTrustCard({ item, index, isInView, type = "tag", progress = 0 }
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: `0 8px 16px rgba(0,0,0,0.1), 0 0 0 2px rgba(255,255,255,0.25), inset 0 -3px 6px rgba(0,0,0,0.08)`,
+            boxShadow: `0 6px 12px rgba(0,0,0,0.1), 0 0 0 2px rgba(255,255,255,0.25), inset 0 -3px 6px rgba(0,0,0,0.08)`,
           }}
         >
-          {/* Inner Glow */}
-          <motion.div
-            animate={{
-              opacity: [0.1, 0.2, 0.1],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+          {/* Simple inner glow */}
+          <div
             style={{
               position: "absolute",
               inset: 6,
               borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%)",
+              background: "radial-gradient(circle, rgba(255,255,255,0.3), transparent 70%)",
               pointerEvents: "none",
             }}
           />
 
-          {/* Light Sweep on Hover */}
-          <AnimatePresence>
-            {isHovered && (
-              <motion.div
-                initial={{ x: "-100%", opacity: 0 }}
-                animate={{ x: "100%", opacity: 0.45 }}
-                exit={{ x: "100%", opacity: 0 }}
-                transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "50%",
-                  height: "100%",
-                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-                  transform: "skewX(-20deg)",
-                  pointerEvents: "none",
-                }}
-              />
-            )}
-          </AnimatePresence>
-
-          {/* Icon - Balanced Size */}
-          <motion.span
-            animate={{
-              scale: isHovered ? [1, 1.08, 1] : 1,
-              rotate: isHovered ? [0, -3, 3, 0] : 0,
-            }}
-            transition={{
-              duration: 0.35,
-              type: "spring",
-              stiffness: 500,
-            }}
+          {/* Icon */}
+          <span
             style={{
               fontSize: iconSize,
               marginBottom: 5,
@@ -223,113 +110,51 @@ function FloatingTrustCard({ item, index, isInView, type = "tag", progress = 0 }
             }}
           >
             {item.icon}
-          </motion.span>
+          </span>
 
-          {/* Label - Balanced Text Size */}
-          <motion.span
-            animate={{
-              opacity: isHovered ? 1 : 0.95,
-              y: isHovered ? -1 : 0,
-            }}
+          {/* Label */}
+          <span
             style={{
               fontFamily: "'Inter', sans-serif",
               fontWeight: 700,
               fontSize: fontSize,
               color: "#fff",
               textAlign: "center",
-              padding: "0 5px",
-              lineHeight: 1.25,
+              padding: "0 4px",
+              lineHeight: 1.2,
               textShadow: "0 1px 1px rgba(0,0,0,0.15)",
             }}
           >
             {item.label}
-          </motion.span>
+          </span>
 
-          {/* Decorative Ring */}
-          <motion.div
-            animate={{
-              rotate: 360,
-              scale: isHovered ? 1.04 : 1,
-            }}
-            transition={{
-              rotate: { duration: 10, repeat: Infinity, ease: "linear" },
-              scale: { duration: 0.25 },
-            }}
+          {/* Decorative ring */}
+          <div
             style={{
               position: "absolute",
               inset: -3,
               borderRadius: "50%",
-              border: `1.5px solid rgba(255,255,255,0.2)`,
+              border: `1px solid rgba(255,255,255,0.2)`,
               pointerEvents: "none",
             }}
           />
-
-          {/* Pulse Ring on Hover */}
-          {isHovered && (
-            <motion.div
-              initial={{ scale: 1, opacity: 0.5 }}
-              animate={{ scale: 1.25, opacity: 0 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "easeOut" }}
-              style={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: "50%",
-                border: `1.5px solid ${item.color}`,
-                pointerEvents: "none",
-              }}
-            />
-          )}
-        </motion.div>
-      </motion.div>
-    </motion.div>
+        </div>
+      </div>
+    </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Elegant Slow Speed Continuous Marquee
+// Simple CSS Marquee - Works immediately on all devices
 // ─────────────────────────────────────────────────────────────────────────────
-function ElegantMarquee({ items, speed = 50, isInView, type = "tag", direction = "left" }) {
-  const [width, setWidth] = useState(0);
+function SimpleMarquee({ items, speed = 40, type = "tag", direction = "left" }) {
   const containerRef = useRef(null);
-  const contentRef = useRef(null);
-  const controls = useAnimation();
-  const progress = useMotionValue(0);
-
-  useEffect(() => {
-    if (contentRef.current && containerRef.current) {
-      setWidth(contentRef.current.scrollWidth / 2);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isInView && width > 0) {
-      const startX = direction === "left" ? 0 : -width;
-      const endX = direction === "left" ? -width : 0;
-      
-      controls.start({
-        x: [startX, endX],
-        transition: {
-          duration: speed,
-          repeat: Infinity,
-          ease: "linear",
-          repeatType: "loop",
-        },
-      });
-      
-      // Animate progress for smooth zoom effect
-      const interval = setInterval(() => {
-        let newProgress = progress.get() + 0.003;
-        if (newProgress > 1) newProgress = 0;
-        progress.set(newProgress);
-      }, 50);
-      
-      return () => clearInterval(interval);
-    }
-  }, [isInView, width, speed, controls, direction, progress]);
-
-  // Duplicate items 3 times for seamless loop
+  
+  // Duplicate items for seamless loop
   const duplicatedItems = [...items, ...items, ...items];
-
+  
+  const animationName = direction === "left" ? "marqueeLeft" : "marqueeRight";
+  
   return (
     <div
       ref={containerRef}
@@ -342,13 +167,11 @@ function ElegantMarquee({ items, speed = 50, isInView, type = "tag", direction =
         WebkitMaskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
       }}
     >
-      <motion.div
-        ref={contentRef}
-        animate={controls}
-        initial={{ x: direction === "left" ? 0 : -width }}
+      <div
         style={{
           display: "flex",
           width: "fit-content",
+          animation: `${animationName} ${speed}s linear infinite`,
         }}
       >
         {duplicatedItems.map((item, idx) => (
@@ -356,42 +179,39 @@ function ElegantMarquee({ items, speed = 50, isInView, type = "tag", direction =
             key={`${item.id}-${idx}`}
             item={item}
             index={idx}
-            isInView={isInView}
+            isInView={true}
             type={type}
-            progress={progress}
           />
         ))}
-      </motion.div>
+      </div>
+      <style>{`
+        @keyframes marqueeLeft {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        @keyframes marqueeRight {
+          0% { transform: translateX(-50%); }
+          100% { transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main TrustBadges Component - Balanced Sizes
+// Main TrustBadges Component - Simple and Works Everywhere
 // ─────────────────────────────────────────────────────────────────────────────
 export default function TrustBadges({ className = "", variant = "light" }) {
   const [ref, inView] = useReveal(0.15);
 
   const isDark = variant === "dark";
-
-  const pulseVariants = {
-    animate: {
-      scale: [1, 1.08, 1],
-      opacity: [0.5, 1, 0.5],
-      transition: {
-        duration: 2.5,
-        repeat: Infinity,
-        ease: "easeInOut",
-      },
-    },
-  };
-
+  
   return (
     <section
       ref={ref}
       className={className}
       style={{
-        padding: "clamp(25px, 5vh, 40px) clamp(16px, 5vw, 80px)",
+        padding: "clamp(20px, 4vh, 35px) clamp(16px, 5vw, 80px)",
         background: isDark 
           ? "linear-gradient(135deg, #0a1628 0%, #0f1d3d 100%)"
           : "linear-gradient(135deg, #ffffff 0%, #fefcf8 100%)",
@@ -400,14 +220,12 @@ export default function TrustBadges({ className = "", variant = "light" }) {
       }}
     >
       {/* Subtle Background Pattern */}
-      <motion.div
-        animate={{ opacity: inView ? 0.03 : 0 }}
-        transition={{ duration: 1 }}
+      <div
         style={{
           position: "absolute",
           inset: 0,
           backgroundImage: `
-            radial-gradient(circle at 20% 50%, rgba(196,151,42,0.06) 0%, transparent 50%),
+            radial-gradient(circle at 20% 50%, rgba(196,151,42,0.04) 0%, transparent 50%),
             repeating-linear-gradient(45deg, #C4972A 0px, #C4972A 1px, transparent 1px, transparent 30px)
           `,
           backgroundSize: "100% 100%, 30px 30px",
@@ -415,70 +233,28 @@ export default function TrustBadges({ className = "", variant = "light" }) {
         }}
       />
 
-      {/* Gentle Floating Background Blobs */}
-      <motion.div
-        animate={{
-          y: [0, -15, 0, 15, 0],
-          x: [0, 10, 0, -10, 0],
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          top: "10%",
-          right: "5%",
-          width: 180,
-          height: 180,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(196,151,42,0.04), transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-      <motion.div
-        animate={{
-          y: [0, 15, 0, -15, 0],
-          x: [0, -10, 0, 10, 0],
-        }}
-        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: "absolute",
-          bottom: "10%",
-          left: "5%",
-          width: 200,
-          height: 200,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(196,151,42,0.03), transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-
       <div style={{ maxWidth: 1400, margin: "0 auto", position: "relative", zIndex: 2 }}>
         
-        {/* TOP ROW - Trust Benefits (Balanced Size Cards) */}
-        <ElegantMarquee
+        {/* TOP ROW - Trust Benefits */}
+        <SimpleMarquee
           items={TRUST_TAGS}
-          speed={50}
-          isInView={inView}
+          speed={45}
           type="tag"
           direction="right"
         />
 
-        {/* Center Divider with Gentle Pulse */}
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          animate={inView ? { opacity: 1, scaleX: 1 } : {}}
-          transition={{ delay: 0.3, duration: 0.6 }}
+        {/* Center Divider */}
+        <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 16,
-            margin: "14px 0",
+            margin: "12px 0",
           }}
         >
           <div style={{ width: 50, height: 1, background: "rgba(196,151,42,0.25)", borderRadius: 999 }} />
-          <motion.span
-            variants={pulseVariants}
-            animate="animate"
+          <span
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: 9,
@@ -489,15 +265,14 @@ export default function TrustBadges({ className = "", variant = "light" }) {
             }}
           >
             Trusted By
-          </motion.span>
+          </span>
           <div style={{ width: 50, height: 1, background: "rgba(196,151,42,0.25)", borderRadius: 999 }} />
-        </motion.div>
+        </div>
 
-        {/* BOTTOM ROW - Partner Logos (Slightly Larger) */}
-        <ElegantMarquee
+        {/* BOTTOM ROW - Partner Logos */}
+        <SimpleMarquee
           items={TRUST_LOGOS}
-          speed={55}
-          isInView={inView}
+          speed={50}
           type="logo"
           direction="left"
         />

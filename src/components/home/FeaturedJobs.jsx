@@ -145,7 +145,7 @@ function JobCard({ job, index, isInView }) {
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         style={{
           position: "relative",
-          background: "white",
+          background: "#ffffff",
           borderRadius: "24px",
           padding: "28px",
           height: "100%",
