@@ -39,9 +39,10 @@ const TRUST_LOGOS = [
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Optimized Floating Card - Works on all devices
+// FIX-1: Removed isHovered state — no per-card React re-renders during animation
+// FIX-1: Removed per-card CSS transitions — balls are static passengers on the track
 // ─────────────────────────────────────────────────────────────────────────────
 function FloatingTrustCard({ item, index, isInView, type = "tag", isMobileDevice = false }) {
-  const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef(null);
   
   // Card sizes - responsive
@@ -53,8 +54,6 @@ function FloatingTrustCard({ item, index, isInView, type = "tag", isMobileDevice
   return (
     <div
       ref={cardRef}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       style={{
         position: "relative",
         width: cardSize,
@@ -62,9 +61,9 @@ function FloatingTrustCard({ item, index, isInView, type = "tag", isMobileDevice
         flexShrink: 0,
         cursor: "pointer",
         margin: `0 ${margin}px`,
-        opacity: isInView ? 1 : 0,
-        transform: isInView ? 'scale(1)' : 'scale(0.9)',
-        transition: 'opacity 0.4s ease, transform 0.4s ease',
+        // FIX-1: removed isInView-driven opacity/transform transitions
+        // and isHovered scale — these fired setState constantly during animation
+        pointerEvents: "none",
       }}
     >
       {/* Main Ball Card */}
@@ -73,8 +72,7 @@ function FloatingTrustCard({ item, index, isInView, type = "tag", isMobileDevice
           position: "relative",
           width: "100%",
           height: "100%",
-          transform: isHovered ? 'scale(1.03)' : 'scale(1)',
-          transition: 'transform 0.2s ease',
+          // FIX-1: removed transform: isHovered scale and transition
         }}
       >
         <div
@@ -146,12 +144,16 @@ function FloatingTrustCard({ item, index, isInView, type = "tag", isMobileDevice
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Simple CSS Marquee - Works immediately on all devices
+// FIX-2: 2× duplication instead of 3× — halves the DOM node count
+// FIX-2: will-change: transform on the track div only
+// FIX-3: keyframe % corrected to -33.33% to match 3× duplication
+//         (was -50% which only works for 2× — now using 2× so -50% is correct)
 // ─────────────────────────────────────────────────────────────────────────────
 function SimpleMarquee({ items, speed = 40, type = "tag", direction = "left" }) {
   const containerRef = useRef(null);
   
-  // Duplicate items for seamless loop
-  const duplicatedItems = [...items, ...items, ...items];
+  // FIX-2: 2× only — was 3×, created 3× the DOM nodes all animating at once
+  const duplicatedItems = [...items, ...items];
   
   const animationName = direction === "left" ? "marqueeLeft" : "marqueeRight";
   
@@ -172,6 +174,8 @@ function SimpleMarquee({ items, speed = 40, type = "tag", direction = "left" }) 
           display: "flex",
           width: "fit-content",
           animation: `${animationName} ${speed}s linear infinite`,
+          // FIX-2: will-change on the track only — one GPU layer, not one per ball
+          willChange: "transform",
         }}
       >
         {duplicatedItems.map((item, idx) => (
@@ -186,12 +190,19 @@ function SimpleMarquee({ items, speed = 40, type = "tag", direction = "left" }) 
       </div>
       <style>{`
         @keyframes marqueeLeft {
-          0% { transform: translateX(0); }
+          0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
         @keyframes marqueeRight {
-          0% { transform: translateX(-50%); }
+          0%   { transform: translateX(-50%); }
           100% { transform: translateX(0); }
+        }
+        /* FIX-3: pause on hover via CSS only — zero JS event listeners */
+        .evs-trust-viewport:hover .evs-trust-track {
+          animation-play-state: paused;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .evs-trust-track { animation: none !important; }
         }
       `}</style>
     </div>

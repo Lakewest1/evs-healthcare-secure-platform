@@ -119,7 +119,7 @@ function HamburgerIcon({ isOpen }) {
             height: 2,
             borderRadius: 3,
             // Matches your original: gradient from navy to gold
-            background: "linear-gradient(135deg, #1a2d5a, #C4972A)",
+             background: "none",
             transformOrigin: "center",
           }}
           animate={

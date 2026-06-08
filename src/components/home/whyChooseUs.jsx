@@ -1,106 +1,156 @@
-// components/home/WhyChooseUs.jsx
-import { useRef, useEffect, useState } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Custom hook for scroll reveal
+// MOTION VARIANTS — module-level, never recreated on render
 // ─────────────────────────────────────────────────────────────────────────────
-function useReveal(threshold = 0.2, rootMargin = "0px") {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: threshold, margin: rootMargin });
-  return [ref, isInView];
-}
+const EASE = {
+  smooth: [0.16, 1, 0.3, 1],
+  snappy: [0.25, 0.1, 0.25, 1],
+};
 
-// Detect mobile
-const isMobile = () => {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768;
+const fadeUp = (delay = 0) => ({
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay, ease: EASE.smooth },
+  },
+});
+
+const cardVariant = (delay = 0) => ({
+  hidden: { opacity: 0, y: 32 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, delay, ease: EASE.smooth },
+  },
+});
+
+const overlayVariant = {
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.38, ease: EASE.smooth },
+  },
+  exit: {
+    opacity: 0,
+    y: 8,
+    transition: { duration: 0.22, ease: EASE.snappy },
+  },
+};
+
+const barVariant = {
+  hidden: { scaleX: 0, originX: 0 },
+  visible: {
+    scaleX: 1,
+    originX: 0,
+    transition: { duration: 0.7, ease: EASE.smooth },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Feature Dataset with Images
+// FEATURE DATA — all original content preserved exactly
 // ─────────────────────────────────────────────────────────────────────────────
 const FEATURES = [
   {
     id: 1,
+    number: "01",
     title: "Fast Placement",
     desc: "Immediate start opportunities available for candidates with 5+ months experience in care settings.",
     stat: "48hrs",
     statLabel: "avg. placement time",
     accent: "#C4972A",
-    img: "https://images.unsplash.com/photo-1584982751601-97dcc096659c?w=800&q=80",
+    accentRgb: "196,151,42",
+    img: "https://images.unsplash.com/photo-1584982751601-97dcc096659c?w=900&q=80",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
       </svg>
     ),
   },
   {
     id: 2,
+    number: "02",
     title: "Flexible Shifts",
     desc: "Day, night or weekend, local shifts designed to fit your lifestyle and family commitments.",
     stat: "24/7",
     statLabel: "support availability",
     accent: "#C4972A",
-    img: "https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=800&q=80",
+    accentRgb: "196,151,42",
+    img: "https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=900&q=80",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
     ),
   },
   {
     id: 3,
+    number: "03",
     title: "Competitive Pay",
     desc: "Weekly pay with holiday pay included. Competitive rates across all grades and specialisms.",
     stat: "£18–£45",
     statLabel: "per hour rates",
     accent: "#C4972A",
-    img: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&q=80",
+    accentRgb: "196,151,42",
+    img: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=900&q=80",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
       </svg>
     ),
   },
   {
     id: 4,
+    number: "04",
     title: "NHS Opportunities",
     desc: "Roles in NHS trusts and leading private healthcare providers across North-West England.",
     stat: "150+",
     statLabel: "NHS partner sites",
     accent: "#005EB8",
-    img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&q=80",
+    accentRgb: "0,94,184",
+    img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=900&q=80",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
       </svg>
     ),
   },
   {
     id: 5,
+    number: "05",
     title: "Compliance Support",
     desc: "We handle your enhanced DBS check and all mandatory training including manual handling.",
     stat: "100%",
     statLabel: "compliance managed",
     accent: "#C4972A",
-    img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80",
+    accentRgb: "196,151,42",
+    img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=900&q=80",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M20 6L9 17l-5-5"/>
       </svg>
     ),
   },
   {
     id: 6,
+    number: "06",
     title: "Career Growth",
     desc: "Ongoing training, mentorship and development pathways for every healthcare professional we place.",
     stat: "500+",
     statLabel: "workers placed",
     accent: "#C4972A",
-    img: "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?w=800&q=80",
+    accentRgb: "196,151,42",
+    img: "https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?w=900&q=80",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
       </svg>
     ),
@@ -108,276 +158,162 @@ const FEATURES = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Feature Card - With Overlay Image on Hover
-// Uses: Expand on click for mobile, subtle overlay image on hover for desktop
+// FEATURE CARD
 // ─────────────────────────────────────────────────────────────────────────────
 function FeatureCard({ feature, index }) {
-  const [ref, inView] = useReveal(0.3);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const mobile = isMobile();
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.15 });
+  const [hovered, setHovered] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const isMobileRef = useRef(false);
 
-  // Handle expand on click for mobile
-  const handleClick = () => {
-    if (mobile) {
-      setIsExpanded(!isExpanded);
-    }
-  };
+  useEffect(() => {
+    const check = () => { isMobileRef.current = window.innerWidth < 768; };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
-  // Motion variants
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        duration: 0.5, 
-        delay: index * 0.08,
-        ease: [0.16, 1, 0.3, 1]
-      }
-    }
-  };
+  const onEnter = useCallback(() => { if (!isMobileRef.current) setHovered(true); }, []);
+  const onLeave = useCallback(() => { if (!isMobileRef.current) setHovered(false); }, []);
+  const onFocus = useCallback(() => { if (!isMobileRef.current) setHovered(true); }, []);
+  const onBlur  = useCallback(() => { if (!isMobileRef.current) setHovered(false); }, []);
+  const onTap   = useCallback(() => { if (isMobileRef.current) setExpanded(v => !v); }, []);
 
-  const statBarVariants = {
-    hidden: { width: 0 },
-    visible: { 
-      width: "100%",
-      transition: { duration: 0.8, delay: index * 0.1 + 0.3 }
-    }
-  };
-
-  const overlayVariants = {
-    hidden: { opacity: 0, scale: 1.05 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 1.05,
-      transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
-    }
-  };
+  const variants = cardVariant(index * 0.08);
 
   return (
-    <motion.div
+    <motion.article
       ref={ref}
-      variants={cardVariants}
+      variants={variants}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
-      onMouseEnter={() => !mobile && setIsHovered(true)}
-      onMouseLeave={() => !mobile && setIsHovered(false)}
-      onClick={handleClick}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onClick={onTap}
+      aria-label={feature.title}
       style={{
         position: "relative",
-        background: "#ffffff",
-        borderRadius: "20px",
-        border: `1px solid ${isHovered && !mobile ? "rgba(196,151,42,0.25)" : "#f0f0f0"}`,
-        cursor: mobile ? "pointer" : "default",
-        transition: "border-color 0.2s ease, box-shadow 0.2s ease",
-        boxShadow: isHovered && !mobile ? "0 8px 25px rgba(0,0,0,0.08)" : "none",
-        minWidth: mobile ? 280 : "auto",
-        height: "100%",
+        borderRadius: 20,
         overflow: "hidden",
+        background: "#fff",
+        border: `1px solid ${hovered ? `rgba(${feature.accentRgb},0.22)` : "rgba(15,37,71,0.09)"}`,
+        boxShadow: hovered
+          ? `0 16px 40px rgba(0,0,0,0.09), 0 4px 12px rgba(${feature.accentRgb},0.10)`
+          : "0 2px 10px rgba(0,0,0,0.04)",
+        transition: "box-shadow 0.3s ease, border-color 0.3s ease",
+        cursor: "pointer",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
       }}
     >
-      {/* Image Overlay on Hover - Desktop Only */}
-      {!mobile && (
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              variants={overlayVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              style={{
-                position: "absolute",
-                inset: 0,
-                zIndex: 10,
-                borderRadius: "20px",
-                overflow: "hidden",
-              }}
-            >
-              {/* Background Image */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  backgroundImage: `url(${feature.img})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  filter: "brightness(0.9)",
-                }}
-              />
-              {/* Gradient Overlay */}
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  background: `linear-gradient(135deg, ${feature.accent}dd, ${feature.accent}99)`,
-                }}
-              />
-              {/* Content on Overlay */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  padding: "28px",
-                  color: "#fff",
-                }}
-              >
-                {/* Icon on overlay */}
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: "14px",
-                    background: "rgba(255,255,255,0.15)",
-                    backdropFilter: "blur(10px)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: 20,
-                    color: "#fff",
-                  }}
-                >
-                  {feature.icon}
-                </div>
-
-                {/* Title */}
-                <h3
-                  style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: "20px",
-                    fontWeight: 700,
-                    color: "#fff",
-                    marginBottom: 8,
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  {feature.title}
-                </h3>
-
-                {/* Stat on overlay */}
-                <div style={{ marginBottom: 12 }}>
-                  <span
-                    style={{
-                      fontFamily: "'Inter', sans-serif",
-                      fontSize: "28px",
-                      fontWeight: 800,
-                      color: "#fff",
-                      letterSpacing: "-0.02em",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {feature.stat}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "'Inter', sans-serif",
-                      fontSize: "11px",
-                      fontWeight: 500,
-                      color: "rgba(255,255,255,0.7)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      marginLeft: 8,
-                    }}
-                  >
-                    {feature.statLabel}
-                  </span>
-                </div>
-
-                {/* Description on overlay */}
-                <p
-                  style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: "13px",
-                    fontWeight: 400,
-                    color: "rgba(255,255,255,0.85)",
-                    lineHeight: 1.6,
-                    marginBottom: 16,
-                  }}
-                >
-                  {feature.desc.length > 120 ? feature.desc.substring(0, 120) + "..." : feature.desc}
-                </p>
-
-                {/* Learn more indicator */}
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    color: "#fff",
-                    fontSize: "12px",
-                    fontWeight: 500,
-                    opacity: 0.8,
-                  }}
-                >
-                  Learn more
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      )}
-
-      {/* Card Content - Always Visible */}
-      <div style={{ padding: "24px", position: "relative", zIndex: 2 }}>
-        {/* Icon Row */}
+      {/* ── Image overlay on hover (desktop) — always mounted for perf ── */}
+      <motion.div
+        aria-hidden="true"
+        animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 10 }}
+        transition={{ duration: 0.38, ease: EASE.smooth }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 10,
+          pointerEvents: "none",
+          borderRadius: 20,
+          overflow: "hidden",
+        }}
+      >
+        {/* Photo */}
         <div
           style={{
-            width: 48,
-            height: 48,
-            borderRadius: "14px",
-            background: `linear-gradient(135deg, ${feature.accent}12, ${feature.accent}05)`,
-            border: `1px solid ${feature.accent}15`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: feature.accent,
-            marginBottom: 20,
-            transition: "transform 0.2s ease",
-            transform: isHovered && !mobile ? "scale(1.02)" : "scale(1)",
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url(${feature.img})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            transform: hovered ? "scale(1)" : "scale(1.04)",
+            transition: "transform 0.55s ease",
           }}
-        >
-          {feature.icon}
-        </div>
-
-        {/* Title */}
-        <h3
+        />
+        {/* Colour wash */}
+        <div
           style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: "18px",
-            fontWeight: 700,
-            color: "#0f172a",
-            marginBottom: 8,
-            letterSpacing: "-0.02em",
+            position: "absolute",
+            inset: 0,
+            background: `linear-gradient(160deg, rgba(${feature.accentRgb},0.88) 0%, rgba(${feature.accentRgb},0.72) 100%)`,
+          }}
+        />
+        {/* Overlay copy */}
+        <motion.div
+          animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 10 }}
+          transition={{ duration: 0.3, delay: hovered ? 0.06 : 0, ease: EASE.smooth }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-end",
+            padding: 28,
+            color: "#fff",
           }}
         >
-          {feature.title}
-        </h3>
+          {/* Icon */}
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              background: "rgba(255,255,255,0.18)",
+              backdropFilter: "blur(8px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 16,
+              color: "#fff",
+            }}
+          >
+            {feature.icon}
+          </div>
 
-        {/* Stat Row */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+          {/* Eyebrow */}
+          <div
+            style={{
+              fontFamily: "'Sora', sans-serif",
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.65)",
+              marginBottom: 5,
+            }}
+          >
+            EVS Healthcare
+          </div>
+
+          {/* Title */}
+          <h3
+            style={{
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: 20,
+              fontWeight: 700,
+              lineHeight: 1.25,
+              marginBottom: 8,
+              color: "#fff",
+            }}
+          >
+            {feature.title}
+          </h3>
+
+          {/* Stat */}
+          <div style={{ display: "flex", alignItems: "baseline", gap: 7, marginBottom: 10 }}>
             <span
               style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "24px",
-                fontWeight: 800,
-                color: feature.accent,
-                letterSpacing: "-0.02em",
+                fontFamily: "'Sora', sans-serif",
+                fontSize: 26,
+                fontWeight: 700,
+                letterSpacing: "-0.03em",
+                color: "#fff",
                 lineHeight: 1,
               }}
             >
@@ -385,342 +321,237 @@ function FeatureCard({ feature, index }) {
             </span>
             <span
               style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "11px",
-                fontWeight: 500,
-                color: "#94a3b8",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 11,
+                color: "rgba(255,255,255,0.72)",
                 textTransform: "uppercase",
-                letterSpacing: "0.5px",
+                letterSpacing: "0.06em",
               }}
             >
               {feature.statLabel}
             </span>
           </div>
-          {/* Visual indicator bar */}
+
+          {/* Desc */}
+          <p
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 13,
+              lineHeight: 1.65,
+              color: "rgba(255,255,255,0.88)",
+              marginBottom: 18,
+            }}
+          >
+            {feature.desc}
+          </p>
+
+          {/* Animated rule */}
           <motion.div
-            variants={statBarVariants}
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-            style={{
-              height: 2,
-              background: `linear-gradient(90deg, ${feature.accent}, ${feature.accent}20)`,
-              borderRadius: 2,
-              marginTop: 8,
-              maxWidth: 60,
-            }}
+            animate={{ width: hovered ? 36 : 0 }}
+            transition={{ duration: 0.4, delay: 0.14, ease: EASE.smooth }}
+            style={{ height: 2, background: "rgba(255,255,255,0.55)", borderRadius: 999 }}
           />
-        </div>
-
-        {/* Short Description - Always visible */}
-        <p
-          style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: "13.5px",
-            fontWeight: 400,
-            color: "#64748b",
-            lineHeight: 1.6,
-            marginBottom: 0,
-          }}
-        >
-          {isExpanded || (!mobile && isHovered) ? feature.desc : feature.desc.substring(0, 90) + "..."}
-        </p>
-
-        {/* Expand Indicator for Mobile */}
-        {mobile && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              marginTop: 16,
-              color: feature.accent,
-              fontSize: "12px",
-              fontWeight: 500,
-            }}
-          >
-            <span>{isExpanded ? "Show less" : "Read more"}</span>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              style={{ transform: isExpanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
-            >
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Horizontal Scroll Component for Mobile
-// ─────────────────────────────────────────────────────────────────────────────
-function HorizontalScroll({ children }) {
-  const scrollContainerRef = useRef(null);
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(true);
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobileDevice(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const scroll = (direction) => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = direction === 'left' ? -300 : 300;
-      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
-
-  const handleScroll = () => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setShowLeftArrow(scrollLeft > 20);
-      setShowRightArrow(scrollLeft + clientWidth < scrollWidth - 20);
-    }
-  };
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (container && isMobileDevice) {
-      container.addEventListener('scroll', handleScroll);
-      handleScroll();
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
-  }, [isMobileDevice]);
-
-  if (!isMobileDevice) {
-    return (
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "28px" }}>
-        {children}
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ position: "relative" }}>
-      {showLeftArrow && (
-        <button
-          onClick={() => scroll('left')}
-          style={{
-            position: "absolute",
-            left: -10,
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: 36,
-            height: 36,
-            borderRadius: "50%",
-            background: "#fff",
-            border: "1px solid #e2e8f0",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            cursor: "pointer",
-            zIndex: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "all 0.2s ease",
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="2">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-      )}
-
-      {showRightArrow && (
-        <button
-          onClick={() => scroll('right')}
-          style={{
-            position: "absolute",
-            right: -10,
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: 36,
-            height: 36,
-            borderRadius: "50%",
-            background: "#fff",
-            border: "1px solid #e2e8f0",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-            cursor: "pointer",
-            zIndex: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "all 0.2s ease",
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="2">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </button>
-      )}
-
-      <div
-        ref={scrollContainerRef}
-        style={{
-          display: "flex",
-          overflowX: "auto",
-          overflowY: "hidden",
-          gap: "20px",
-          scrollBehavior: "smooth",
-          WebkitOverflowScrolling: "touch",
-          scrollbarWidth: "thin",
-          paddingBottom: "10px",
-        }}
-        className="hide-scrollbar"
-      >
-        {children}
-      </div>
-
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          height: 3px;
-        }
-        .hide-scrollbar::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          borderRadius: 3px;
-        }
-        .hide-scrollbar::-webkit-scrollbar-thumb {
-          background: #C4972A;
-          borderRadius: 3px;
-        }
-      `}</style>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Section Header Component
-// ─────────────────────────────────────────────────────────────────────────────
-function SectionHeader() {
-  const [ref, inView] = useReveal(0.3);
-
-  const headerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, staggerChildren: 0.15 }
-    }
-  };
-
-  const childVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      variants={headerVariants}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      style={{ textAlign: "center", marginBottom: 56 }}
-    >
-      <motion.div variants={childVariants}>
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ width: 30, height: 2, background: "#C4972A", borderRadius: 999 }} />
-          <span
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 11,
-              fontWeight: 800,
-              letterSpacing: "4px",
-              textTransform: "uppercase",
-              color: "#C4972A",
-            }}
-          >
-            Why Choose Us
-          </span>
-          <div style={{ width: 30, height: 2, background: "#C4972A", borderRadius: 999 }} />
-        </div>
+        </motion.div>
       </motion.div>
 
-      <motion.h2
-        variants={childVariants}
+      {/* ── Default card face ── */}
+      <div
         style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
-          fontWeight: 800,
-          color: "#0f172a",
-          letterSpacing: "-0.02em",
-          lineHeight: 1.2,
-          marginBottom: 16,
+          padding: "26px 26px 22px",
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          position: "relative",
+          zIndex: 2,
         }}
       >
-        Your Career,{" "}
-        <span style={{ color: "#C4972A" }}>Our Commitment</span>
-      </motion.h2>
+        {/* Number + Icon row */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
+          {/* Icon */}
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 14,
+              background: `rgba(${feature.accentRgb},0.08)`,
+              border: `1px solid rgba(${feature.accentRgb},0.16)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: feature.accent,
+              flexShrink: 0,
+            }}
+          >
+            {feature.icon}
+          </div>
 
-      <motion.p
-        variants={childVariants}
-        style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: "15px",
-          fontWeight: 400,
-          color: "#64748b",
-          maxWidth: 520,
-          margin: "0 auto",
-          lineHeight: 1.65,
-        }}
-      >
-        A 24/7 agency placing healthcare professionals into NHS trusts,
-        private hospitals and care homes across North-West England.
-      </motion.p>
-    </motion.div>
+          {/* Number */}
+          <span
+            aria-hidden="true"
+            style={{
+              fontFamily: "'Sora', sans-serif",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: "rgba(15,37,71,0.15)",
+            }}
+          >
+            {feature.number}
+          </span>
+        </div>
+
+        {/* Title */}
+        <h3
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: 18,
+            fontWeight: 700,
+            color: "#1a2d5a",
+            marginBottom: 6,
+            lineHeight: 1.3,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {feature.title}
+        </h3>
+
+        {/* Stat */}
+        <div style={{ display: "flex", alignItems: "baseline", gap: 7, margin: "10px 0 6px" }}>
+          <span
+            style={{
+              fontFamily: "'Sora', sans-serif",
+              fontSize: 26,
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: feature.accent,
+              lineHeight: 1,
+            }}
+          >
+            {feature.stat}
+          </span>
+          <span
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 11,
+              fontWeight: 500,
+              color: "#94a3b8",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+            }}
+          >
+            {feature.statLabel}
+          </span>
+        </div>
+
+        {/* Accent bar under stat */}
+        <motion.div
+          variants={barVariant}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          style={{
+            height: 2,
+            width: 52,
+            background: `linear-gradient(90deg, ${feature.accent}, rgba(${feature.accentRgb},0.15))`,
+            borderRadius: 999,
+            marginBottom: 14,
+          }}
+        />
+
+        {/* Divider */}
+        <div
+          style={{
+            height: 1,
+            background: "rgba(15,37,71,0.07)",
+            marginBottom: 14,
+          }}
+        />
+
+        {/* Description — full on desktop, expand/collapse on mobile */}
+        <p
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 13.5,
+            fontWeight: 400,
+            color: "#5a6a80",
+            lineHeight: 1.7,
+            flex: 1,
+          }}
+        >
+          {expanded ? feature.desc : feature.desc}
+        </p>
+
+        {/* Mobile expand toggle */}
+        <button
+          onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
+          aria-expanded={expanded}
+          className="evs-expand-btn"
+          style={{
+            display: "none", // shown via CSS on mobile
+            alignItems: "center",
+            gap: 5,
+            marginTop: 14,
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            color: feature.accent,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12,
+            fontWeight: 600,
+          }}
+        >
+          <span>{expanded ? "Show less" : "Read more"}</span>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            style={{
+              transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+              transition: "transform 0.25s ease",
+            }}
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+      </div>
+    </motion.article>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Hero Banner Component
+// HERO BANNER — preserved, polished
 // ─────────────────────────────────────────────────────────────────────────────
 function HeroBanner() {
-  const [ref, inView] = useReveal(0.3);
-  const mobile = isMobile();
-
-  const bannerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] }
-    }
-  };
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.3 });
 
   return (
     <motion.div
       ref={ref}
-      variants={bannerVariants}
+      variants={fadeUp(0)}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
       style={{
         position: "relative",
         width: "100%",
-        height: mobile ? 280 : 380,
         borderRadius: 24,
         overflow: "hidden",
-        marginBottom: 56,
-        boxShadow: "0 20px 40px -15px rgba(0,0,0,0.1)",
+        marginBottom: 64,
+        boxShadow: "0 24px 56px -16px rgba(0,0,0,0.14)",
+        aspectRatio: "21 / 7",
+        minHeight: 220,
       }}
     >
-      <div
+      {/* Photo */}
+      <motion.div
+        initial={{ scale: 1.06 }}
+        animate={inView ? { scale: 1 } : {}}
+        transition={{ duration: 1.2, ease: EASE.smooth }}
         style={{
           position: "absolute",
           inset: 0,
@@ -729,14 +560,35 @@ function HeroBanner() {
           backgroundPosition: "center",
         }}
       />
+
+      {/* Dark gradient overlay */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(135deg, rgba(15,29,61,0.85), rgba(15,29,61,0.6))",
+          background: "linear-gradient(135deg, rgba(10,22,52,0.88) 0%, rgba(10,22,52,0.60) 100%)",
         }}
       />
+
+      {/* Gold accent line — left edge */}
       <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: 0,
+          top: "15%",
+          bottom: "15%",
+          width: 4,
+          background: "linear-gradient(180deg, transparent, #C4972A, transparent)",
+          borderRadius: "0 4px 4px 0",
+        }}
+      />
+
+      {/* Content */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6, delay: 0.25, ease: EASE.smooth }}
         style={{
           position: "absolute",
           inset: 0,
@@ -745,64 +597,459 @@ function HeroBanner() {
           alignItems: "center",
           justifyContent: "center",
           textAlign: "center",
-          padding: "0 20px",
+          padding: "0 clamp(20px, 5vw, 80px)",
         }}
       >
-        <h1
+        {/* Shield icon */}
+        <motion.div
+          initial={{ scale: 0.7, opacity: 0 }}
+          animate={inView ? { scale: 1, opacity: 1 } : {}}
+          transition={{ duration: 0.5, delay: 0.3, ease: EASE.smooth }}
           style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: mobile ? "clamp(1.5rem, 6vw, 2rem)" : "clamp(2rem, 5vw, 3rem)",
-            fontWeight: 800,
+            width: 48,
+            height: 48,
+            borderRadius: "50%",
+            background: "rgba(196,151,42,0.18)",
+            border: "1.5px solid rgba(196,151,42,0.35)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 16,
+          }}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </motion.div>
+
+        <h2
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: "clamp(1.6rem, 4vw, 2.8rem)",
+            fontWeight: 700,
             color: "#fff",
-            marginBottom: 12,
-            letterSpacing: "-0.02em",
+            marginBottom: 10,
+            letterSpacing: "-0.01em",
             lineHeight: 1.2,
           }}
         >
-          Exceptional Care,
-          <br />
-          Trusted Service
-        </h1>
+          Exceptional Care,{" "}
+          <span style={{ color: "#C4972A" }}>Trusted Service</span>
+        </h2>
+
         <p
           style={{
-            fontFamily: "'Inter', sans-serif",
-            color: "rgba(255,255,255,0.9)",
-            fontSize: mobile ? 13 : 15,
+            fontFamily: "'DM Sans', sans-serif",
+            color: "rgba(255,255,255,0.82)",
+            fontSize: "clamp(13px, 1.5vw, 15px)",
             maxWidth: 480,
-            lineHeight: 1.6,
+            lineHeight: 1.65,
           }}
         >
           Professional healthcare staffing solutions tailored to your needs
         </p>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SECTION HEADER — preserved, polished
+// ─────────────────────────────────────────────────────────────────────────────
+function SectionHeader() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.3 });
+
+  return (
+    <div ref={ref} style={{ textAlign: "center", marginBottom: 56 }}>
+      {/* Eyebrow */}
+      <motion.div
+        variants={fadeUp(0)}
+        initial="hidden"
+        animate={inView ? "visible" : "hidden"}
+        style={{ display: "inline-flex", alignItems: "center", gap: 12, marginBottom: 18 }}
+      >
+        <motion.div
+          initial={{ scaleX: 0, originX: 0 }}
+          animate={inView ? { scaleX: 1 } : {}}
+          transition={{ duration: 0.6, delay: 0.2, ease: EASE.smooth }}
+          style={{ width: 32, height: 2, background: "#C4972A", borderRadius: 999 }}
+        />
+        <span
+          style={{
+            fontFamily: "'Sora', sans-serif",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.24em",
+            textTransform: "uppercase",
+            color: "#C4972A",
+          }}
+        >
+          Why Choose Us
+        </span>
+        <motion.div
+          initial={{ scaleX: 0, originX: 1 }}
+          animate={inView ? { scaleX: 1 } : {}}
+          transition={{ duration: 0.6, delay: 0.2, ease: EASE.smooth }}
+          style={{ width: 32, height: 2, background: "#C4972A", borderRadius: 999 }}
+        />
+      </motion.div>
+
+      {/* Heading */}
+      <motion.h2
+        variants={fadeUp(0.1)}
+        initial="hidden"
+        animate={inView ? "visible" : "hidden"}
+        style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: "clamp(1.85rem, 4vw, 2.9rem)",
+          fontWeight: 700,
+          color: "#1a2d5a",
+          letterSpacing: "-0.02em",
+          lineHeight: 1.2,
+          marginBottom: 16,
+        }}
+      >
+        Your Career,{" "}
+        <span style={{ position: "relative", display: "inline-block" }}>
+          <span style={{ color: "#C4972A" }}>Our Commitment</span>
+          <motion.span
+            initial={{ scaleX: 0, originX: 0 }}
+            animate={inView ? { scaleX: 1 } : {}}
+            transition={{ duration: 0.7, delay: 0.55, ease: EASE.smooth }}
+            style={{
+              position: "absolute",
+              bottom: -5,
+              left: 0,
+              right: 0,
+              height: 2.5,
+              background: "linear-gradient(90deg, #C4972A, rgba(196,151,42,0.2))",
+              borderRadius: 999,
+              display: "block",
+            }}
+          />
+        </span>
+      </motion.h2>
+
+      {/* Sub */}
+      <motion.p
+        variants={fadeUp(0.2)}
+        initial="hidden"
+        animate={inView ? "visible" : "hidden"}
+        style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: 15,
+          fontWeight: 400,
+          color: "#5a6a80",
+          maxWidth: 520,
+          margin: "0 auto",
+          lineHeight: 1.75,
+        }}
+      >
+        A 24/7 agency placing healthcare professionals into NHS trusts,
+        private hospitals and care homes across North-West England.
+      </motion.p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CTA STRIP — closing call-to-action
+// ─────────────────────────────────────────────────────────────────────────────
+function CtaStrip() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.4 });
+
+  return (
+    <motion.div
+      ref={ref}
+      variants={fadeUp(0)}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      style={{
+        marginTop: 64,
+        borderRadius: 24,
+        background: "linear-gradient(135deg, #1a2d5a 0%, #0f1e3d 100%)",
+        padding: "clamp(36px, 5vw, 52px) clamp(28px, 5vw, 52px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 28,
+        flexWrap: "wrap",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Decorative circle */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: -60,
+          right: -60,
+          width: 240,
+          height: 240,
+          borderRadius: "50%",
+          border: "36px solid rgba(196,151,42,0.07)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div
+          style={{
+            fontFamily: "'Sora', sans-serif",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "#C4972A",
+            marginBottom: 8,
+          }}
+        >
+          Ready to get started?
+        </div>
+        <h3
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: "clamp(1.3rem, 2.5vw, 1.9rem)",
+            fontWeight: 700,
+            color: "#ffffff",
+            lineHeight: 1.28,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Join hundreds of healthcare
+          <br />
+          professionals placed by EVS.
+        </h3>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          flexWrap: "wrap",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        <motion.a
+          href="#register"
+          whileHover={{ scale: 1.04, boxShadow: "0 10px 28px rgba(196,151,42,0.45)" }}
+          whileTap={{ scale: 0.97 }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: "linear-gradient(135deg, #C4972A, #8B6914)",
+            color: "#ffffff",
+            padding: "13px 30px",
+            borderRadius: 50,
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 700,
+            fontSize: 14,
+            textDecoration: "none",
+            letterSpacing: "0.03em",
+            boxShadow: "0 4px 16px rgba(196,151,42,0.3)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Apply Now
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </motion.a>
+
+        <motion.a
+          href="tel:+441772379989"
+          whileHover={{ scale: 1.03, background: "rgba(255,255,255,0.13)" }}
+          whileTap={{ scale: 0.97 }}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: "rgba(255,255,255,0.08)",
+            color: "#ffffff",
+            padding: "13px 26px",
+            borderRadius: 50,
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 600,
+            fontSize: 14,
+            textDecoration: "none",
+            letterSpacing: "0.02em",
+            border: "1px solid rgba(255,255,255,0.15)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          📞 01772 379989
+        </motion.a>
       </div>
     </motion.div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main Component
+// HORIZONTAL SCROLL CONTAINER — preserved and improved
+// ─────────────────────────────────────────────────────────────────────────────
+function HorizontalScroll({ children }) {
+  const containerRef = useRef(null);
+  const [isMobileView, setIsMobileView] = useState(false);
+  const [showLeft, setShowLeft] = useState(false);
+  const [showRight, setShowRight] = useState(true);
+
+  useEffect(() => {
+    const check = () => setIsMobileView(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const onScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    setShowLeft(el.scrollLeft > 20);
+    setShowRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 20);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (el && isMobileView) {
+      el.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+      return () => el.removeEventListener("scroll", onScroll);
+    }
+  }, [isMobileView, onScroll]);
+
+  const scrollBy = (dir) => {
+    containerRef.current?.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
+  };
+
+  // Desktop: regular grid
+  if (!isMobileView) {
+    return (
+      <div className="evs-why-grid">
+        {children}
+      </div>
+    );
+  }
+
+  // Mobile: horizontal scroll
+  return (
+    <div style={{ position: "relative" }}>
+      {/* Left arrow */}
+      <AnimatePresence>
+        {showLeft && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => scrollBy("left")}
+            aria-label="Scroll left"
+            style={{
+              position: "absolute",
+              left: -14,
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
+              background: "#fff",
+              border: "1px solid rgba(15,37,71,0.12)",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+              cursor: "pointer",
+              zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Right arrow */}
+      <AnimatePresence>
+        {showRight && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={() => scrollBy("right")}
+            aria-label="Scroll right"
+            style={{
+              position: "absolute",
+              right: -14,
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: 36,
+              height: 36,
+              borderRadius: "50%",
+              background: "#fff",
+              border: "1px solid rgba(15,37,71,0.12)",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+              cursor: "pointer",
+              zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Scrollable strip */}
+      <div
+        ref={containerRef}
+        className="evs-why-hscroll"
+        style={{
+          display: "flex",
+          overflowX: "auto",
+          gap: 16,
+          paddingBottom: 12,
+          WebkitOverflowScrolling: "touch",
+          scrollSnapType: "x mandatory",
+        }}
+      >
+        {Array.isArray(children)
+          ? children.map((child, i) => (
+              <div
+                key={i}
+                style={{
+                  flexShrink: 0,
+                  width: "min(80vw, 300px)",
+                  scrollSnapAlign: "start",
+                }}
+              >
+                {child}
+              </div>
+            ))
+          : children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN EXPORT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function WhyChooseUs() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
-        * {
+        *, *::before, *::after {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
-        }
-
-        .evs-why-section {
-          padding: 60px 5% 80px;
-          background: #ffffff;
-        }
-
-        @media (min-width: 768px) {
-          .evs-why-section {
-            padding: 80px 8% 100px;
-          }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -811,17 +1058,73 @@ export default function WhyChooseUs() {
             transition-duration: 0.01ms !important;
           }
         }
+
+        .evs-why-section {
+          padding: 72px 5% 88px;
+          background: #f8f7f5;
+        }
+
+        .evs-why-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 22px;
+        }
+
+        /* Tablet: 2 columns */
+        @media (max-width: 1050px) and (min-width: 768px) {
+          .evs-why-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+          }
+        }
+
+        /* Mobile: show expand button, hide grid */
+        @media (max-width: 767px) {
+          .evs-why-section {
+            padding: 52px 5% 68px;
+          }
+          .evs-expand-btn {
+            display: flex !important;
+          }
+        }
+
+        /* Scrollbar styling for horizontal scroll */
+        .evs-why-hscroll::-webkit-scrollbar {
+          height: 3px;
+        }
+        .evs-why-hscroll::-webkit-scrollbar-track {
+          background: rgba(196,151,42,0.08);
+          border-radius: 3px;
+        }
+        .evs-why-hscroll::-webkit-scrollbar-thumb {
+          background: #C4972A;
+          border-radius: 3px;
+        }
       `}</style>
 
-      <section className="evs-why-section">
+      <section
+        className="evs-why-section"
+        aria-labelledby="why-evs-heading"
+        id="why"
+      >
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+
+          {/* Hero Banner */}
           <HeroBanner />
+
+          {/* Section Header */}
           <SectionHeader />
+
+          {/* Feature Cards — grid on desktop, horizontal scroll on mobile */}
           <HorizontalScroll>
             {FEATURES.map((feature, idx) => (
               <FeatureCard key={feature.id} feature={feature} index={idx} />
             ))}
           </HorizontalScroll>
+
+          {/* CTA Strip */}
+          <CtaStrip />
+
         </div>
       </section>
     </>
