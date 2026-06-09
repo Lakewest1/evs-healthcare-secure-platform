@@ -254,7 +254,7 @@ export default function Hero() {
         .evs-edge-pulse { animation: evsEdgeGlow 1.4s ease-in-out infinite, evsEdgePulseBar 1.4s ease-in-out infinite; }
 
         @keyframes evsKenL {
-          from { background-position: 30% center; }
+          from { background-position: 80% center; }
           to   { background-position: 65% center; }
         }
         @keyframes evsKenR {
@@ -317,7 +317,7 @@ export default function Hero() {
           height: "100vh",
           minHeight: mobile ? 600 : 640,
           overflow: "hidden",
-          background: "#06112b",
+          background: "#FFFFFF",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

@@ -54,6 +54,7 @@ function FloatingTrustCard({ item, index, isInView, type = "tag", isMobileDevice
   return (
     <div
       ref={cardRef}
+      className="evs-trust-ball"
       style={{
         position: "relative",
         width: cardSize,
@@ -101,6 +102,7 @@ function FloatingTrustCard({ item, index, isInView, type = "tag", isMobileDevice
 
           {/* Icon */}
           <span
+            className="evs-trust-ball-inner"
             style={{
               fontSize: iconSize,
               marginBottom: 5,
@@ -112,6 +114,7 @@ function FloatingTrustCard({ item, index, isInView, type = "tag", isMobileDevice
 
           {/* Label */}
           <span
+            className="evs-trust-ball-label"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontWeight: 700,
@@ -156,6 +159,7 @@ function SimpleMarquee({ items, speed = 40, type = "tag", direction = "left" }) 
   const duplicatedItems = [...items, ...items];
   
   const animationName = direction === "left" ? "marqueeLeft" : "marqueeRight";
+
   
   return (
     <div
@@ -165,6 +169,7 @@ function SimpleMarquee({ items, speed = 40, type = "tag", direction = "left" }) 
         position: "relative",
         width: "100%",
         padding: "10px 0",
+        contain: "layout style",
         maskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
         WebkitMaskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
       }}
@@ -176,6 +181,8 @@ function SimpleMarquee({ items, speed = 40, type = "tag", direction = "left" }) 
           animation: `${animationName} ${speed}s linear infinite`,
           // FIX-2: will-change on the track only — one GPU layer, not one per ball
           willChange: "transform",
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden",
         }}
       >
         {duplicatedItems.map((item, idx) => (
@@ -201,6 +208,20 @@ function SimpleMarquee({ items, speed = 40, type = "tag", direction = "left" }) 
         .evs-trust-viewport:hover .evs-trust-track {
           animation-play-state: paused;
         }
+        /* Mobile: smaller balls reduce GPU paint area per frame */
+        @media (max-width: 767px) {
+          .evs-trust-ball {
+            width: 72px !important;
+            height: 72px !important;
+            margin: 0 5px !important;
+          }
+          .evs-trust-ball-inner {
+            font-size: 16px !important;
+          }
+          .evs-trust-ball-label {
+            font-size: 8px !important;
+          }
+        }
         @media (prefers-reduced-motion: reduce) {
           .evs-trust-track { animation: none !important; }
         }
@@ -214,7 +235,6 @@ function SimpleMarquee({ items, speed = 40, type = "tag", direction = "left" }) 
 // ─────────────────────────────────────────────────────────────────────────────
 export default function TrustBadges({ className = "", variant = "light" }) {
   const [ref, inView] = useReveal(0.15);
-
   const isDark = variant === "dark";
   
   return (
@@ -235,11 +255,8 @@ export default function TrustBadges({ className = "", variant = "light" }) {
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage: `
-            radial-gradient(circle at 20% 50%, rgba(196,151,42,0.04) 0%, transparent 50%),
-            repeating-linear-gradient(45deg, #C4972A 0px, #C4972A 1px, transparent 1px, transparent 30px)
-          `,
-          backgroundSize: "100% 100%, 30px 30px",
+          backgroundImage: "radial-gradient(circle at 20% 50%, rgba(196,151,42,0.04) 0%, transparent 50%)",
+          backgroundSize: "100% 100%",
           pointerEvents: "none",
         }}
       />
