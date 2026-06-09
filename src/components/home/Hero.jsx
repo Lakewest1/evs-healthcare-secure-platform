@@ -131,7 +131,7 @@ function TestimonialCarousel({ contentVisible }) {
         <div style={{ textAlign: "left" }}>
           <div style={{ display: "flex", gap: 1, marginBottom: 2 }}>
             {[1, 2, 3, 4, 5].map((s) => (
-              <span key={s} style={{ color: "#f0c060", fontSize: 10 }}>★</span>
+              <span key={s} style={{ color: "#C4972A", fontSize: 10 }}>★</span>
             ))}
           </div>
           <div
@@ -753,7 +753,7 @@ export default function Hero() {
                 gap: 6,
               }}
             >
-              Apply Now →
+              Apply Now 
             </a>
             <a
               href="#jobs"
@@ -793,7 +793,7 @@ export default function Hero() {
             background: "rgba(255,255,255,0.10)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.18)",
+            border: "1px solid rgba(214, 119, 119, 0.18)",
             borderRadius: 20,
             padding: "20px 22px",
             minWidth: 220,

@@ -1,0 +1,607 @@
+/* ============================================================
+   EVS Healthcare Solutions — App.css
+   Page-level layout, section backgrounds, nav, hero, footer,
+   and cross-section harmony. Works alongside index.css tokens.
+   ============================================================ */
+
+/* ── 1. ROOT APP SHELL ────────────────────────────────────── */
+#root,
+.app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+/* ── 2. PAGE TRANSITIONS ──────────────────────────────────── */
+.page-enter {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 400ms var(--ease-out),
+              transform 400ms var(--ease-out);
+}
+.page-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 250ms var(--ease-in-out),
+              transform 250ms var(--ease-in-out);
+}
+
+/* ── 3. NAVIGATION ────────────────────────────────────────── */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-nav);
+  height: 72px;
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(1rem, 5vw, 4rem);
+  transition: background var(--dur-slow) var(--ease-out),
+              box-shadow  var(--dur-slow) var(--ease-out),
+              height      var(--dur-slow) var(--ease-out);
+}
+
+/* Transparent over hero */
+.nav--transparent {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Solid on scroll */
+.nav--solid {
+  background: rgba(15, 29, 61, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 rgba(196,151,42,0.15), var(--shadow-md);
+  height: 64px;
+}
+
+.nav__logo {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--clr-white);
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+.nav__logo span { color: var(--clr-gold); }
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  margin: 0 auto;
+}
+
+.nav__link {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: rgba(255,255,255,0.80);
+  text-decoration: none;
+  position: relative;
+  padding-bottom: 2px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.nav__link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 0; height: 1.5px;
+  background: var(--clr-gold);
+  border-radius: var(--radius-full);
+  transition: width var(--dur-base) var(--ease-out);
+}
+.nav__link:hover             { color: var(--clr-white); }
+.nav__link:hover::after,
+.nav__link--active::after    { width: 100%; }
+.nav__link--active           { color: var(--clr-gold); }
+
+.nav__cta {
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  padding: var(--space-2) var(--space-5);
+}
+
+/* Mobile hamburger */
+.nav__hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: var(--space-2);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav__hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--clr-white);
+  border-radius: var(--radius-full);
+  transition: transform var(--dur-base) var(--ease-out),
+              opacity   var(--dur-base) var(--ease-out);
+}
+
+@media (max-width: 767px) {
+  .nav__links   { display: none; }
+  .nav__hamburger { display: flex; margin-left: auto; }
+  .nav__cta     { display: none; }
+}
+
+/* Mobile menu drawer */
+.nav__drawer {
+  position: fixed;
+  top: 0; right: 0;
+  width: min(320px, 85vw);
+  height: 100vh;
+  background: var(--clr-navy-deep);
+  border-left: 1px solid rgba(196,151,42,0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 6rem var(--space-8) var(--space-8);
+  gap: var(--space-8);
+  z-index: var(--z-modal);
+  transform: translateX(100%);
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.nav__drawer--open   { transform: translateX(0); }
+.nav__drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.50);
+  z-index: var(--z-overlay);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+.nav__drawer-overlay--open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── 4. HERO SECTION ──────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--clr-navy-deep);
+}
+
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10,22,40,0.88) 0%,
+    rgba(15,29,61,0.72) 50%,
+    rgba(10,22,40,0.80) 100%
+  );
+  z-index: 1;
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: clamp(6rem, 15vh, 10rem) var(--section-pad-x) clamp(4rem, 10vh, 6rem);
+}
+
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--clr-gold);
+  margin-bottom: var(--space-5);
+}
+
+.hero__title {
+  color: var(--clr-white);
+  max-width: 14ch;
+  margin-bottom: var(--space-6);
+}
+
+.hero__subtitle {
+  color: rgba(255,255,255,0.72);
+  font-size: clamp(var(--text-base), 1.5vw, var(--text-lg));
+  max-width: 52ch;
+  line-height: 1.7;
+  margin-bottom: var(--space-10);
+}
+
+.hero__cta-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* ── 5. SECTION BACKGROUNDS ───────────────────────────────── */
+
+/* White — default */
+.section-white {
+  background: var(--clr-white);
+}
+
+/* Off-white — subtle warmth */
+.section-cream {
+  background: linear-gradient(135deg, var(--clr-white) 0%, var(--clr-off-white) 100%);
+}
+
+/* Navy — dark sections */
+.section-navy {
+  background: linear-gradient(135deg, var(--clr-navy-deep) 0%, var(--clr-navy) 100%);
+  color: var(--clr-white);
+}
+.section-navy h2,
+.section-navy h3 { color: var(--clr-white); }
+.section-navy p   { color: rgba(255,255,255,0.72); }
+
+/* Navy with subtle grid texture */
+.section-navy-grid {
+  background:
+    linear-gradient(135deg, var(--clr-navy-deep) 0%, var(--clr-navy) 100%);
+}
+.section-navy-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(196,151,42,0.03) 0, rgba(196,151,42,0.03) 1px, transparent 1px, transparent 30px);
+  pointer-events: none;
+}
+
+/* ── 6. SECTION HEADER PATTERN ────────────────────────────── */
+.section-header {
+  text-align: center;
+  margin-bottom: clamp(2.5rem, 6vh, 4rem);
+}
+
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--clr-gold);
+  margin-bottom: var(--space-4);
+}
+.section-eyebrow::before,
+.section-eyebrow::after {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 2px;
+  background: var(--clr-gold);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.section-title {
+  margin-bottom: var(--space-4);
+}
+
+.section-subtitle {
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ── 7. REVEAL ANIMATIONS ─────────────────────────────────── */
+/*
+   Lightweight CSS reveal for elements that don't need Framer Motion.
+   Add .reveal-up / .reveal-fade to a wrapper,
+   then .in-view when IntersectionObserver fires.
+*/
+.reveal-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.55s var(--ease-out),
+              transform 0.55s var(--ease-out);
+}
+.reveal-fade {
+  opacity: 0;
+  transition: opacity 0.55s var(--ease-out);
+}
+.reveal-up.in-view,
+.reveal-fade.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger children */
+.stagger > *:nth-child(1) { transition-delay: 0.05s; }
+.stagger > *:nth-child(2) { transition-delay: 0.10s; }
+.stagger > *:nth-child(3) { transition-delay: 0.15s; }
+.stagger > *:nth-child(4) { transition-delay: 0.20s; }
+.stagger > *:nth-child(5) { transition-delay: 0.25s; }
+.stagger > *:nth-child(6) { transition-delay: 0.30s; }
+
+/* ── 8. STAT CARDS ────────────────────────────────────────── */
+.stat-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(196,151,42,0.15);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+  transition: background var(--dur-base) var(--ease-out),
+              border-color var(--dur-base) var(--ease-out),
+              transform    var(--dur-base) var(--ease-out),
+              box-shadow   var(--dur-base) var(--ease-out);
+}
+.stat-card:hover {
+  background: rgba(196,151,42,0.06);
+  border-color: rgba(196,151,42,0.35);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-gold);
+}
+.stat-card__value {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  color: var(--clr-gold);
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+.stat-card__label {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.65);
+  font-weight: 500;
+}
+
+/* ── 9. FEATURE / WHY-CHOOSE CARDS ───────────────────────── */
+.feature-card {
+  background: var(--clr-white);
+  border: 1px solid var(--clr-border-light);
+  border-radius: var(--radius-xl);
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  transition: transform    var(--dur-slow) var(--ease-out),
+              box-shadow   var(--dur-slow) var(--ease-out),
+              border-color var(--dur-slow) var(--ease-out);
+}
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(196,151,42,0.25);
+}
+
+.feature-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(196,151,42,0.10), rgba(196,151,42,0.06));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-5);
+  transition: background var(--dur-base) var(--ease-out);
+}
+.feature-card:hover .feature-card__icon {
+  background: linear-gradient(135deg, rgba(196,151,42,0.18), rgba(196,151,42,0.10));
+}
+
+.feature-card__title {
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-3);
+  color: var(--clr-text-primary);
+}
+
+.feature-card__body {
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  line-height: 1.7;
+  max-width: 100%;
+}
+
+/* ── 10. GOLD ACCENT BORDER TOP ───────────────────────────── */
+.border-top-gold {
+  position: relative;
+}
+.border-top-gold::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--clr-gold), var(--clr-gold-pale), var(--clr-gold), transparent);
+}
+.border-bottom-gold::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--clr-gold), var(--clr-gold-pale), var(--clr-gold), transparent);
+}
+
+/* ── 11. TOAST / NOTIFICATION BADGE ──────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-4);
+  border-radius: var(--radius-full);
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+.badge-gold {
+  background: rgba(196,151,42,0.10);
+  color: var(--clr-gold);
+  border: 1px solid rgba(196,151,42,0.25);
+}
+.badge-navy {
+  background: rgba(15,29,61,0.08);
+  color: var(--clr-navy);
+  border: 1px solid rgba(15,29,61,0.15);
+}
+.badge-nhs {
+  background: rgba(0,94,184,0.08);
+  color: var(--clr-nhs);
+  border: 1px solid rgba(0,94,184,0.20);
+}
+
+/* ── 12. FOOTER ───────────────────────────────────────────── */
+.footer {
+  background: linear-gradient(135deg, var(--clr-navy-deep) 0%, var(--clr-navy) 100%);
+  color: rgba(255,255,255,0.70);
+  padding: clamp(3rem, 8vh, 5rem) clamp(1rem, 5vw, 5rem) clamp(1.5rem, 4vh, 2.5rem);
+  position: relative;
+  overflow: hidden;
+}
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--clr-gold), var(--clr-gold-pale), var(--clr-gold), transparent);
+}
+.footer__grid {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  max-width: var(--container-max);
+  margin: 0 auto var(--space-12);
+}
+.footer__logo {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--clr-white);
+  margin-bottom: var(--space-4);
+}
+.footer__logo span { color: var(--clr-gold); }
+.footer__tagline {
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  margin-bottom: var(--space-6);
+  max-width: 28ch;
+}
+.footer__heading {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--clr-gold);
+  margin-bottom: var(--space-5);
+}
+.footer__links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.footer__link {
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
+  display: inline-block;
+}
+.footer__link:hover {
+  color: var(--clr-gold);
+  transform: translateX(3px);
+}
+.footer__bottom {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-top: var(--space-6);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.footer__copy {
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.45);
+  max-width: 100%;
+}
+
+@media (max-width: 767px) {
+  .footer__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .footer__grid > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 480px) {
+  .footer__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── 13. SCROLL PROGRESS BAR ──────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--clr-gold), var(--clr-gold-pale));
+  z-index: calc(var(--z-nav) + 1);
+  transition: width 0.1s linear;
+}
+
+/* ── 14. SKIP LINK (accessibility) ───────────────────────── */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: var(--space-4);
+  z-index: 9999;
+  background: var(--clr-gold);
+  color: var(--clr-navy);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transition: top var(--dur-fast);
+}
+.skip-link:focus { top: var(--space-4); }
+
+/* ── 15. SECTION SPACING RHYTHM ──────────────────────────── */
+/*
+  Consistent visual cadence between sections.
+  Applied at App level so individual components
+  don't fight each other on margin/padding.
+*/
+.sections-wrapper > section + section {
+  /* Sections handle their own padding; border creates breathing room */
+  border-top: 0; /* gold borders applied individually */
+}
+
+/* ── 16. MOBILE GLOBAL OVERRIDES ──────────────────────────── */
+@media (max-width: 767px) {
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: block !important; }
+  h1 { letter-spacing: -0.015em; }
+}
+@media (min-width: 768px) {
+  .show-mobile { display: none !important; }
+}

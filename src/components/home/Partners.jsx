@@ -1,7 +1,8 @@
-import { useRef, useEffect, useState, useCallback } from "react";
-import { motion, useInView, useMotionValue, AnimatePresence } from "framer-motion";
+// components/home/Partners.jsx
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 
-// Lucide Icons - Professional icon set
+// Lucide Icons
 import {
   Building2,
   Shield,
@@ -13,20 +14,10 @@ import {
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PERFORMANCE FIXES (design unchanged):
-//
-// 1. Perpetual float on each ball  → pure CSS @keyframes (compositor thread)
-// 2. Inner gradient pulse          → pure CSS @keyframes (compositor thread)
-// 3. Two rotating rings per ball   → pure CSS @keyframes (compositor thread)
-// 4. Floating background blobs     → pure CSS @keyframes (compositor thread)
-// 5. mousemove listeners           → disabled on mobile/touch devices
-// 6. useAnimation marquee          → replaced with direct motion.div animate prop
-// 7. isPaused controls.stop()      → replaced with CSS animation-play-state
-//    (stops/resumes without position jump)
-// 8. Ball entrance rotate(-180°)   → reduced to scale+fade (much lighter)
-// 9. Trust badge perpetual rotate  → fired once on mount, not looping
-// 10. Sweeping light on hover      → kept but mount/unmount replaced with
-//     opacity toggle (always mounted)
+// PERFORMANCE OPTIMIZED Partners
+// Strategy: zero Framer Motion per card — all per-card animations are pure CSS
+// running on the GPU compositor thread (transform / opacity only).
+// Framer Motion kept ONLY for section header reveal (one staggered sequence).
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -35,300 +26,280 @@ function useReveal(threshold = 0.2) {
   return [ref, isInView];
 }
 
-// Detect touch/mobile once at module level — stable, no re-evaluation
-const IS_TOUCH =
-  typeof window !== "undefined" &&
-  ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-
-// Partner data with Lucide icons
-const partners = [
-  { id: 1, name: "NHS England",      color: "#005EB8", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Building2, delay: 0 },
-  { id: 2, name: "CQC Approved",     color: "#00A859", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Shield, delay: 0.1 },
-  { id: 3, name: "DBS Partner",      color: "#C4972A", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Shield, delay: 0.2 },
-  { id: 4, name: "Skills for Care",  color: "#6C3B2A", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: GraduationCap, delay: 0.3 },
-  { id: 5, name: "Care Quality",     color: "#2C5F8A", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Star, delay: 0.4 },
-  { id: 6, name: "Lancashire County",color: "#4A6FA5", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: MapPin, delay: 0.5 },
-  { id: 7, name: "UKHCA",            color: "#7B2D8E", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Handshake, delay: 0.6 },
-  { id: 8, name: "NCFE",             color: "#E65100", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: GraduationCap, delay: 0.7 },
+// ─────────────────────────────────────────────────────────────────────────────
+// Partner Data
+// ─────────────────────────────────────────────────────────────────────────────
+const PARTNERS = [
+  { id: 1, name: "NHS England",       color: "#005EB8", icon: Building2    },
+  { id: 2, name: "CQC Approved",      color: "#00A859", icon: Shield       },
+  { id: 3, name: "DBS Partner",       color: "#C4972A", icon: Shield       },
+  { id: 4, name: "Skills for Care",   color: "#6C3B2A", icon: GraduationCap},
+  { id: 5, name: "Care Quality",      color: "#2C5F8A", icon: Star         },
+  { id: 6, name: "Lancashire County", color: "#4A6FA5", icon: MapPin       },
+  { id: 7, name: "UKHCA",             color: "#7B2D8E", icon: Handshake    },
+  { id: 8, name: "NCFE",              color: "#E65100", icon: GraduationCap},
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FLOATING BALL CARD - White card with gold border (same as TrustBadges)
+// CSS — all card animations in one <style> block, compositor-thread only
 // ─────────────────────────────────────────────────────────────────────────────
-function FloatingBallCard({ partner, index, isInView }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const floatX = useMotionValue(0);
-  const floatY = useMotionValue(0);
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const cardSize = isMobile ? 85 : 110;
+const CSS = `
+  /* ── Marquee track ── */
+  @keyframes pt-marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .pt-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    animation: pt-marquee var(--pt-speed, 45s) linear infinite;
+  }
+  .pt-track:hover { animation-play-state: paused; }
 
-  // Mouse tracking — only attached on non-touch devices
-  const handleMouseMove = useCallback((e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    floatX.set((x - 0.5) * 15);
-    floatY.set((y - 0.5) * 10);
-  }, [floatX, floatY]);
+  /* ── Card entrance + float (one combined animation chain) ── */
+  @keyframes pt-pop {
+    from { opacity: 0; transform: scale(0.6); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pt-float {
+    0%,100% { transform: translateY(0)   rotateZ(0deg); }
+    25%     { transform: translateY(-6px) rotateZ(1.5deg); }
+    75%     { transform: translateY(6px)  rotateZ(-1.5deg); }
+  }
+  .pt-card {
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+    margin: 0 10px;
+    width: 110px;
+    height: 110px;
+    animation:
+      pt-pop   0.45s cubic-bezier(0.22,1,0.36,1) both,
+      pt-float 5s   ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.2s), calc(var(--i) * 0.2s);
+  }
 
-  const handleMouseLeave = useCallback(() => {
-    floatX.set(0);
-    floatY.set(0);
-    setIsHovered(false);
-  }, [floatX, floatY]);
+  /* ── Ball face ── */
+  .pt-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffffff, #fefcf8);
+    border: 1.5px solid rgba(196,151,42,0.20);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(196,151,42,0.08);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  }
+  .pt-card:hover .pt-face {
+    box-shadow:
+      0 0 22px rgba(196,151,42,0.38),
+      0 6px 20px rgba(0,0,0,0.08),
+      0 0 0 1px rgba(196,151,42,0.20);
+    border-color: rgba(196,151,42,0.45);
+    transform: scale(1.06);
+  }
 
-  const onEnter = useCallback(() => setIsHovered(true), []);
+  /* ── Inner gradient pulse ── */
+  @keyframes pt-pulse {
+    0%,100% { opacity: 0.05; }
+    50%      { opacity: 0.15; }
+  }
+  .pt-inner-pulse {
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,151,42,0.08), transparent 70%);
+    pointer-events: none;
+    animation: pt-pulse 3s ease-in-out infinite;
+  }
 
-  // Float delay offset for CSS animation
-  const floatDelay = `${(index % partners.length) * 0.2}s`;
+  /* ── Sweep shimmer on hover ── */
+  .pt-sweep {
+    position: absolute;
+    top: 0; left: -55%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(196,151,42,0.15), transparent);
+    transform: skewX(-20deg);
+    pointer-events: none;
+    opacity: 0;
+  }
+  @keyframes pt-sweep {
+    from { left: -55%; opacity: 0.4; }
+    to   { left: 110%; opacity: 0.4; }
+  }
+  .pt-card:hover .pt-sweep {
+    animation: pt-sweep 1.2s ease-in-out infinite;
+  }
 
+  /* ── Icon micro-bounce on hover ── */
+  .pt-icon {
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .pt-card:hover .pt-icon {
+    transform: scale(1.12) rotate(-3deg);
+  }
+
+  /* ── Partner name label ── */
+  .pt-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    color: #475569;
+    text-align: center;
+    padding: 0 8px;
+    line-height: 1.3;
+    position: relative;
+    z-index: 1;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+  }
+  .pt-card:hover .pt-label { opacity: 1; }
+
+  /* ── Rotating rings ── */
+  @keyframes pt-ring-cw  { to { transform: rotate(360deg);  } }
+  @keyframes pt-ring-ccw { to { transform: rotate(-360deg); } }
+  .pt-ring-cw {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid rgba(196,151,42,0.15);
+    pointer-events: none;
+    animation: pt-ring-cw  10s linear infinite;
+  }
+  .pt-ring-ccw {
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    border: 1px solid rgba(196,151,42,0.08);
+    pointer-events: none;
+    animation: pt-ring-ccw 12s linear infinite;
+  }
+
+  /* ── Pulsing outer ring on hover ── */
+  @keyframes pt-hover-ring {
+    from { transform: scale(1); opacity: 0.4; }
+    to   { transform: scale(1.4); opacity: 0;  }
+  }
+  .pt-hover-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid var(--partner-color, #C4972A);
+    pointer-events: none;
+    opacity: 0;
+    animation: none;
+  }
+  .pt-card:hover .pt-hover-ring {
+    animation: pt-hover-ring 1.2s ease-out infinite;
+  }
+
+  /* ── Background blobs — CSS only, no JS ── */
+  @keyframes pt-blob-a {
+    0%,100% { transform: translate(0, 0); }
+    25%     { transform: translate(15px, -20px); }
+    75%     { transform: translate(-15px, 20px); }
+  }
+  @keyframes pt-blob-b {
+    0%,100% { transform: translate(0, 0); }
+    25%     { transform: translate(-15px, 20px); }
+    75%     { transform: translate(15px, -20px); }
+  }
+  .pt-blob-a { animation: pt-blob-a 18s ease-in-out infinite; }
+  .pt-blob-b { animation: pt-blob-b 22s ease-in-out infinite; }
+
+  /* ── Mobile sizing ── */
+  @media (max-width: 767px) {
+    .pt-card   { width: 85px; height: 85px; }
+    .pt-label  { font-size: 8.5px; }
+    .pt-icon svg { width: 22px !important; height: 22px !important; }
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .pt-track        { animation: pt-marquee var(--pt-speed, 45s) linear infinite; }
+    .pt-card         { animation: none !important; }
+    .pt-ring-cw,
+    .pt-ring-ccw,
+    .pt-inner-pulse,
+    .pt-hover-ring,
+    .pt-sweep,
+    .pt-blob-a,
+    .pt-blob-b       { animation: none !important; }
+  }
+
+  /* ── Ultra-mobile border thinning ── */
+  @media (max-width: 480px) {
+    .pt-face { border-width: 1px; }
+  }
+`;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PARTNER CARD — pure HTML + CSS, zero JS animation overhead
+// ─────────────────────────────────────────────────────────────────────────────
+function PartnerCard({ partner, index }) {
+  const Icon = partner.icon;
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.6 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 15,
-        delay: partner.delay,
-      }}
-      onMouseEnter={IS_TOUCH ? undefined : onEnter}
-      onMouseMove={IS_TOUCH ? undefined : handleMouseMove}
-      onMouseLeave={IS_TOUCH ? undefined : handleMouseLeave}
-      style={{
-        position: "relative",
-        width: cardSize,
-        height: cardSize,
-        flexShrink: 0,
-        cursor: "pointer",
-        margin: "0 10px",
-        x: IS_TOUCH ? 0 : floatX,
-        y: IS_TOUCH ? 0 : floatY,
-      }}
+    <div
+      className="pt-card"
+      style={{ "--i": index, "--partner-color": partner.color }}
     >
-      {/* Float animation wrapper */}
-      <div
-        className="partners-ball-float"
-        style={{ animationDelay: floatDelay, width: "100%", height: "100%" }}
-      >
-        {/* Outer glow */}
-        <motion.div
-          animate={{
-            boxShadow: isHovered
-              ? `0 0 25px ${partner.color}80`
-              : `0 0 0px ${partner.color}00`,
-          }}
-          transition={{ duration: 0.3 }}
-          style={{
-            position: "absolute",
-            inset: -8,
-            borderRadius: "50%",
-            filter: "blur(6px)",
-            pointerEvents: "none",
-          }}
-        />
+      <div className="pt-face">
+        <div className="pt-inner-pulse" />
+        <div className="pt-sweep" />
 
-        {/* Scale on hover */}
-        <motion.div
-          animate={{
-            rotateX: isHovered ? 8 : 0,
-            rotateY: isHovered ? 8 : 0,
-            scale: isHovered ? 1.05 : 1,
-          }}
-          transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          style={{ position: "relative", width: "100%", height: "100%" }}
-        >
-          {/* Main ball - White card with gold border */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              borderRadius: "50%",
-              background: partner.gradient,
-              border: `1.5px solid ${partner.color}20`,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: `0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(196,151,42,0.08)`,
-              overflow: "hidden",
-            }}
-          >
-            {/* Inner pulse glow */}
-            <div
-              className="partners-ball-pulse"
-              style={{
-                position: "absolute",
-                inset: 8,
-                borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(196,151,42,0.08), transparent 70%)",
-                pointerEvents: "none",
-              }}
-            />
+        <div className="pt-icon">
+          <Icon size={28} strokeWidth={1.8} color={partner.color} />
+        </div>
 
-            {/* Sweep light — always mounted, opacity toggled */}
-            <motion.div
-              animate={{ x: isHovered ? "200%" : "-100%", opacity: isHovered ? 0.4 : 0 }}
-              transition={
-                isHovered
-                  ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
-                  : { duration: 0.2 }
-              }
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "50%",
-                height: "100%",
-                background: "linear-gradient(90deg, transparent, rgba(196,151,42,0.15), transparent)",
-                transform: "skewX(-20deg)",
-                pointerEvents: "none",
-              }}
-            />
+        <span className="pt-label">{partner.name}</span>
 
-            {/* Icon - Lucide */}
-            <motion.div
-              animate={{
-                scale: isHovered ? [1, 1.1, 1] : 1,
-                rotate: isHovered ? [0, -3, 3, 0] : 0,
-              }}
-              transition={{ duration: 0.4, type: "spring", stiffness: 500 }}
-              style={{
-                marginBottom: 6,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <partner.icon
-                size={isMobile ? 22 : 28}
-                strokeWidth={1.8}
-                color={partner.color}
-              />
-            </motion.div>
-
-            {/* Partner name */}
-            <motion.span
-              animate={{ opacity: isHovered ? 1 : 0.9, y: isHovered ? -1 : 0 }}
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontWeight: 600,
-                fontSize: isMobile ? 8.5 : 10,
-                color: "#475569",
-                textAlign: "center",
-                padding: "0 8px",
-                lineHeight: 1.3,
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              {partner.name}
-            </motion.span>
-
-            {/* Rotating rings */}
-            <div
-              className="partners-ring-cw"
-              style={{
-                position: "absolute",
-                inset: -4,
-                borderRadius: "50%",
-                border: "1px solid rgba(196,151,42,0.15)",
-                pointerEvents: "none",
-              }}
-            />
-            <div
-              className="partners-ring-ccw"
-              style={{
-                position: "absolute",
-                inset: -7,
-                borderRadius: "50%",
-                border: "1px solid rgba(196,151,42,0.08)",
-                pointerEvents: "none",
-              }}
-            />
-
-            {/* Pulsing ring on hover */}
-            {isHovered && (
-              <motion.div
-                initial={{ scale: 1, opacity: 0.4 }}
-                animate={{ scale: 1.4, opacity: 0 }}
-                transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut" }}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  borderRadius: "50%",
-                  border: `1.5px solid ${partner.color}`,
-                  pointerEvents: "none",
-                }}
-              />
-            )}
-          </div>
-        </motion.div>
+        <div className="pt-ring-cw" />
+        <div className="pt-ring-ccw" />
+        <div className="pt-hover-ring" />
       </div>
-    </motion.div>
+    </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// INFINITE MARQUEE
+// INFINITE MARQUEE — CSS animation, no scroll-width measurement, no RAF loop
 // ─────────────────────────────────────────────────────────────────────────────
-function InfiniteMarquee({ partners: items, speed = 45, isInView }) {
-  const [isPaused, setIsPaused] = useState(false);
-  const [contentWidth, setContentWidth] = useState(0);
-  const contentRef = useRef(null);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      setContentWidth(contentRef.current.scrollWidth / 2);
-    }
-  }, []);
-
-  const duplicated = [...items, ...items];
+function InfiniteMarquee({ items, isInView }) {
+  const doubled = [...items, ...items];
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const speed = isMobile ? "35s" : "45s";
 
   return (
     <div
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
       style={{
         overflow: "hidden",
         position: "relative",
         width: "100%",
         padding: "16px 0",
-        maskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
-        WebkitMaskImage: "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
+        maskImage:
+          "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
+        WebkitMaskImage:
+          "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
       }}
     >
-      {contentWidth > 0 && isInView ? (
-        <motion.div
-          ref={contentRef}
-          animate={{ x: [0, -contentWidth] }}
-          transition={{
-            duration: speed,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          style={{
-            display: "flex",
-            width: "fit-content",
-            animationPlayState: isPaused ? "paused" : "running",
-          }}
-        >
-          {duplicated.map((partner, idx) => (
-            <FloatingBallCard
+      {isInView && (
+        <div className="pt-track" style={{ "--pt-speed": speed }}>
+          {doubled.map((partner, idx) => (
+            <PartnerCard
               key={`${partner.id}-${idx}`}
               partner={partner}
-              index={idx}
-              isInView={isInView}
+              index={idx % items.length}
             />
-          ))}
-        </motion.div>
-      ) : (
-        <div
-          ref={contentRef}
-          style={{ display: "flex", width: "fit-content", visibility: "hidden", position: "absolute" }}
-        >
-          {duplicated.map((partner, idx) => (
-            <div key={`measure-${idx}`} style={{ width: 110, height: 110, margin: "0 10px", flexShrink: 0 }} />
           ))}
         </div>
       )}
@@ -337,113 +308,38 @@ function InfiniteMarquee({ partners: items, speed = 45, isInView }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Framer Motion variants — used ONLY for the header (one set, not per card)
+// ─────────────────────────────────────────────────────────────────────────────
+const headerVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1, y: 0,
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1], staggerChildren: 0.15 },
+  },
+};
+const childVariants = {
+  hidden:   { opacity: 0, y: 20 },
+  visible:  { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+};
+const badgeContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.5 } },
+};
+const badgeVariants = {
+  hidden:  { opacity: 0, y: 20, scale: 0.9 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, type: "spring" } },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // MAIN PARTNERS COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Partners() {
   const [ref, inView] = useReveal(0.15);
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
-  const headerVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: [0.16, 1, 0.3, 1],
-        staggerChildren: 0.15,
-      },
-    },
-  };
-
-  const childVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
-
   return (
     <>
-      <style>{`
-        /* ── CSS ANIMATIONS — all run on GPU compositor thread, zero JS ── */
-
-        /* Ball float animation */
-        @keyframes partners-float {
-          0%, 100% { transform: translateY(0)   rotateZ(0deg); }
-          25%       { transform: translateY(-6px) rotateZ(1.5deg); }
-          75%       { transform: translateY(6px)  rotateZ(-1.5deg); }
-        }
-        .partners-ball-float {
-          animation: partners-float 5s ease-in-out infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .partners-ball-float { animation: none; }
-        }
-
-        /* Inner gradient pulse */
-        @keyframes partners-pulse {
-          0%, 100% { opacity: 0.05; }
-          50%       { opacity: 0.15; }
-        }
-        .partners-ball-pulse {
-          animation: partners-pulse 3s ease-in-out infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .partners-ball-pulse { animation: none; }
-        }
-
-        /* Rotating rings */
-        @keyframes partners-ring-cw {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-        @keyframes partners-ring-ccw {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(-360deg); }
-        }
-        .partners-ring-cw {
-          animation: partners-ring-cw 10s linear infinite;
-        }
-        .partners-ring-ccw {
-          animation: partners-ring-ccw 12s linear infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .partners-ring-cw,
-          .partners-ring-ccw { animation: none; }
-        }
-
-        /* Background blobs */
-        @keyframes partners-blob-a {
-          0%, 100% { transform: translate(0, 0); }
-          25%       { transform: translate(15px, -20px); }
-          75%       { transform: translate(-15px, 20px); }
-        }
-        @keyframes partners-blob-b {
-          0%, 100% { transform: translate(0, 0); }
-          25%       { transform: translate(-15px, 20px); }
-          75%       { transform: translate(15px, -20px); }
-        }
-        .partners-blob-a {
-          animation: partners-blob-a 18s ease-in-out infinite;
-        }
-        .partners-blob-b {
-          animation: partners-blob-b 22s ease-in-out infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .partners-blob-a,
-          .partners-blob-b { animation: none; }
-        }
-
-        /* Ultra mobile optimization */
-        @media (max-width: 480px) {
-          .partners-ball-float > div > div {
-            border-width: 1px !important;
-          }
-        }
-      `}</style>
+      <style>{CSS}</style>
 
       <section
         ref={ref}
@@ -454,7 +350,7 @@ export default function Partners() {
           overflow: "hidden",
         }}
       >
-        {/* Animated background grid */}
+        {/* Animated background grid — one Framer instance, not per-card */}
         <motion.div
           animate={{ opacity: inView ? 0.03 : 0 }}
           transition={{ duration: 1 }}
@@ -470,13 +366,12 @@ export default function Partners() {
           }}
         />
 
-        {/* Background blobs with CSS animation */}
+        {/* Background blobs — pure CSS, zero JS */}
         <div
-          className="partners-blob-a"
+          className="pt-blob-a"
           style={{
             position: "absolute",
-            top: "5%",
-            right: "2%",
+            top: "5%", right: "2%",
             width: isMobile ? 180 : 280,
             height: isMobile ? 180 : 280,
             borderRadius: "50%",
@@ -485,11 +380,10 @@ export default function Partners() {
           }}
         />
         <div
-          className="partners-blob-b"
+          className="pt-blob-b"
           style={{
             position: "absolute",
-            bottom: "5%",
-            left: "2%",
+            bottom: "5%", left: "2%",
             width: isMobile ? 200 : 320,
             height: isMobile ? 200 : 320,
             borderRadius: "50%",
@@ -498,33 +392,25 @@ export default function Partners() {
           }}
         />
 
-        {/* Top animated border */}
+        {/* Top border — one Framer instance */}
         <motion.div
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: 1 } : {}}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 1,
+            position: "absolute", top: 0, left: 0, right: 0, height: 1,
             background: "linear-gradient(90deg, transparent, #C4972A, #f0c060, #C4972A, transparent)",
             transformOrigin: "left",
           }}
         />
 
-        {/* Bottom animated border */}
+        {/* Bottom border — one Framer instance */}
         <motion.div
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: 1 } : {}}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
           style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 1,
+            position: "absolute", bottom: 0, left: 0, right: 0, height: 1,
             background: "linear-gradient(90deg, transparent, #C4972A, #f0c060, #C4972A, transparent)",
             transformOrigin: "right",
           }}
@@ -532,7 +418,7 @@ export default function Partners() {
 
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
 
-          {/* Section header */}
+          {/* ── Section header — Framer Motion stagger (runs ONCE on reveal) ── */}
           <motion.div
             variants={headerVariants}
             initial="hidden"
@@ -553,10 +439,8 @@ export default function Partners() {
               <span
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: 11,
-                  fontWeight: 800,
-                  letterSpacing: "4px",
-                  textTransform: "uppercase",
+                  fontSize: 11, fontWeight: 800,
+                  letterSpacing: "4px", textTransform: "uppercase",
                   color: "#C4972A",
                 }}
               >
@@ -570,16 +454,14 @@ export default function Partners() {
               />
             </motion.div>
 
-            {/* Main heading */}
+            {/* Heading */}
             <motion.h2
               variants={childVariants}
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: "clamp(1.5rem, 3.5vw, 2.4rem)",
-                fontWeight: 800,
-                color: "#0f1d3d",
-                letterSpacing: "-0.02em",
-                marginBottom: 16,
+                fontWeight: 800, color: "#0f1d3d",
+                letterSpacing: "-0.02em", marginBottom: 16,
               }}
             >
               Trusted By Leading{" "}
@@ -604,62 +486,42 @@ export default function Partners() {
               variants={childVariants}
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 14,
-                color: "#64748b",
-                maxWidth: 520,
-                margin: "0 auto",
-                lineHeight: 1.65,
+                fontSize: 14, color: "#64748b",
+                maxWidth: 520, margin: "0 auto", lineHeight: 1.65,
               }}
             >
               We're proud to work with and be recognized by industry leaders across healthcare
             </motion.p>
           </motion.div>
 
-          {/* Single infinite marquee row */}
-          <InfiniteMarquee
-            partners={partners}
-            speed={isMobile ? 35 : 45}
-            isInView={inView}
-          />
+          {/* ── Marquee — pure CSS per card ── */}
+          <InfiniteMarquee items={PARTNERS} isInView={inView} />
 
-          {/* Trust indicator badges */}
+          {/* ── Trust indicator badges — stagger runs ONCE on reveal ── */}
           <motion.div
             initial="hidden"
             animate={inView ? "visible" : "hidden"}
-            variants={{
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: { staggerChildren: 0.1, delayChildren: 0.5 },
-              },
-            }}
+            variants={badgeContainerVariants}
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              display: "flex", alignItems: "center", justifyContent: "center",
               marginTop: isMobile ? 40 : 56,
               gap: isMobile ? 12 : 16,
               flexWrap: "wrap",
             }}
           >
             {[
-              { icon: "🏆", text: "8+ Trusted Partnerships", color: "#C4972A" },
-              { icon: "✓",  text: "Full Compliance Certified", color: "#64748b" },
-              { icon: "⭐", text: "Rated Excellent",           color: "#64748b" },
+              { icon: "🏆", text: "8+ Trusted Partnerships", highlight: true },
+              { icon: "✓",  text: "Full Compliance Certified" },
+              { icon: "⭐", text: "Rated Excellent" },
             ].map((badge, idx) => (
               <motion.div
                 key={idx}
-                variants={{
-                  hidden:   { opacity: 0, y: 20, scale: 0.9 },
-                  visible:  { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, type: "spring" } },
-                }}
+                variants={badgeVariants}
                 whileHover={{ scale: 1.05, y: -2 }}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
+                  display: "flex", alignItems: "center", gap: 8,
                   padding: `${isMobile ? 6 : 8}px ${isMobile ? 16 : 20}px`,
-                  background: idx === 0 ? "rgba(196,151,42,0.08)" : "rgba(0,0,0,0.03)",
+                  background: badge.highlight ? "rgba(196,151,42,0.08)" : "rgba(0,0,0,0.03)",
                   borderRadius: "50px",
                   cursor: "default",
                 }}
@@ -669,8 +531,8 @@ export default function Partners() {
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     fontSize: isMobile ? 12 : 13,
-                    fontWeight: idx === 0 ? 600 : 500,
-                    color: badge.color,
+                    fontWeight: badge.highlight ? 600 : 500,
+                    color: badge.highlight ? "#C4972A" : "#64748b",
                   }}
                 >
                   {badge.text}
