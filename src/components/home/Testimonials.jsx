@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+import EVSLogo from "../EVSLogo";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Modern Testimonials Section — Premium Carousel with Advanced Interactions
-// Features: Auto-play carousel, 3D card flip, animated quotes, star ratings
+// Modern Testimonials Section — Carousel with 3 visible testimonials
+// Features: 3 testimonials visible at once, 5-second auto-slide, logo beside header
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -68,351 +69,549 @@ const testimonials = [
     date: "1 week ago",
     verified: true,
   },
+  {
+    id: 6,
+    name: "Michael T.",
+    role: "Care Coordinator",
+    text: "Professional, responsive, and genuinely caring. EVS has transformed how we recruit temporary staff. Highly recommended!",
+    rating: 5,
+    avatar: "👨‍💼",
+    location: "Manchester",
+    date: "2 weeks ago",
+    verified: true,
+  },
+  {
+    id: 7,
+    name: "Linda P.",
+    role: "Home Care Assistant",
+    text: "The training provided was excellent. I felt fully prepared for my first shift. Support team is always available when needed.",
+    rating: 5,
+    avatar: "👩‍🦳",
+    location: "Preston",
+    date: "3 weeks ago",
+    verified: true,
+  },
+  {
+    id: 8,
+    name: "Robert K.",
+    role: "RGN Nurse",
+    text: "Best agency I've worked with. Consistent shifts, great pay, and they actually listen to your preferences.",
+    rating: 5,
+    avatar: "👨‍⚕️",
+    location: "Blackburn",
+    date: "1 month ago",
+    verified: true,
+  },
+  {
+    id: 9,
+    name: "Emma W.",
+    role: "Support Worker",
+    text: "EVS found me a role close to home with flexible hours that suit my family life. Can't recommend them enough!",
+    rating: 5,
+    avatar: "👩‍🎓",
+    location: "Bolton",
+    date: "2 months ago",
+    verified: true,
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Testimonial Card Component with 3D Effect
+// Testimonial Card Component
 // ─────────────────────────────────────────────────────────────────────────────
-function TestimonialCard({ testimonial, isActive, index }) {
+function TestimonialCard({ testimonial, isActive }) {
   const [isHovered, setIsHovered] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePosition({
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100,
-    });
-  };
-
-  const cardVariants = {
-    initial: { opacity: 0, scale: 0.9, rotateY: -10 },
-    animate: { 
-      opacity: 1, 
-      scale: 1, 
-      rotateY: 0,
-      transition: { duration: 0.5, type: "spring", stiffness: 200 }
-    },
-    exit: { 
-      opacity: 0, 
-      scale: 0.9, 
-      rotateY: 10,
-      transition: { duration: 0.4 }
-    }
-  };
 
   return (
     <motion.div
-      key={testimonial.id}
-      variants={cardVariants}
-      initial="initial"
-      animate={isActive ? "animate" : "exit"}
-      exit="exit"
       onMouseEnter={() => setIsHovered(true)}
-      onMouseMove={handleMouseMove}
       onMouseLeave={() => setIsHovered(false)}
+      animate={{
+        opacity: isActive ? 1 : 0.3,
+        scale: isActive ? 1 : 0.95,
+      }}
+      transition={{ duration: 0.3 }}
       style={{
-        position: "relative",
-        perspective: "1000px",
+        background: "#ffffff",
+        borderRadius: "20px",
+        padding: "24px",
+        border: `1px solid ${isHovered ? "rgba(196,151,42,0.25)" : "#f0f0f0"}`,
+        boxShadow: isHovered
+          ? "0 12px 24px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.04)"
+          : "0 2px 8px rgba(0,0,0,0.04)",
+        transition: "all 0.3s ease",
+        transform: isHovered ? "translateY(-4px)" : "translateY(0)",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        cursor: "pointer",
       }}
     >
-      <motion.div
-        animate={{
-          rotateX: isHovered ? (mousePosition.y - 50) * 0.1 : 0,
-          rotateY: isHovered ? (mousePosition.x - 50) * 0.1 : 0,
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      {/* Star Rating */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
+        {Array.from({ length: testimonial.rating }).map((_, i) => (
+          <span key={i} style={{ color: "#f0c060", fontSize: 18 }}>★</span>
+        ))}
+      </div>
+
+      {/* Testimonial Text */}
+      <p
         style={{
-          background: "#ffffff",
-          borderRadius: "32px",
-          padding: "clamp(40px, 6vw, 60px) clamp(32px, 5vw, 48px)",
-          boxShadow: isHovered
-            ? "0 30px 60px -20px rgba(0,0,0,0.25), 0 0 0 1px rgba(196,151,42,0.15)"
-            : "0 20px 40px -20px rgba(0,0,0,0.1)",
-          border: `1px solid ${isHovered ? "rgba(196,151,42,0.2)" : "rgba(0,0,0,0.05)"}`,
-          position: "relative",
-          overflow: "hidden",
-          transition: "box-shadow 0.3s ease, border-color 0.3s ease",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: "14px",
+          color: "#475569",
+          lineHeight: 1.7,
+          marginBottom: 20,
+          flex: 1,
         }}
       >
-        {/* Animated Background Gradient */}
-        <motion.div
-          animate={{
-            opacity: isHovered ? 0.05 : 0,
-            background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(196,151,42,0.8), transparent 60%)`,
-          }}
-          transition={{ duration: 0.2 }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            borderRadius: "32px",
-          }}
-        />
+        "{testimonial.text}"
+      </p>
 
-        {/* Decorative Corner Accents */}
-        <motion.div
-          animate={{
-            opacity: isHovered ? 0.6 : 0.2,
-          }}
-          transition={{ duration: 0.3 }}
+      {/* User Info */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
+        <div
           style={{
-            position: "absolute",
-            top: 24,
-            left: 24,
-            width: 40,
-            height: 40,
-            borderTop: "2px solid #C4972A",
-            borderLeft: "2px solid #C4972A",
-            borderRadius: "8px 0 0 0",
-            pointerEvents: "none",
-          }}
-        />
-        <motion.div
-          animate={{
-            opacity: isHovered ? 0.6 : 0.2,
-          }}
-          transition={{ duration: 0.3 }}
-          style={{
-            position: "absolute",
-            bottom: 24,
-            right: 24,
-            width: 40,
-            height: 40,
-            borderBottom: "2px solid #C4972A",
-            borderRight: "2px solid #C4972A",
-            borderRadius: "0 0 8px 0",
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Animated Quote Icon */}
-        <motion.div
-          animate={{
-            scale: isHovered ? 1.1 : 1,
-            rotate: isHovered ? 5 : 0,
-          }}
-          transition={{ type: "spring", stiffness: 400 }}
-          style={{
-            fontSize: 64,
-            color: "#f0c060",
-            fontFamily: "Georgia, serif",
-            lineHeight: 0.8,
-            marginBottom: 24,
-            opacity: 0.4,
-          }}
-        >
-          "
-        </motion.div>
-
-        {/* Testimonial Text */}
-        <motion.p
-          animate={{
-            y: isHovered ? -2 : 0,
-          }}
-          transition={{ duration: 0.3 }}
-          style={{
-            fontFamily: "'Inter', serif",
-            fontSize: "clamp(1rem, 2vw, 1.25rem)",
-            color: "#334155",
-            lineHeight: 1.8,
-            fontStyle: "italic",
-            marginBottom: 32,
-          }}
-        >
-          {testimonial.text}
-        </motion.p>
-
-        {/* Star Rating */}
-        <motion.div
-          animate={{
-            scale: isHovered ? 1.05 : 1,
-          }}
-          transition={{ duration: 0.3 }}
-          style={{
+            width: 44,
+            height: 44,
+            borderRadius: "50%",
+            background: `linear-gradient(135deg, rgba(196,151,42,0.15), rgba(196,151,42,0.05))`,
             display: "flex",
+            alignItems: "center",
             justifyContent: "center",
-            gap: 6,
-            marginBottom: 24,
+            fontSize: 22,
           }}
         >
-          {Array.from({ length: testimonial.rating }).map((_, i) => (
-            <motion.span
-              key={i}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: i * 0.1, type: "spring" }}
-              style={{ color: "#f0c060", fontSize: 20 }}
-            >
-              ★
-            </motion.span>
-          ))}
-        </motion.div>
-
-        {/* Avatar and User Info */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
-          <motion.div
-            animate={{
-              scale: isHovered ? 1.1 : 1,
-              rotate: isHovered ? 360 : 0,
-            }}
-            transition={{ duration: 0.5 }}
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, rgba(196,151,42,0.15), rgba(196,151,42,0.05))",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 28,
-            }}
-          >
-            {testimonial.avatar}
-          </motion.div>
-          <div style={{ textAlign: "left" }}>
-            <div
+          {testimonial.avatar}
+        </div>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            <span
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginBottom: 4,
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 700,
+                color: "#0f172a",
+                fontSize: 14,
               }}
             >
+              {testimonial.name}
+            </span>
+            {testimonial.verified && (
               <span
                 style={{
-                  fontFamily: "'Inter', sans-serif",
-                  fontWeight: 800,
-                  color: "#0f1d3d",
-                  fontSize: 18,
+                  background: "#10b981",
+                  color: "#fff",
+                  fontSize: 8,
+                  padding: "2px 6px",
+                  borderRadius: "20px",
+                  fontWeight: 600,
                 }}
               >
-                {testimonial.name}
+                ✓ Verified
               </span>
-              {testimonial.verified && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.3 }}
-                  style={{
-                    background: "#10b981",
-                    color: "#fff",
-                    fontSize: 10,
-                    padding: "2px 6px",
-                    borderRadius: "20px",
-                    fontWeight: 600,
-                  }}
-                >
-                  ✓ Verified
-                </motion.span>
-              )}
-            </div>
-            <div
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                color: "#C4972A",
-                fontSize: 13,
-                fontWeight: 600,
-                marginBottom: 2,
-              }}
-            >
-              {testimonial.role}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 11,
-                color: "#94a3b8",
-              }}
-            >
-              <span>📍 {testimonial.location}</span>
-              <span>•</span>
-              <span>🕒 {testimonial.date}</span>
-            </div>
+            )}
+          </div>
+          <div
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              color: "#94a3b8",
+              fontSize: 10,
+              marginTop: 2,
+            }}
+          >
+            {testimonial.role} • {testimonial.date}
           </div>
         </div>
-
-        {/* Decorative Floating Particles */}
-        <AnimatePresence>
-          {isHovered && (
-            <>
-              {[...Array(3)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, scale: 0, y: 0, x: 0 }}
-                  animate={{ 
-                    opacity: [0, 0.6, 0],
-                    scale: [0, 1, 0],
-                    y: [0, -30, -60],
-                    x: [(i - 1) * 15, (i - 1) * 25, (i - 1) * 35]
-                  }}
-                  transition={{ duration: 2, delay: i * 0.2, repeat: Infinity }}
-                  style={{
-                    position: "absolute",
-                    bottom: "20%",
-                    left: `${30 + i * 20}%`,
-                    width: 4,
-                    height: 4,
-                    borderRadius: "50%",
-                    background: `rgba(196,151,42, ${0.3 + i * 0.2})`,
-                    pointerEvents: "none",
-                  }}
-                />
-              ))}
-            </>
-          )}
-        </AnimatePresence>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main Testimonials Component with Carousel
+// Google Reviews Header Component with Logo (No Write Review Button)
 // ─────────────────────────────────────────────────────────────────────────────
-export default function Testimonials() {
-  const [ref, inView] = useReveal(0.2);
-  const [active, setActive] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const autoPlayRef = useRef(null);
+function GoogleReviewsHeader() {
+  const [ref, inView] = useReveal(0.3);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const totalTestimonials = testimonials.length;
-
-  // Auto-play functionality
   useEffect(() => {
-    if (isAutoPlaying && inView) {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6 }}
+      style={{
+        background: "#ffffff",
+        borderRadius: "20px",
+        padding: isMobile ? "20px" : "24px 28px",
+        border: "1px solid #f0f0f0",
+        marginBottom: 40,
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: 20,
+      }}
+    >
+      {/* Logo and Rating Section */}
+      <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+        {/* EVS Logo */}
+        <div
+          style={{
+            width: 52,
+            height: 52,
+            borderRadius: "12px",
+            background: "linear-gradient(135deg, #fefcf8, #ffffff)",
+            border: "1px solid rgba(196,151,42,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <EVSLogo size={42} />
+        </div>
+
+        <div>
+          <h3
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "#0f172a",
+              marginBottom: 4,
+            }}
+          >
+            EVS Healthcare Solution Limited
+          </h3>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 2 }}>
+              {[1, 2, 3, 4, 5].map((_, i) => (
+                <span key={i} style={{ color: "#f0c060", fontSize: 14 }}>★</span>
+              ))}
+            </div>
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 12,
+                color: "#64748b",
+              }}
+            >
+              {testimonials.length} Google reviews
+            </span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Carousel Component - Shows 3 testimonials at a time
+// ─────────────────────────────────────────────────────────────────────────────
+function TestimonialCarousel() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const autoPlayRef = useRef(null);
+  const totalTestimonials = testimonials.length;
+  const visibleCount = 3; // Show 3 testimonials at a time
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Auto-play functionality (5 seconds per slide)
+  useEffect(() => {
+    if (isAutoPlaying) {
       autoPlayRef.current = setInterval(() => {
-        setActive((prev) => (prev + 1) % totalTestimonials);
-      }, 5000);
+        setCurrentIndex((prev) => (prev + visibleCount) % totalTestimonials);
+      }, 5000); // 5 seconds
     }
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
-  }, [isAutoPlaying, inView, totalTestimonials]);
-
-  const handleDotClick = (index) => {
-    setActive(index);
-    setIsAutoPlaying(false);
-    // Resume auto-play after 10 seconds of inactivity
-    setTimeout(() => setIsAutoPlaying(true), 10000);
-  };
+  }, [isAutoPlaying, totalTestimonials, visibleCount]);
 
   const handlePrev = () => {
-    setActive((prev) => (prev - 1 + totalTestimonials) % totalTestimonials);
+    setCurrentIndex((prev) => (prev - visibleCount + totalTestimonials) % totalTestimonials);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
   const handleNext = () => {
-    setActive((prev) => (prev + 1) % totalTestimonials);
+    setCurrentIndex((prev) => (prev + visibleCount) % totalTestimonials);
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
-  const currentTestimonial = testimonials[active];
+  // Get visible testimonials
+  const visibleTestimonials = [];
+  for (let i = 0; i < visibleCount; i++) {
+    const index = (currentIndex + i) % totalTestimonials;
+    visibleTestimonials.push(testimonials[index]);
+  }
+
+  // Mobile: show 1 testimonial at a time
+  if (isMobile) {
+    const currentTestimonial = testimonials[currentIndex % totalTestimonials];
+    return (
+      <div style={{ position: "relative" }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.5 }}
+          >
+            <TestimonialCard testimonial={currentTestimonial} isActive={true} />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation Arrows */}
+        <button
+          onClick={handlePrev}
+          style={{
+            position: "absolute",
+            left: -20,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            background: "#fff",
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10,
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="2">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <button
+          onClick={handleNext}
+          style={{
+            position: "absolute",
+            right: -20,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 36,
+            height: 36,
+            borderRadius: "50%",
+            background: "#fff",
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10,
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="2">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+
+        {/* Dots Navigation */}
+        <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 24 }}>
+          {Array.from({ length: totalTestimonials }).map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setCurrentIndex(idx);
+                setIsAutoPlaying(false);
+                setTimeout(() => setIsAutoPlaying(true), 10000);
+              }}
+              style={{
+                width: idx === currentIndex % totalTestimonials ? 24 : 8,
+                height: 8,
+                borderRadius: 4,
+                border: "none",
+                background: idx === currentIndex % totalTestimonials ? "#C4972A" : "#e2e8f0",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop/Tablet: Show 3 testimonials at a time
+  return (
+    <div style={{ position: "relative" }}>
+      {/* Navigation Arrows */}
+      <button
+        onClick={handlePrev}
+        style={{
+          position: "absolute",
+          left: -20,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          background: "#fff",
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10,
+          transition: "all 0.2s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "#C4972A";
+          e.currentTarget.style.color = "#fff";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "#fff";
+          e.currentTarget.style.color = "#000";
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+
+      <button
+        onClick={handleNext}
+        style={{
+          position: "absolute",
+          right: -20,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          background: "#fff",
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10,
+          transition: "all 0.2s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "#C4972A";
+          e.currentTarget.style.color = "#fff";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "#fff";
+          e.currentTarget.style.color = "#000";
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+
+      {/* 3-Column Grid */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "24px",
+        }}
+      >
+        <AnimatePresence mode="wait">
+          {visibleTestimonials.map((testimonial, idx) => (
+            <motion.div
+              key={`${currentIndex}-${idx}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4, delay: idx * 0.1 }}
+            >
+              <TestimonialCard testimonial={testimonial} isActive={true} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Progress Bar */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        style={{
+          width: "100%",
+          height: 3,
+          background: "rgba(0,0,0,0.05)",
+          borderRadius: 3,
+          marginTop: 32,
+          overflow: "hidden",
+        }}
+      >
+        <motion.div
+          key={currentIndex}
+          initial={{ width: 0 }}
+          animate={{ width: "100%" }}
+          transition={{ duration: 5, ease: "linear" }}
+          style={{
+            height: "100%",
+            background: "linear-gradient(90deg, #C4972A, #f0c060)",
+            borderRadius: 3,
+          }}
+        />
+      </motion.div>
+
+      {/* Dots Navigation */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 24 }}>
+        {Array.from({ length: Math.ceil(totalTestimonials / visibleCount) }).map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => {
+              setCurrentIndex(idx * visibleCount);
+              setIsAutoPlaying(false);
+              setTimeout(() => setIsAutoPlaying(true), 10000);
+            }}
+            style={{
+              width: idx === Math.floor(currentIndex / visibleCount) ? 32 : 10,
+              height: 10,
+              borderRadius: 5,
+              border: "none",
+              background: idx === Math.floor(currentIndex / visibleCount) ? "#C4972A" : "#e2e8f0",
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main Testimonials Component
+// ─────────────────────────────────────────────────────────────────────────────
+export default function Testimonials() {
+  const [ref, inView] = useReveal(0.2);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <section
@@ -433,7 +632,7 @@ export default function Testimonials() {
           width: "clamp(300px, 40vw, 500px)",
           height: "clamp(300px, 40vw, 500px)",
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(196,151,42,0.05), transparent 70%)",
+          background: "radial-gradient(circle, rgba(196,151,42,0.04), transparent 70%)",
           pointerEvents: "none",
         }}
       />
@@ -450,13 +649,14 @@ export default function Testimonials() {
         }}
       />
 
-      <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         
-        {/* Section Header */}
+        {/* Section Header without Logo */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.6 }}
+          style={{ textAlign: "center", marginBottom: 40 }}
         >
           <div
             style={{
@@ -503,7 +703,8 @@ export default function Testimonials() {
               fontWeight: 800,
               color: "#0f1d3d",
               letterSpacing: "-0.02em",
-              marginBottom: 16,
+              textAlign: "center",
+              marginBottom: 12,
             }}
           >
             What Our Workers Say
@@ -513,8 +714,9 @@ export default function Testimonials() {
               fontFamily: "'Inter', sans-serif",
               fontSize: 14,
               color: "#64748b",
-              maxWidth: 480,
-              margin: "0 auto 48px",
+              maxWidth: 520,
+              margin: "0 auto",
+              textAlign: "center",
               lineHeight: 1.65,
             }}
           >
@@ -522,180 +724,54 @@ export default function Testimonials() {
           </p>
         </motion.div>
 
+        {/* Google Reviews Style Header */}
+        <GoogleReviewsHeader />
+
         {/* Testimonial Carousel */}
-        <div style={{ position: "relative" }}>
-          <AnimatePresence mode="wait">
-            <TestimonialCard
-              key={active}
-              testimonial={currentTestimonial}
-              isActive={true}
-              index={active}
-            />
-          </AnimatePresence>
+        <TestimonialCarousel />
 
-          {/* Navigation Arrows */}
-          <motion.button
-            whileHover={{ scale: 1.1, x: -3 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handlePrev}
-            style={{
-              position: "absolute",
-              left: -20,
-              top: "50%",
-              transform: "translateY(-50%)",
-              width: 44,
-              height: 44,
-              borderRadius: "50%",
-              background: "#fff",
-              border: "1px solid rgba(0,0,0,0.1)",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.3s ease",
-              zIndex: 10,
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = "#C4972A"}
-            onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.1, x: 3 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleNext}
-            style={{
-              position: "absolute",
-              right: -20,
-              top: "50%",
-              transform: "translateY(-50%)",
-              width: 44,
-              height: 44,
-              borderRadius: "50%",
-              background: "#fff",
-              border: "1px solid rgba(0,0,0,0.1)",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.3s ease",
-              zIndex: 10,
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = "#C4972A"}
-            onMouseLeave={(e) => e.currentTarget.style.background = "#fff"}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </motion.button>
-        </div>
-
-        {/* Progress Bar */}
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          animate={inView ? { opacity: 1, scaleX: 1 } : {}}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          style={{
-            width: "100%",
-            height: 3,
-            background: "rgba(0,0,0,0.05)",
-            borderRadius: 3,
-            marginTop: 48,
-            overflow: "hidden",
-          }}
-        >
+        {/* Trust Indicators - Hidden on Mobile */}
+        {!isMobile && (
           <motion.div
-            key={active}
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 5, ease: "linear" }}
-            onAnimationComplete={() => {
-              if (isAutoPlaying) {
-                // Auto-play handled by interval
-              }
-            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.4 }}
             style={{
-              height: "100%",
-              background: "linear-gradient(90deg, #C4972A, #f0c060)",
-              borderRadius: 3,
+              marginTop: 48,
+              display: "flex",
+              justifyContent: "center",
+              gap: 32,
+              flexWrap: "wrap",
+              paddingTop: 32,
+              borderTop: "1px solid rgba(0,0,0,0.05)",
             }}
-          />
-        </motion.div>
-
-        {/* Navigation Dots */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 12,
-            marginTop: 32,
-          }}
-        >
-          {testimonials.map((_, i) => (
-            <motion.button
-              key={i}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => handleDotClick(i)}
-              style={{
-                width: i === active ? 32 : 10,
-                height: 10,
-                borderRadius: 10,
-                border: "none",
-                cursor: "pointer",
-                background: i === active ? "linear-gradient(135deg, #C4972A, #8B6914)" : "#d1d5db",
-                transition: "all 0.3s ease",
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Trust Indicators */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          style={{
-            marginTop: 48,
-            display: "flex",
-            justifyContent: "center",
-            gap: 32,
-            flexWrap: "wrap",
-            paddingTop: 32,
-            borderTop: "1px solid rgba(0,0,0,0.05)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 20 }}>⭐</span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#64748b" }}>
-              4.9 Average Rating
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 20 }}>👥</span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#64748b" }}>
-              500+ Happy Workers
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 20 }}>✓</span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#64748b" }}>
-              100% Verified Reviews
-            </span>
-          </div>
-        </motion.div>
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 18, color: "#f0c060" }}>★★★★★</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#64748b" }}>
+                5.0 Average Rating
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 20 }}>👥</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#64748b" }}>
+                500+ Happy Workers
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 20 }}>✓</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#64748b" }}>
+                100% Verified Reviews
+              </span>
+            </div>
+          </motion.div>
+        )}
 
         {/* Bottom Decorative Line */}
         <motion.div
           initial={{ opacity: 0, scaleX: 0 }}
           animate={inView ? { opacity: 1, scaleX: 1 } : {}}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
           style={{
             marginTop: 48,
             display: "flex",

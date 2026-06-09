@@ -2,8 +2,8 @@ import { useRef, useEffect, useState } from "react";
 import { motion, useInView, useAnimation, useScroll, useTransform, AnimatePresence } from "framer-motion";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Premium Contact Strip — Modern Contact Information Display
-// Features: Floating cards, hover effects, animated icons, gradient borders
+// Fully Responsive Contact Section — Modern Contact Information + Contact Form
+// Features: Responsive grid, mobile-optimized, formspree integration
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.3) {
@@ -12,80 +12,104 @@ function useReveal(threshold = 0.3) {
   return [ref, isInView];
 }
 
-const contacts = [
-  { 
-    id: 1,
-    icon: "📍", 
-    label: "Office Address", 
-    value: "1a John William Street, Preston, PR1 4XE",
-    action: "Get Directions",
-    link: "#",
-  },
-  { 
-    id: 2,
-    icon: "📞", 
-    label: "Phone", 
-    value: "01772 493994 / 07466 999218",
-    action: "Call Now",
-    link: "tel:01772493994",
-  },
-  { 
-    id: 3,
-    icon: "✉️", 
-    label: "Email", 
-    value: "admin_1@evshealthcare.co.uk",
-    action: "Send Message",
-    link: "mailto:admin_1@evshealthcare.co.uk",
-  },
-  { 
-    id: 4,
-    icon: "🌐", 
-    label: "Website", 
-    value: "www.evshealthcare.co.uk",
-    action: "Visit Website",
-    link: "https://www.evshealthcare.co.uk",
-  },
-];
+// Detect screen size for responsive design
+const useScreenSize = () => {
+  const [screenSize, setScreenSize] = useState({
+    isMobile: false,
+    isTablet: false,
+    isDesktop: true,
+  });
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setScreenSize({
+        isMobile: width < 768,
+        isTablet: width >= 768 && width < 1024,
+        isDesktop: width >= 1024,
+      });
+    };
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  return screenSize;
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Modern Contact Card Component
+// Unified Contact Information Component (Responsive)
 // ─────────────────────────────────────────────────────────────────────────────
-function ContactCard({ contact, index, isInView }) {
+function UnifiedContactInfo({ isInView }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const cardRef = useRef(null);
-  const controls = useAnimation();
+  const [copiedItem, setCopiedItem] = useState(null);
+  const { isMobile } = useScreenSize();
 
-  // Staggered animation variants
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: { 
-        duration: 0.6, 
-        delay: index * 0.1,
-        type: "spring",
-        stiffness: 100,
-        damping: 15
-      }
-    }
-  };
+  const contactItems = [
+    { 
+      icon: "📍", 
+      label: "Office Address", 
+      value: "1a John William Street, Preston, PR1 4XE",
+      action: "Get Directions",
+      link: "https://maps.google.com/?q=1a+John+William+Street+Preston+PR1+4XE",
+      isLink: true,
+    },
+    { 
+      icon: "📞", 
+      label: "Phone", 
+      value: "01772 493994",
+      secondary: "07466 999218",
+      action: "Call Now",
+      link: "tel:01772493994",
+      isLink: true,
+    },
+    { 
+      icon: "✉️", 
+      label: "Email", 
+      value: "admin_1@evshealthcare.co.uk",
+      action: "Copy Email",
+      isLink: false,
+    },
+  ];
 
-  const handleCopy = async (text) => {
+  const handleCopy = async (text, item) => {
     try {
       await navigator.clipboard.writeText(text);
+      setCopiedItem(item);
       setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      setTimeout(() => {
+        setIsCopied(false);
+        setCopiedItem(null);
+      }, 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
   };
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.96 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { 
+        duration: 0.5, 
+        delay: 0.2,
+        ease: [0.16, 1, 0.3, 1]
+      }
+    }
+  };
+
+  // Responsive styles
+  const cardPadding = isMobile ? "20px" : "24px";
+  const headerIconSize = isMobile ? 40 : 44;
+  const headerFontSize = isMobile ? 15 : 16;
+  const contactItemGap = isMobile ? 14 : 16;
+  const iconBoxSize = isMobile ? 32 : 36;
+
   return (
     <motion.div
-      ref={cardRef}
       variants={cardVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
@@ -93,191 +117,629 @@ function ContactCard({ contact, index, isInView }) {
       onMouseLeave={() => setIsHovered(false)}
       style={{
         position: "relative",
-        perspective: "1000px",
       }}
     >
-      <motion.div
-        animate={{
-          rotateY: isHovered ? 5 : 0,
-          rotateX: isHovered ? 5 : 0,
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      <div
         style={{
           position: "relative",
           background: "rgba(255,255,255,0.03)",
           backdropFilter: "blur(10px)",
-          borderRadius: "24px",
-          padding: "24px",
+          borderRadius: "20px",
+          padding: cardPadding,
           height: "100%",
-          border: `1px solid ${isHovered ? "rgba(196,151,42,0.4)" : "rgba(255,255,255,0.08)"}`,
-          transition: "all 0.3s ease",
-          cursor: "pointer",
+          border: `1px solid ${isHovered ? "rgba(196,151,42,0.3)" : "rgba(255,255,255,0.08)"}`,
+          transition: "border-color 0.2s ease",
         }}
       >
-        {/* Animated Gradient Border on Hover */}
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: "24px",
-                padding: "2px",
-                background: "linear-gradient(135deg, #C4972A, #f0c060, #C4972A)",
-                opacity: 0,
-                pointerEvents: "none",
-              }}
-            >
-              <div style={{ background: "#0f1d3d", borderRadius: "22px", width: "100%", height: "100%" }} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Icon Container with Pulse Animation */}
-        <motion.div
-          animate={{
-            scale: isHovered ? 1.1 : 1,
-            rotate: isHovered ? [0, -5, 5, 0] : 0,
-          }}
-          transition={{ duration: 0.5, type: "spring" }}
+        {/* Header */}
+        <div
           style={{
-            width: 56,
-            height: 56,
-            borderRadius: "16px",
-            background: `linear-gradient(135deg, rgba(196,151,42,0.2), rgba(196,151,42,0.05))`,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            fontSize: 28,
+            gap: 12,
             marginBottom: 20,
-            position: "relative",
+            paddingBottom: 12,
+            borderBottom: "1px solid rgba(255,255,255,0.08)",
           }}
         >
-          {contact.icon}
-          
-          {/* Pulsing Ring */}
-          {isHovered && (
-            <motion.div
-              initial={{ scale: 1, opacity: 0.5 }}
-              animate={{ scale: 1.5, opacity: 0 }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+          <div
+            style={{
+              width: headerIconSize,
+              height: headerIconSize,
+              borderRadius: "14px",
+              background: "linear-gradient(135deg, rgba(196,151,42,0.15), rgba(196,151,42,0.05))",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: isMobile ? 20 : 22,
+            }}
+          >
+            📬
+          </div>
+          <div>
+            <h3
               style={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: "16px",
-                border: "2px solid #C4972A",
-                pointerEvents: "none",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: headerFontSize,
+                fontWeight: 700,
+                color: "#fff",
+                marginBottom: 2,
               }}
-            />
-          )}
-        </motion.div>
+            >
+              Contact Information
+            </h3>
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobile ? 10 : 11,
+                color: "rgba(255,255,255,0.5)",
+              }}
+            >
+              Reach us through any channel
+            </p>
+          </div>
+        </div>
 
-        {/* Label */}
-        <motion.div
-          animate={{
-            color: isHovered ? "#C4972A" : "rgba(255,255,255,0.5)",
-            x: isHovered ? 3 : 0,
-          }}
-          transition={{ duration: 0.3 }}
-          style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-            marginBottom: 8,
-          }}
-        >
-          {contact.label}
-        </motion.div>
-
-        {/* Value */}
-        <motion.div
-          animate={{
-            y: isHovered ? -2 : 0,
-          }}
-          style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 14,
-            fontWeight: 500,
-            color: "#fff",
-            lineHeight: 1.5,
-            marginBottom: 16,
-            wordBreak: "break-word",
-          }}
-        >
-          {contact.value}
-        </motion.div>
-
-        {/* Action Button */}
-        <motion.a
-          href={contact.link}
-          target={contact.label === "Website" ? "_blank" : "_self"}
-          rel="noopener noreferrer"
-          whileHover={{ x: 3 }}
-          whileTap={{ scale: 0.98 }}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 12,
-            fontWeight: 600,
-            color: "#C4972A",
-            textDecoration: "none",
-            background: "rgba(196,151,42,0.1)",
-            padding: "6px 14px",
-            borderRadius: "20px",
-            transition: "all 0.3s ease",
-          }}
-          onClick={(e) => {
-            if (contact.label !== "Website" && contact.label !== "Phone") {
-              e.preventDefault();
-              handleCopy(contact.value);
-            }
-          }}
-        >
-          <span>{contact.label === "Email" ? (isCopied ? "Copied!" : contact.action) : contact.action}</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </motion.a>
-
-        {/* Decorative Corner */}
-        <motion.div
-          animate={{
-            opacity: isHovered ? 0.3 : 0,
-          }}
-          transition={{ duration: 0.3 }}
-          style={{
-            position: "absolute",
-            bottom: 16,
-            right: 16,
-            width: 30,
-            height: 30,
-            borderRight: "2px solid #C4972A",
-            borderBottom: "2px solid #C4972A",
-            borderRadius: "0 0 12px 0",
-            pointerEvents: "none",
-          }}
-        />
-      </motion.div>
+        {/* Contact Items */}
+        <div style={{ display: "flex", flexDirection: "column", gap: contactItemGap }}>
+          {contactItems.map((item, idx) => (
+            <div
+              key={idx}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: isMobile ? 10 : 12,
+              }}
+            >
+              <div
+                style={{
+                  width: iconBoxSize,
+                  height: iconBoxSize,
+                  borderRadius: "10px",
+                  background: "rgba(196,151,42,0.1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: isMobile ? 16 : 18,
+                  flexShrink: 0,
+                }}
+              >
+                {item.icon}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: isMobile ? 9 : 10,
+                    fontWeight: 600,
+                    letterSpacing: "1px",
+                    textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.45)",
+                    marginBottom: 2,
+                  }}
+                >
+                  {item.label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: isMobile ? 12 : 13,
+                    fontWeight: 500,
+                    color: "#fff",
+                    lineHeight: 1.4,
+                    marginBottom: item.secondary ? 2 : 6,
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {item.value}
+                </div>
+                {item.secondary && (
+                  <div
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: isMobile ? 11 : 12,
+                      color: "rgba(255,255,255,0.6)",
+                      marginBottom: 6,
+                    }}
+                  >
+                    {item.secondary}
+                  </div>
+                )}
+                {item.isLink ? (
+                  <a
+                    href={item.link}
+                    target={item.label === "Office Address" ? "_blank" : "_self"}
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 5,
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: isMobile ? 9 : 10,
+                      fontWeight: 500,
+                      color: "#C4972A",
+                      textDecoration: "none",
+                      background: "rgba(196,151,42,0.1)",
+                      padding: "3px 8px",
+                      borderRadius: "14px",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "rgba(196,151,42,0.2)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "rgba(196,151,42,0.1)";
+                    }}
+                  >
+                    <span>{item.action}</span>
+                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => handleCopy(item.value, item.label)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 5,
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: isMobile ? 9 : 10,
+                      fontWeight: 500,
+                      color: "#C4972A",
+                      textDecoration: "none",
+                      background: "rgba(196,151,42,0.1)",
+                      padding: "3px 8px",
+                      borderRadius: "14px",
+                      border: "none",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    <span>{copiedItem === item.label ? "Copied!" : item.action}</span>
+                    {copiedItem !== item.label && (
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M16 3h5v5M14 10l6-6M4 20L20 4"/>
+                      </svg>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </motion.div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main Contact Strip Component
+// Contact Form Component (Responsive)
+// ─────────────────────────────────────────────────────────────────────────────
+function ContactForm() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const { isMobile } = useScreenSize();
+
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xqapvgwk";
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        setFormData({ name: "", email: "", phone: "", message: "" });
+        setTimeout(() => setIsSubmitted(false), 5000);
+      } else {
+        const data = await response.json();
+        setError(data.error || "Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const formVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.96 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { 
+        duration: 0.5, 
+        delay: 0.3,
+        ease: [0.16, 1, 0.3, 1]
+      }
+    }
+  };
+
+  // Responsive styles
+  const cardPadding = isMobile ? "20px" : "24px";
+  const headerIconSize = isMobile ? 40 : 44;
+  const headerFontSize = isMobile ? 15 : 16;
+  const inputPadding = isMobile ? "8px 12px" : "10px 14px";
+  const textareaRows = isMobile ? 2 : 3;
+
+  return (
+    <motion.div
+      variants={formVariants}
+      initial="hidden"
+      animate="visible"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          position: "relative",
+          background: "rgba(255,255,255,0.03)",
+          backdropFilter: "blur(10px)",
+          borderRadius: "20px",
+          padding: cardPadding,
+          height: "100%",
+          border: `1px solid ${isHovered ? "rgba(196,151,42,0.3)" : "rgba(255,255,255,0.08)"}`,
+          transition: "border-color 0.2s ease",
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 20,
+            paddingBottom: 12,
+            borderBottom: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <div
+            style={{
+              width: headerIconSize,
+              height: headerIconSize,
+              borderRadius: "14px",
+              background: "linear-gradient(135deg, rgba(196,151,42,0.15), rgba(196,151,42,0.05))",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: isMobile ? 20 : 22,
+            }}
+          >
+            ✉️
+          </div>
+          <div>
+            <h3
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: headerFontSize,
+                fontWeight: 700,
+                color: "#fff",
+                marginBottom: 2,
+              }}
+            >
+              Send us a Message
+            </h3>
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobile ? 10 : 11,
+                color: "rgba(255,255,255,0.5)",
+              }}
+            >
+              We'll respond within 24 hours
+            </p>
+          </div>
+        </div>
+
+        {isSubmitted ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: isMobile ? "20px" : "30px 20px",
+            }}
+          >
+            <div
+              style={{
+                width: isMobile ? 48 : 56,
+                height: isMobile ? 48 : 56,
+                borderRadius: "50%",
+                background: "rgba(16,185,129,0.15)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 12px",
+              }}
+            >
+              <svg width={isMobile ? 24 : 28} height={isMobile ? 24 : 28} viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+            <h4
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobile ? 15 : 16,
+                fontWeight: 700,
+                color: "#fff",
+                marginBottom: 6,
+              }}
+            >
+              Message Sent!
+            </h4>
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobile ? 11 : 12,
+                color: "rgba(255,255,255,0.6)",
+              }}
+            >
+              Thank you. We'll contact you shortly.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: 12 }}>
+              <label
+                htmlFor="name"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 10 : 11,
+                  fontWeight: 500,
+                  color: "rgba(255,255,255,0.6)",
+                  marginBottom: 4,
+                  display: "block",
+                }}
+              >
+                Full Name *
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                style={{
+                  width: "100%",
+                  padding: inputPadding,
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.05)",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 11 : 12,
+                  color: "#fff",
+                  outline: "none",
+                  transition: "all 0.2s ease",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#C4972A";
+                  e.target.style.background = "rgba(255,255,255,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.background = "rgba(255,255,255,0.05)";
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label
+                htmlFor="email"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 10 : 11,
+                  fontWeight: 500,
+                  color: "rgba(255,255,255,0.6)",
+                  marginBottom: 4,
+                  display: "block",
+                }}
+              >
+                Email Address *
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                style={{
+                  width: "100%",
+                  padding: inputPadding,
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.05)",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 11 : 12,
+                  color: "#fff",
+                  outline: "none",
+                  transition: "all 0.2s ease",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#C4972A";
+                  e.target.style.background = "rgba(255,255,255,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.background = "rgba(255,255,255,0.05)";
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label
+                htmlFor="phone"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 10 : 11,
+                  fontWeight: 500,
+                  color: "rgba(255,255,255,0.6)",
+                  marginBottom: 4,
+                  display: "block",
+                }}
+              >
+                Phone (Optional)
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: inputPadding,
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.05)",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 11 : 12,
+                  color: "#fff",
+                  outline: "none",
+                  transition: "all 0.2s ease",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#C4972A";
+                  e.target.style.background = "rgba(255,255,255,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.background = "rgba(255,255,255,0.05)";
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label
+                htmlFor="message"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 10 : 11,
+                  fontWeight: 500,
+                  color: "rgba(255,255,255,0.6)",
+                  marginBottom: 4,
+                  display: "block",
+                }}
+              >
+                Message *
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows={textareaRows}
+                value={formData.message}
+                onChange={handleChange}
+                required
+                style={{
+                  width: "100%",
+                  padding: inputPadding,
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.05)",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 11 : 12,
+                  color: "#fff",
+                  outline: "none",
+                  resize: "vertical",
+                  transition: "all 0.2s ease",
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "#C4972A";
+                  e.target.style.background = "rgba(255,255,255,0.1)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.background = "rgba(255,255,255,0.05)";
+                }}
+              />
+            </div>
+
+            {error && (
+              <div
+                style={{
+                  background: "rgba(239,68,68,0.1)",
+                  border: "1px solid rgba(239,68,68,0.3)",
+                  borderRadius: "10px",
+                  padding: "8px 12px",
+                  marginBottom: 14,
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: isMobile ? 10 : 11,
+                    color: "#ef4444",
+                    margin: 0,
+                  }}
+                >
+                  {error}
+                </p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              style={{
+                width: "100%",
+                padding: isMobile ? "8px 16px" : "10px 16px",
+                borderRadius: "10px",
+                border: "none",
+                background: "linear-gradient(135deg, #C4972A, #8B6914)",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobile ? 12 : 13,
+                fontWeight: 600,
+                color: "#fff",
+                cursor: isSubmitting ? "not-allowed" : "pointer",
+                opacity: isSubmitting ? 0.7 : 1,
+                transition: "all 0.2s ease",
+              }}
+            >
+              {isSubmitting ? "Sending..." : "Send Message →"}
+            </button>
+          </form>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main Contact Component (Fully Responsive)
 // ─────────────────────────────────────────────────────────────────────────────
 export default function ContactStrip() {
   const [ref, inView] = useReveal(0.2);
   const headerControls = useAnimation();
-  const { scrollYProgress } = useScroll();
-  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, 50]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.5, 1, 1, 0.3]);
+  const { isMobile, isTablet } = useScreenSize();
 
   useEffect(() => {
     if (inView) {
@@ -290,8 +752,20 @@ export default function ContactStrip() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
     },
+  };
+
+  // Responsive grid layout
+  const getGridColumns = () => {
+    if (isMobile) return "1fr";
+    if (isTablet) return "repeat(2, 1fr)";
+    return "repeat(2, 1fr)";
+  };
+
+  const getHeadingSize = () => {
+    if (isMobile) return "clamp(1.3rem, 5vw, 1.6rem)";
+    return "clamp(1.5rem, 3vw, 2rem)";
   };
 
   return (
@@ -300,70 +774,54 @@ export default function ContactStrip() {
       ref={ref}
       style={{
         position: "relative",
-        padding: "clamp(60px, 12vh, 100px) clamp(16px, 5vw, 80px)",
+        padding: isMobile ? "clamp(40px, 8vh, 60px) clamp(16px, 4vw, 80px)" : "clamp(60px, 12vh, 100px) clamp(16px, 5vw, 80px)",
         background: "linear-gradient(135deg, #0a1628 0%, #0f1d3d 50%, #1a2a4a 100%)",
         overflow: "hidden",
       }}
     >
       {/* Animated Background Pattern */}
-      <motion.div
-        style={{ y: backgroundY, opacity }}
-        aria-hidden="true"
-        css={{
+      <div
+        style={{
           position: "absolute",
           inset: 0,
           backgroundImage: `
-            radial-gradient(circle at 20% 30%, rgba(196,151,42,0.08) 0%, transparent 50%),
-            repeating-linear-gradient(45deg, rgba(196,151,42,0.03) 0px, rgba(196,151,42,0.03) 1px, transparent 1px, transparent 30px)
+            radial-gradient(circle at 20% 30%, rgba(196,151,42,0.06) 0%, transparent 50%),
+            repeating-linear-gradient(45deg, rgba(196,151,42,0.02) 0px, rgba(196,151,42,0.02) 1px, transparent 1px, transparent 30px)
           `,
           backgroundSize: "100% 100%, 40px 40px",
           pointerEvents: "none",
         }}
       />
 
-      {/* Floating Decorative Orbs */}
-      <motion.div
-        animate={{
-          y: [0, -50, 0, 50, 0],
-          x: [0, 30, 0, -30, 0],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        style={{
-          position: "absolute",
-          top: "10%",
-          left: "5%",
-          width: 300,
-          height: 300,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(196,151,42,0.05), transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-      <motion.div
-        animate={{
-          y: [0, 50, 0, -50, 0],
-          x: [0, -30, 0, 30, 0],
-        }}
-        transition={{
-          duration: 30,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        style={{
-          position: "absolute",
-          bottom: "10%",
-          right: "5%",
-          width: 400,
-          height: 400,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(196,151,42,0.04), transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
+      {/* Floating Decorative Orbs - Hidden on mobile for performance */}
+      {!isMobile && (
+        <>
+          <div
+            style={{
+              position: "absolute",
+              top: "10%",
+              left: "5%",
+              width: 250,
+              height: 250,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(196,151,42,0.04), transparent 70%)",
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: "10%",
+              right: "5%",
+              width: 300,
+              height: 300,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(196,151,42,0.03), transparent 70%)",
+              pointerEvents: "none",
+            }}
+          />
+        </>
+      )}
 
       {/* Top Animated Border */}
       <motion.div
@@ -397,22 +855,21 @@ export default function ContactStrip() {
         }}
       />
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative", zIndex: 2 }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto", position: "relative", zIndex: 2 }}>
         
         {/* Section Header */}
         <motion.div
           variants={headerVariants}
           initial="hidden"
           animate={headerControls}
-          style={{ textAlign: "center", marginBottom: 48 }}
+          style={{ textAlign: "center", marginBottom: isMobile ? 32 : 40 }}
         >
-          {/* Eyebrow */}
           <div
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: 10,
-              marginBottom: 16,
+              marginBottom: isMobile ? 10 : 12,
             }}
           >
             <motion.div
@@ -428,7 +885,7 @@ export default function ContactStrip() {
             <span
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 11,
+                fontSize: isMobile ? 10 : 11,
                 fontWeight: 800,
                 letterSpacing: "4px",
                 textTransform: "uppercase",
@@ -449,18 +906,18 @@ export default function ContactStrip() {
             />
           </div>
 
-          {/* Main Heading */}
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: "clamp(1.5rem, 3vw, 2rem)",
+              fontSize: getHeadingSize(),
               fontWeight: 800,
               color: "#fff",
               letterSpacing: "-0.02em",
-              marginBottom: 12,
+              marginBottom: isMobile ? 8 : 10,
+              padding: isMobile ? "0 16px" : 0,
             }}
           >
             Connect With{" "}
@@ -476,40 +933,34 @@ export default function ContactStrip() {
             </span>
           </motion.h2>
 
-          {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={inView ? { opacity: 1 } : {}}
             transition={{ duration: 0.6, delay: 0.4 }}
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: 14,
+              fontSize: isMobile ? 12 : 13,
               color: "rgba(255,255,255,0.7)",
               maxWidth: 500,
               margin: "0 auto",
-              lineHeight: 1.65,
+              lineHeight: 1.6,
+              padding: isMobile ? "0 12px" : 0,
             }}
           >
             Reach out to our team for any inquiries, support, or career opportunities
           </motion.p>
         </motion.div>
 
-        {/* Contact Cards Grid */}
+        {/* Responsive Grid Layout */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-            gap: 24,
+            gridTemplateColumns: getGridColumns(),
+            gap: isMobile ? 20 : 24,
           }}
         >
-          {contacts.map((contact, index) => (
-            <ContactCard
-              key={contact.id}
-              contact={contact}
-              index={index}
-              isInView={inView}
-            />
-          ))}
+          <UnifiedContactInfo isInView={inView} />
+          <ContactForm />
         </div>
 
         {/* Bottom Decorative Line */}
@@ -518,29 +969,24 @@ export default function ContactStrip() {
           animate={inView ? { opacity: 1, scaleX: 1 } : {}}
           transition={{ duration: 0.8, delay: 0.6 }}
           style={{
-            marginTop: 48,
+            marginTop: isMobile ? 32 : 40,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 12,
           }}
         >
-          <div style={{ width: 60, height: 1, background: "rgba(196,151,42,0.3)", borderRadius: 999 }} />
-          <motion.div
-            animate={{
-              scale: [1, 1.4, 1],
-              opacity: [0.4, 1, 0.4],
-            }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          <div style={{ width: 60, height: 1, background: "rgba(196,151,42,0.25)", borderRadius: 999 }} />
+          <div
             style={{
-              width: 8,
-              height: 8,
+              width: 6,
+              height: 6,
               borderRadius: "50%",
               background: "#C4972A",
-              boxShadow: "0 0 10px rgba(196,151,42,0.6)",
+              opacity: 0.5,
             }}
           />
-          <div style={{ width: 60, height: 1, background: "rgba(196,151,42,0.3)", borderRadius: 999 }} />
+          <div style={{ width: 60, height: 1, background: "rgba(196,151,42,0.25)", borderRadius: 999 }} />
         </motion.div>
       </div>
     </section>

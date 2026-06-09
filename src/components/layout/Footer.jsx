@@ -1,16 +1,35 @@
-import { motion, useInView, useAnimation } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { motion, useInView, useAnimation, AnimatePresence } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
 import EVSLogo from "../EVSLogo";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Premium Footer Component — Enterprise-Grade Footer with Advanced Animations
-// Features: Animated borders, social links, newsletter signup, floating effects
+// Modern 2026 Footer — Premium Design with Glass Morphism
+// Features: Animated borders, social links, newsletter (Formspree), back to top
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Footer() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const controls = useAnimation();
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [error, setError] = useState(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [currentYear] = useState(new Date().getFullYear());
+
+  // Formspree endpoint - Replace with your own endpoint ID
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xqapvgwk";
+
+  // Check scroll position to show/hide back to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (isInView) {
@@ -18,13 +37,49 @@ export default function Footer() {
     }
   }, [isInView, controls]);
 
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setIsSubscribed(true);
+        setEmail("");
+        setTimeout(() => setIsSubscribed(false), 5000);
+      } else {
+        const data = await response.json();
+        setError(data.error || "Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      setError("Network error. Please check your connection.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
         duration: 0.6,
-        staggerChildren: 0.1,
+        staggerChildren: 0.08,
         delayChildren: 0.2,
       },
     },
@@ -35,22 +90,23 @@ export default function Footer() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, type: "spring", stiffness: 100 },
+      transition: { duration: 0.5, type: "spring", stiffness: 100, damping: 15 },
     },
   };
 
   const socialLinks = [
-    { name: "LinkedIn", icon: "🔗", url: "#" },
-    { name: "Facebook", icon: "📘", url: "#" },
-    { name: "Twitter", icon: "🐦", url: "#" },
-    { name: "Instagram", icon: "📸", url: "#" },
+    { name: "LinkedIn", icon: "💼", url: "#", color: "#0077B5" },
+    { name: "Facebook", icon: "📘", url: "#", color: "#1877F2" },
+    { name: "Twitter", icon: "🐦", url: "#", color: "#1DA1F2" },
+    { name: "Instagram", icon: "📸", url: "#", color: "#E4405F" },
   ];
 
   const quickLinks = [
     { name: "About Us", url: "#about" },
-    { name: "Jobs", url: "#jobs" },
-    { name: "Contact", url: "#contact" },
+    { name: "Featured Jobs", url: "#jobs" },
+    { name: "Contact Us", url: "#contact" },
     { name: "FAQ", url: "#faq" },
+    { name: "Testimonials", url: "#testimonials" },
   ];
 
   const legalLinks = [
@@ -58,12 +114,60 @@ export default function Footer() {
     { name: "GDPR Compliance", url: "#" },
     { name: "Terms of Service", url: "#" },
     { name: "Cookie Policy", url: "#" },
+    { name: "Accessibility", url: "#" },
   ];
 
-  const currentYear = new Date().getFullYear();
+  // Floating particles for background
+  const particles = Array.from({ length: 15 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 3 + 1,
+    duration: Math.random() * 20 + 10,
+    delay: Math.random() * 5,
+  }));
 
   return (
-    <footer ref={ref} style={{ position: "relative", background: "#080f1f", overflow: "hidden" }}>
+    <footer ref={ref} style={{ position: "relative", background: "#0a0f1a", overflow: "hidden" }}>
+      {/* Floating Background Particles */}
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          animate={{
+            y: [0, -80, 0],
+            x: [0, Math.sin(particle.id) * 40, 0],
+            opacity: [0, 0.3, 0],
+          }}
+          transition={{
+            duration: particle.duration,
+            delay: particle.delay,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          style={{
+            position: "absolute",
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: particle.size,
+            height: particle.size,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, rgba(196,151,42,${0.5}), transparent)`,
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+      ))}
+
+      {/* Animated Gradient Background */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "radial-gradient(ellipse at 50% 0%, rgba(196,151,42,0.08), transparent 60%)",
+          pointerEvents: "none",
+        }}
+      />
+
       {/* Top Animated Border */}
       <motion.div
         initial={{ scaleX: 0 }}
@@ -74,23 +178,25 @@ export default function Footer() {
           top: 0,
           left: 0,
           right: 0,
-          height: 2,
-          background: "linear-gradient(90deg, transparent, #C4972A, #f0c060, #C4972A, transparent)",
+          height: 1,
+          background: "linear-gradient(90deg, transparent, #C4972A, #f0c060, #e8b84a, #C4972A, transparent)",
           transformOrigin: "left",
         }}
       />
 
-      {/* Background Pattern */}
-      <div
+      {/* Bottom Animated Border */}
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={isInView ? { scaleX: 1 } : {}}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
         style={{
           position: "absolute",
-          inset: 0,
-          backgroundImage: `
-            radial-gradient(circle at 20% 30%, rgba(196,151,42,0.03) 0%, transparent 50%),
-            repeating-linear-gradient(45deg, rgba(196,151,42,0.02) 0px, rgba(196,151,42,0.02) 1px, transparent 1px, transparent 40px)
-          `,
-          backgroundSize: "100% 100%, 40px 40px",
-          pointerEvents: "none",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 1,
+          background: "linear-gradient(90deg, transparent, rgba(196,151,42,0.3), rgba(196,151,42,0.1), transparent)",
+          transformOrigin: "right",
         }}
       />
 
@@ -99,7 +205,7 @@ export default function Footer() {
         style={{
           maxWidth: 1200,
           margin: "0 auto",
-          padding: "clamp(40px, 8vh, 60px) clamp(16px, 5vw, 80px)",
+          padding: "clamp(50px, 10vh, 70px) clamp(20px, 5vw, 80px) clamp(40px, 6vh, 60px)",
           position: "relative",
           zIndex: 2,
         }}
@@ -110,28 +216,29 @@ export default function Footer() {
           animate={controls}
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-            gap: "clamp(32px, 5vw, 48px)",
-            marginBottom: "clamp(32px, 6vh, 48px)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: "clamp(40px, 6vw, 60px)",
+            marginBottom: "clamp(40px, 6vh, 60px)",
           }}
         >
           {/* Brand Column */}
           <motion.div variants={itemVariants}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
               <motion.div
                 whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
+                style={{ cursor: "pointer" }}
               >
-                <EVSLogo size={40} />
+                <EVSLogo size={44} />
               </motion.div>
               <div>
                 <div
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     fontWeight: 800,
-                    fontSize: 14,
+                    fontSize: 15,
                     color: "#fff",
-                    letterSpacing: "1px",
+                    letterSpacing: "1.5px",
                   }}
                 >
                   EVS HEALTHCARE LTD
@@ -142,7 +249,8 @@ export default function Footer() {
                     fontStyle: "italic",
                     fontSize: 11,
                     color: "#C4972A",
-                    fontWeight: 500,
+                    fontWeight: 600,
+                    letterSpacing: "0.5px",
                   }}
                 >
                   We care in time.
@@ -153,29 +261,32 @@ export default function Footer() {
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 13,
-                color: "rgba(255,255,255,0.5)",
-                lineHeight: 1.6,
-                marginBottom: 20,
+                color: "rgba(255,255,255,0.55)",
+                lineHeight: 1.7,
+                marginBottom: 24,
                 maxWidth: 280,
               }}
             >
               Providing quality healthcare staffing solutions across North-West England.
-              Your trusted partner in care.
+              Your trusted partner in care excellence.
             </p>
-            {/* Social Links */}
+            
+            {/* Social Links with Glass Morphism */}
             <div style={{ display: "flex", gap: 12 }}>
               {socialLinks.map((social, idx) => (
                 <motion.a
                   key={social.name}
                   href={social.url}
-                  whileHover={{ y: -3, scale: 1.1 }}
+                  whileHover={{ y: -4, scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400 }}
                   style={{
-                    width: 36,
-                    height: 36,
+                    width: 38,
+                    height: 38,
                     borderRadius: "50%",
                     background: "rgba(255,255,255,0.05)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255,255,255,0.1)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -184,11 +295,13 @@ export default function Footer() {
                     transition: "all 0.3s ease",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(196,151,42,0.2)";
-                    e.currentTarget.style.transform = "translateY(-3px)";
+                    e.currentTarget.style.background = `${social.color}20`;
+                    e.currentTarget.style.borderColor = `${social.color}60`;
+                    e.currentTarget.style.transform = "translateY(-4px)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
                     e.currentTarget.style.transform = "translateY(0)";
                   }}
                 >
@@ -203,10 +316,10 @@ export default function Footer() {
             <h3
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 700,
                 color: "#fff",
-                marginBottom: 20,
+                marginBottom: 24,
                 letterSpacing: "0.5px",
                 position: "relative",
                 display: "inline-block",
@@ -219,7 +332,7 @@ export default function Footer() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 style={{
                   position: "absolute",
-                  bottom: -6,
+                  bottom: -8,
                   left: 0,
                   height: 2,
                   background: "linear-gradient(90deg, #C4972A, #f0c060)",
@@ -241,23 +354,23 @@ export default function Footer() {
                     style={{
                       fontFamily: "'Inter', sans-serif",
                       fontSize: 13,
-                      color: "rgba(255,255,255,0.5)",
+                      color: "rgba(255,255,255,0.55)",
                       textDecoration: "none",
                       transition: "all 0.3s ease",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 6,
+                      gap: 8,
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.color = "#C4972A";
-                      e.currentTarget.style.transform = "translateX(5px)";
+                      e.currentTarget.style.transform = "translateX(6px)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(255,255,255,0.5)";
+                      e.currentTarget.style.color = "rgba(255,255,255,0.55)";
                       e.currentTarget.style.transform = "translateX(0)";
                     }}
                   >
-                    <span style={{ fontSize: 12 }}>→</span>
+                    <span style={{ fontSize: 12, opacity: 0.7 }}>→</span>
                     {link.name}
                   </a>
                 </motion.li>
@@ -270,23 +383,23 @@ export default function Footer() {
             <h3
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 700,
                 color: "#fff",
-                marginBottom: 20,
+                marginBottom: 24,
                 letterSpacing: "0.5px",
                 position: "relative",
                 display: "inline-block",
               }}
             >
-              Legal
+              Legal & Compliance
               <motion.div
                 initial={{ width: 0 }}
                 animate={isInView ? { width: "100%" } : {}}
                 transition={{ duration: 0.6, delay: 0.4 }}
                 style={{
                   position: "absolute",
-                  bottom: -6,
+                  bottom: -8,
                   left: 0,
                   height: 2,
                   background: "linear-gradient(90deg, #C4972A, #f0c060)",
@@ -308,23 +421,23 @@ export default function Footer() {
                     style={{
                       fontFamily: "'Inter', sans-serif",
                       fontSize: 13,
-                      color: "rgba(255,255,255,0.5)",
+                      color: "rgba(255,255,255,0.55)",
                       textDecoration: "none",
                       transition: "all 0.3s ease",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: 6,
+                      gap: 8,
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.color = "#C4972A";
-                      e.currentTarget.style.transform = "translateX(5px)";
+                      e.currentTarget.style.transform = "translateX(6px)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "rgba(255,255,255,0.5)";
+                      e.currentTarget.style.color = "rgba(255,255,255,0.55)";
                       e.currentTarget.style.transform = "translateX(0)";
                     }}
                   >
-                    <span style={{ fontSize: 12 }}>•</span>
+                    <span style={{ fontSize: 10, opacity: 0.7 }}>•</span>
                     {link.name}
                   </a>
                 </motion.li>
@@ -332,28 +445,28 @@ export default function Footer() {
             </ul>
           </motion.div>
 
-          {/* Contact & Newsletter Column */}
+          {/* Newsletter & Contact Column */}
           <motion.div variants={itemVariants}>
             <h3
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 700,
                 color: "#fff",
-                marginBottom: 20,
+                marginBottom: 24,
                 letterSpacing: "0.5px",
                 position: "relative",
                 display: "inline-block",
               }}
             >
-              Stay Updated
+              Stay Connected
               <motion.div
                 initial={{ width: 0 }}
                 animate={isInView ? { width: "100%" } : {}}
                 transition={{ duration: 0.6, delay: 0.5 }}
                 style={{
                   position: "absolute",
-                  bottom: -6,
+                  bottom: -8,
                   left: 0,
                   height: 2,
                   background: "linear-gradient(90deg, #C4972A, #f0c060)",
@@ -365,135 +478,243 @@ export default function Footer() {
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 13,
-                color: "rgba(255,255,255,0.5)",
+                color: "rgba(255,255,255,0.55)",
                 lineHeight: 1.6,
-                marginBottom: 16,
+                marginBottom: 20,
               }}
             >
-              Subscribe to receive job alerts and updates
+              Subscribe to receive job alerts and latest updates
             </p>
-            <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-              <input
-                type="email"
-                placeholder="Your email address"
-                style={{
-                  flex: 1,
-                  padding: "10px 14px",
-                  borderRadius: "8px",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.05)",
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: 12,
-                  color: "#fff",
-                  outline: "none",
-                  transition: "all 0.3s ease",
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = "#C4972A";
-                  e.target.style.background = "rgba(255,255,255,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
-                  e.target.style.background = "rgba(255,255,255,0.05)";
-                }}
-              />
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{
-                  padding: "10px 16px",
-                  borderRadius: "8px",
-                  border: "none",
-                  background: "linear-gradient(135deg, #C4972A, #8B6914)",
-                  color: "#fff",
-                  fontFamily: "'Inter', sans-serif",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                }}
-              >
-                Subscribe
-              </motion.button>
-            </div>
+            
+            {/* Newsletter Form with Formspree */}
+            <form onSubmit={handleSubscribe} style={{ marginBottom: 24 }}>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <input
+                  type="email"
+                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Your email address"
+                  required
+                  style={{
+                    flex: 1,
+                    minWidth: 160,
+                    padding: "12px 16px",
+                    borderRadius: "12px",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.05)",
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 13,
+                    color: "#fff",
+                    outline: "none",
+                    transition: "all 0.3s ease",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#C4972A";
+                    e.target.style.background = "rgba(255,255,255,0.1)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                    e.target.style.background = "rgba(255,255,255,0.05)";
+                  }}
+                />
+                <motion.button
+                  type="submit"
+                  disabled={isSubmitting}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  style={{
+                    padding: "12px 24px",
+                    borderRadius: "12px",
+                    border: "none",
+                    background: "linear-gradient(135deg, #C4972A, #8B6914)",
+                    color: "#fff",
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: isSubmitting ? "not-allowed" : "pointer",
+                    opacity: isSubmitting ? 0.7 : 1,
+                    transition: "all 0.3s ease",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {isSubmitting ? "Sending..." : isSubscribed ? "✓ Subscribed!" : "Subscribe"}
+                </motion.button>
+              </div>
+              
+              {/* Error Message */}
+              {error && (
+                <motion.p
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    marginTop: 12,
+                    fontSize: 11,
+                    color: "#ef4444",
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
+                  {error}
+                </motion.p>
+              )}
+              
+              {/* Success Message */}
+              {isSubscribed && !error && (
+                <motion.p
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  style={{
+                    marginTop: 12,
+                    fontSize: 11,
+                    color: "#10b981",
+                    fontFamily: "'Inter', sans-serif",
+                  }}
+                >
+                  Thank you for subscribing! You'll receive updates soon.
+                </motion.p>
+              )}
+            </form>
+
+            {/* Contact Info */}
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "12px 0",
-                borderTop: "1px solid rgba(255,255,255,0.05)",
+                flexDirection: "column",
+                gap: 14,
+                paddingTop: 20,
+                borderTop: "1px solid rgba(255,255,255,0.06)",
               }}
             >
-              <span style={{ fontSize: 16 }}>📞</span>
-              <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div
                   style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: 11,
-                    color: "rgba(255,255,255,0.4)",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "10px",
+                    background: "rgba(196,151,42,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 16,
                   }}
                 >
-                  Emergency Contact
+                  📞
                 </div>
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 11,
+                      color: "rgba(255,255,255,0.4)",
+                    }}
+                  >
+                    24/7 Support Line
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: "#C4972A",
+                    }}
+                  >
+                    01772 493994
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div
                   style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: "#C4972A",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "10px",
+                    background: "rgba(196,151,42,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 16,
                   }}
                 >
-                  24/7 Support Line
+                  ✉️
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 11,
+                      color: "rgba(255,255,255,0.4)",
+                    }}
+                  >
+                    Email Us
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: "rgba(255,255,255,0.8)",
+                    }}
+                  >
+                    admin_1@evshealthcare.co.uk
+                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Bottom Bar */}
+        {/* Bottom Bar with Glass Effect */}
         <motion.div
           variants={itemVariants}
           initial="hidden"
           animate={controls}
           style={{
-            borderTop: "1px solid rgba(255,255,255,0.08)",
-            paddingTop: "clamp(24px, 4vh, 32px)",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            paddingTop: "clamp(28px, 5vh, 36px)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: 16,
+            gap: 20,
+            background: "rgba(255,255,255,0.02)",
+            backdropFilter: "blur(10px)",
+            borderRadius: "16px",
+            padding: "24px 28px",
+            marginTop: "20px",
           }}
         >
           <div
             style={{
               fontFamily: "'Inter', sans-serif",
-              color: "rgba(255,255,255,0.35)",
-              fontSize: 11,
-              lineHeight: 1.5,
+              color: "rgba(255,255,255,0.45)",
+              fontSize: 12,
+              lineHeight: 1.6,
             }}
           >
             © {currentYear} EVS Healthcare Solutions Limited. All rights reserved.
-            Company registered in England & Wales. GDPR Compliant.
+            <br />
+            <span style={{ fontSize: 11, opacity: 0.7 }}>
+              Company registered in England & Wales. GDPR Compliant.
+            </span>
           </div>
 
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-            {["Privacy Policy", "GDPR", "Terms"].map((link, idx) => (
+          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+            {["Privacy", "GDPR", "Terms", "Cookies"].map((link, idx) => (
               <motion.a
                 key={link}
                 href="#"
                 whileHover={{ x: 2 }}
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  color: "rgba(255,255,255,0.4)",
-                  fontSize: 11,
+                  color: "rgba(255,255,255,0.45)",
+                  fontSize: 12,
                   textDecoration: "none",
                   transition: "all 0.3s ease",
+                  letterSpacing: "0.3px",
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "#C4972A")}
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = "rgba(255,255,255,0.4)")
+                  (e.currentTarget.style.color = "rgba(255,255,255,0.45)")
                 }
               >
                 {link}
@@ -501,37 +722,64 @@ export default function Footer() {
             ))}
           </div>
         </motion.div>
-
-        {/* Back to Top Button */}
-        <motion.button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={isInView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ delay: 0.8, type: "spring" }}
-          whileHover={{ y: -3, scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          style={{
-            position: "fixed",
-            bottom: 30,
-            right: 30,
-            width: 44,
-            height: 44,
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, #C4972A, #8B6914)",
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 4px 15px rgba(196,151,42,0.3)",
-            zIndex: 100,
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5">
-            <path d="M18 15l-6-6-6 6" />
-          </svg>
-        </motion.button>
       </div>
+
+      {/* Back to Top Button - Left Side, Only Appears When Needed */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            onClick={scrollToTop}
+            initial={{ opacity: 0, scale: 0, x: -50 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0, x: -50 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            whileHover={{ y: -5, scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            style={{
+              position: "fixed",
+              bottom: 30,
+              left: 30,
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #C4972A, #8B6914)",
+              border: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 8px 20px rgba(196,151,42,0.35)",
+              zIndex: 1000,
+              transition: "all 0.3s ease",
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M18 15l-6-6-6 6" />
+            </svg>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <style>{`
+        @media (max-width: 768px) {
+          footer .bottom-bar {
+            flex-direction: column;
+            text-align: center;
+          }
+          .back-to-top {
+            bottom: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+      `}</style>
     </footer>
   );
 }

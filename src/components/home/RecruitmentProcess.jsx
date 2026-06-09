@@ -3,7 +3,7 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Modern Recruitment Process — Clean White Background, Performance Optimized
-// Features: Staggered animations, clean cards, no lag on scroll
+// Features: 5 steps side by side on desktop, responsive grid on tablet, vertical on mobile
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -12,10 +12,15 @@ function useReveal(threshold = 0.2) {
   return [ref, isInView];
 }
 
-// Detect mobile for performance
-const isMobile = () => {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768;
+// Responsive breakpoints
+const getResponsiveLayout = () => {
+  if (typeof window === 'undefined') return { isDesktop: true, isTablet: false, isMobile: false };
+  const width = window.innerWidth;
+  return {
+    isDesktop: width >= 1024,
+    isTablet: width >= 768 && width < 1024,
+    isMobile: width < 768,
+  };
 };
 
 const steps = [
@@ -64,28 +69,51 @@ const steps = [
 // ─────────────────────────────────────────────────────────────────────────────
 // Step Component - Clean and Performant
 // ─────────────────────────────────────────────────────────────────────────────
-function Step({ step, index, isInView }) {
+function Step({ step, index, isInView, layoutType = "desktop" }) {
   const [isHovered, setIsHovered] = useState(false);
-  const mobile = isMobile();
+  const isMobile = layoutType === "mobile";
 
   const stepVariants = {
-    hidden: { opacity: 0, x: -30 },
+    hidden: { opacity: 0, y: 30 },
     visible: { 
       opacity: 1, 
-      x: 0,
+      y: 0,
       transition: { 
         duration: 0.5, 
-        delay: index * 0.1,
+        delay: index * 0.08,
       }
     }
   };
 
-  const lineVariants = {
-    hidden: { scaleY: 0 },
-    visible: { 
-      scaleY: 1,
-      transition: { duration: 0.6, delay: (index + 1) * 0.1 }
-    }
+  // Responsive paddings and sizes
+  const getPadding = () => {
+    if (layoutType === "mobile") return "20px 16px";
+    if (layoutType === "tablet") return "20px 16px";
+    return "24px 20px";
+  };
+
+  const getTitleSize = () => {
+    if (layoutType === "mobile") return "16px";
+    if (layoutType === "tablet") return "15px";
+    return "17px";
+  };
+
+  const getDescSize = () => {
+    if (layoutType === "mobile") return "12px";
+    if (layoutType === "tablet") return "11px";
+    return "12.5px";
+  };
+
+  const getIconSize = () => {
+    if (layoutType === "mobile") return "28px";
+    if (layoutType === "tablet") return "26px";
+    return "30px";
+  };
+
+  const getNumberSize = () => {
+    if (layoutType === "mobile") return "clamp(44px, 7vw, 50px)";
+    if (layoutType === "tablet") return "48px";
+    return "clamp(50px, 7vw, 60px)";
   };
 
   return (
@@ -93,167 +121,169 @@ function Step({ step, index, isInView }) {
       variants={stepVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
+      onMouseEnter={() => (layoutType === "desktop" || layoutType === "tablet") && setIsHovered(true)}
+      onMouseLeave={() => (layoutType === "desktop" || layoutType === "tablet") && setIsHovered(false)}
       style={{
+        background: "#ffffff",
+        borderRadius: "20px",
+        border: `1px solid ${isHovered && (layoutType === "desktop" || layoutType === "tablet") ? "rgba(196,151,42,0.25)" : "#f0f0f0"}`,
+        padding: getPadding(),
+        transition: "all 0.3s ease",
+        boxShadow: isHovered && (layoutType === "desktop" || layoutType === "tablet")
+          ? "0 8px 25px rgba(0,0,0,0.08), 0 0 0 1px rgba(196,151,42,0.1)"
+          : "0 2px 8px rgba(0,0,0,0.04)",
+        transform: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? "translateY(-4px)" : "translateY(0)",
+        textAlign: "center",
+        height: "100%",
         display: "flex",
-        gap: "clamp(20px, 4vw, 32px)",
-        alignItems: "flex-start",
-        position: "relative",
+        flexDirection: "column",
       }}
-      onMouseEnter={() => !mobile && setIsHovered(true)}
-      onMouseLeave={() => !mobile && setIsHovered(false)}
     >
-      {/* Left Column: Number & Connector */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-        {/* Number Circle */}
-        <motion.div
-          animate={{
-            scale: isHovered && !mobile ? 1.05 : 1,
-            borderColor: isHovered && !mobile ? step.accent : "#e2e8f0",
-          }}
-          transition={{ duration: 0.3 }}
-          style={{
-            width: "clamp(50px, 7vw, 60px)",
-            height: "clamp(50px, 7vw, 60px)",
-            borderRadius: "50%",
-            background: "#fff",
-            border: `2px solid ${isHovered && !mobile ? step.accent : "#e2e8f0"}`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 800,
-            fontSize: "clamp(16px, 2.5vw, 18px)",
-            color: step.accent,
-            boxShadow: isHovered && !mobile ? `0 4px 12px ${step.accent}30` : "none",
-            position: "relative",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-          }}
-        >
-          {step.num}
-        </motion.div>
-
-        {/* Connecting Line */}
-        {index < steps.length - 1 && (
-          <motion.div
-            variants={lineVariants}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            style={{
-              width: 2,
-              flex: 1,
-              minHeight: mobile ? 40 : 50,
-              background: "linear-gradient(to bottom, #C4972A 0%, #f0c060 100%)",
-              margin: "8px 0",
-              transformOrigin: "top",
-              borderRadius: 2,
-            }}
-          />
-        )}
-      </div>
-
-      {/* Right Column: Step Content */}
+      {/* Number Circle */}
       <motion.div
+        animate={{
+          scale: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? 1.05 : 1,
+          borderColor: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? step.accent : "#e2e8f0",
+        }}
+        transition={{ duration: 0.3 }}
         style={{
-          paddingBottom: index < steps.length - 1 ? "clamp(24px, 4vh, 32px)" : 0,
-          paddingTop: 4,
+          width: getNumberSize(),
+          height: getNumberSize(),
+          borderRadius: "50%",
+          background: "#fff",
+          border: `2px solid ${isHovered && (layoutType === "desktop" || layoutType === "tablet") ? step.accent : "#e2e8f0"}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "'Inter', sans-serif",
+          fontWeight: 800,
+          fontSize: layoutType === "mobile" ? "16px" : "18px",
+          color: step.accent,
+          boxShadow: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? `0 4px 12px ${step.accent}30` : "none",
+          margin: "0 auto 16px auto",
+          transition: "all 0.3s ease",
+        }}
+      >
+        {step.num}
+      </motion.div>
+
+      {/* Icon */}
+      <motion.div
+        animate={{
+          scale: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? 1.05 : 1,
+        }}
+        transition={{ duration: 0.3 }}
+        style={{ 
+          fontSize: getIconSize(),
+          marginBottom: 12,
+        }}
+      >
+        {step.icon}
+      </motion.div>
+
+      {/* Title */}
+      <motion.h3
+        animate={{
+          color: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? step.accent : "#1e293b",
+        }}
+        transition={{ duration: 0.3 }}
+        style={{
+          fontFamily: "'Inter', sans-serif",
+          fontSize: getTitleSize(),
+          fontWeight: 700,
+          marginBottom: 8,
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {step.title}
+      </motion.h3>
+
+      {/* Description */}
+      <p
+        style={{
+          fontFamily: "'Inter', sans-serif",
+          color: "#64748b",
+          fontSize: getDescSize(),
+          lineHeight: 1.6,
+          margin: 0,
           flex: 1,
         }}
       >
-        {/* Card Container */}
-        <motion.div
-          animate={{
-            scale: isHovered && !mobile ? 1.01 : 1,
-            boxShadow: isHovered && !mobile 
-              ? "0 8px 25px rgba(0,0,0,0.08), 0 0 0 1px rgba(196,151,42,0.2)"
-              : "0 2px 8px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.03)",
-          }}
-          transition={{ duration: 0.3 }}
-          style={{
-            padding: "clamp(16px, 3vw, 20px) clamp(20px, 4vw, 24px)",
-            borderRadius: "20px",
-            background: "#ffffff",
-            border: "1px solid #f0f0f0",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-          }}
-        >
-          {/* Header with Icon and Title */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-            <motion.span
-              animate={{
-                scale: isHovered && !mobile ? 1.05 : 1,
-              }}
-              transition={{ duration: 0.3 }}
-              style={{ 
-                fontSize: "clamp(22px, 3vw, 26px)",
-                background: `linear-gradient(135deg, ${step.accent}15, ${step.accent}05)`,
-                padding: "8px",
-                borderRadius: "12px",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {step.icon}
-            </motion.span>
-            <motion.h3
-              animate={{
-                color: isHovered && !mobile ? step.accent : "#1e293b",
-              }}
-              transition={{ duration: 0.3 }}
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "clamp(16px, 2.5vw, 18px)",
-                fontWeight: 700,
-                margin: 0,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              {step.title}
-            </motion.h3>
-          </div>
+        {step.desc}
+      </p>
 
-          {/* Description */}
-          <p
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              color: "#64748b",
-              fontSize: "clamp(13px, 1.6vw, 14px)",
-              lineHeight: 1.65,
-              margin: 0,
-            }}
-          >
-            {step.desc}
-          </p>
-
-          {/* Progress Indicator on Hover */}
-          <motion.div
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ 
-              width: isHovered && !mobile ? "40px" : 0,
-              opacity: isHovered && !mobile ? 1 : 0,
-            }}
-            transition={{ duration: 0.3 }}
-            style={{
-              height: 2,
-              background: `linear-gradient(90deg, ${step.accent}, #f0c060)`,
-              marginTop: 14,
-              borderRadius: 2,
-            }}
-          />
-        </motion.div>
-      </motion.div>
+      {/* Progress Indicator on Hover */}
+      <motion.div
+        initial={{ width: 0, opacity: 0 }}
+        animate={{ 
+          width: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? "40px" : 0,
+          opacity: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? 1 : 0,
+        }}
+        transition={{ duration: 0.3 }}
+        style={{
+          height: 2,
+          background: `linear-gradient(90deg, ${step.accent}, #f0c060)`,
+          marginTop: 16,
+          borderRadius: 2,
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
+      />
     </motion.div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main Recruitment Process Component - White Background, No Lag
+// Main Recruitment Process Component - Fully Responsive
 // ─────────────────────────────────────────────────────────────────────────────
 export default function RecruitmentProcess() {
   const [ref, inView] = useReveal(0.2);
-  const mobile = isMobile();
+  const [layoutType, setLayoutType] = useState("desktop");
+
+  useEffect(() => {
+    const handleResize = () => {
+      const { isDesktop, isTablet, isMobile } = getResponsiveLayout();
+      if (isDesktop) setLayoutType("desktop");
+      else if (isTablet) setLayoutType("tablet");
+      else setLayoutType("mobile");
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = layoutType === "mobile";
+  const isTablet = layoutType === "tablet";
+
+  // Responsive grid layout
+  const getGridStyles = () => {
+    if (isMobile) {
+      return {
+        display: "flex",
+        flexDirection: "column",
+        gap: "20px",
+      };
+    }
+    if (isTablet) {
+      return {
+        display: "grid",
+        gridTemplateColumns: "repeat(2, 1fr)",
+        gap: "20px",
+      };
+    }
+    return {
+      display: "flex",
+      flexDirection: "row",
+      gap: "20px",
+      justifyContent: "center",
+      alignItems: "stretch",
+    };
+  };
+
+  // Split steps for tablet view (2-2-1 layout)
+  const firstTwoSteps = steps.slice(0, 2);
+  const nextTwoSteps = steps.slice(2, 4);
+  const lastStep = steps.slice(4, 5);
 
   return (
     <section
@@ -265,7 +295,7 @@ export default function RecruitmentProcess() {
         overflow: "hidden",
       }}
     >
-      {/* Decorative Background Elements - Simplified for Performance */}
+      {/* Decorative Background Elements */}
       <div
         style={{
           position: "absolute",
@@ -291,7 +321,7 @@ export default function RecruitmentProcess() {
         }}
       />
 
-      <div style={{ position: "relative", zIndex: 2, maxWidth: 900, margin: "0 auto" }}>
+      <div style={{ position: "relative", zIndex: 2, maxWidth: 1200, margin: "0 auto" }}>
         
         {/* Section Header */}
         <motion.div
@@ -382,22 +412,53 @@ export default function RecruitmentProcess() {
           />
         </motion.div>
 
-        {/* Steps Timeline */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-          {steps.map((step, idx) => (
-            <Step key={idx} step={step} index={idx} isInView={inView} />
-          ))}
-        </div>
+        {/* Steps - Responsive Layout */}
+        {isTablet ? (
+          // Tablet: 2x2 grid + centered last card
+          <div>
+            <div style={getGridStyles()}>
+              {firstTwoSteps.map((step, idx) => (
+                <Step key={idx} step={step} index={idx} isInView={inView} layoutType={layoutType} />
+              ))}
+            </div>
+            <div style={getGridStyles()} className="tablet-middle-row">
+              {nextTwoSteps.map((step, idx) => (
+                <Step key={idx + 2} step={step} index={idx + 2} isInView={inView} layoutType={layoutType} />
+              ))}
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+              <div style={{ width: "calc(50% - 10px)" }}>
+                {lastStep.map((step, idx) => (
+                  <Step key={idx + 4} step={step} index={idx + 4} isInView={inView} layoutType={layoutType} />
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : isMobile ? (
+          // Mobile: Vertical stack
+          <div style={getGridStyles()}>
+            {steps.map((step, idx) => (
+              <Step key={idx} step={step} index={idx} isInView={inView} layoutType={layoutType} />
+            ))}
+          </div>
+        ) : (
+          // Desktop: 5 cards side by side in one row
+          <div style={getGridStyles()}>
+            {steps.map((step, idx) => (
+              <Step key={idx} step={step} index={idx} isInView={inView} layoutType={layoutType} />
+            ))}
+          </div>
+        )}
 
         {/* Call to Action Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.6 }}
-          style={{ textAlign: "center", marginTop: "clamp(40px, 6vh, 56px)" }}
+          style={{ textAlign: "center", marginTop: "clamp(48px, 8vh, 64px)" }}
         >
           <motion.button
-            whileHover={{ scale: mobile ? 1 : 1.02 }}
+            whileHover={{ scale: isMobile ? 1 : 1.02 }}
             whileTap={{ scale: 0.98 }}
             style={{
               background: "linear-gradient(135deg, #C4972A, #8B6914)",
@@ -447,6 +508,12 @@ export default function RecruitmentProcess() {
       {/* CSS for reduced motion */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
+
+        @media (max-width: 1024px) and (min-width: 768px) {
+          .tablet-middle-row {
+            margin-top: 20px;
+          }
+        }
 
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after {

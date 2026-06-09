@@ -1,727 +1,774 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import EVSLogo from "../EVSLogo";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// CONSTANTS & CONFIG
-// ─────────────────────────────────────────────────────────────────────────────
-
-const NAV_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Jobs", href: "#jobs" },
-  { label: "Training", href: "#training" },
-  { label: "Register", href: "#register" },
-  { label: "Contact", href: "#contact" },
-];
-
-const BRAND = {
-  fullName: "EVS HEALTHCARE SOLUTION LIMITED",
-  tagline: "We care in time.",
-  phone: "01772 379989",
-  phoneHref: "tel:+441772379989",
-  primaryCta: { label: "Apply Now", href: "#register" },
-};
-
-const EASING = {
-  snappy: [0.25, 0.1, 0.25, 1],
-  smooth: [0.16, 1, 0.3, 1],
-  inOut: [0.4, 0, 0.2, 1],
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MOTION VARIANTS — defined outside component; stable references, no re-creation
-// ─────────────────────────────────────────────────────────────────────────────
-
-const overlayVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.35, ease: EASING.snappy },
-  },
-  exit: {
-    opacity: 0,
-    transition: { duration: 0.25, ease: EASING.snappy, delay: 0.1 },
-  },
-};
-
-const drawerVariants = {
-  hidden: {
-    x: "100%",
-    transition: { type: "tween", duration: 0.3, ease: EASING.inOut },
-  },
-  visible: {
-    x: 0,
-    transition: { type: "tween", duration: 0.4, ease: EASING.smooth },
-  },
-  exit: {
-    x: "100%",
-    transition: { type: "tween", duration: 0.3, ease: EASING.inOut },
-  },
-};
-
-const staggerContainer = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.15 },
-  },
-};
-
-const linkReveal = {
-  hidden: { opacity: 0, y: 14 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: EASING.smooth },
-  },
-};
-
-const lineUnderline = {
-  rest: { scaleX: 0, originX: 0 },
-  hover: {
-    scaleX: 1,
-    originX: 0,
-    transition: { duration: 0.25, ease: EASING.snappy },
-  },
-};
-
-const navbarReveal = {
-  hidden: { y: -8, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: { duration: 0.5, ease: EASING.smooth, delay: 0.1 },
-  },
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// HAMBURGER ICON
-// ─────────────────────────────────────────────────────────────────────────────
-
-function HamburgerIcon({ isOpen }) {
-  return (
-    <div
-      aria-hidden="true"
-      style={{
-        width: 22,
-        height: 16,
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-      }}
-    >
-      {[0, 1, 2].map((i) => (
-        <motion.span
-          key={i}
-          style={{
-            display: "block",
-            height: 2,
-            borderRadius: 3,
-            // Matches your original: gradient from navy to gold
-             background: "none",
-            transformOrigin: "center",
-          }}
-          animate={
-            isOpen
-              ? i === 0
-                ? { rotate: 45, y: 7, width: "100%" }
-                : i === 2
-                ? { rotate: -45, y: -7, width: "100%" }
-                : { opacity: 0, scaleX: 0 }
-              : { rotate: 0, y: 0, opacity: 1, scaleX: 1 }
-          }
-          transition={{ duration: 0.3, ease: EASING.smooth }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// DESKTOP NAV LINK
-// ─────────────────────────────────────────────────────────────────────────────
-
-function DesktopNavLink({ link, index }) {
-  return (
-    <motion.li
-      initial={{ opacity: 0, y: -16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.08 + index * 0.05, duration: 0.4, ease: EASING.smooth }}
-      style={{ listStyle: "none" }}
-    >
-      <motion.a
-        href={link.href}
-        initial="rest"
-        whileHover="hover"
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: 15,
-          fontWeight: 500,
-          color: "#2d3748",
-          textDecoration: "none",
-          letterSpacing: "0.02em",
-          position: "relative",
-          paddingBottom: 4,
-          display: "inline-block",
-        }}
-      >
-        <motion.span
-          variants={{
-            rest: { color: "#2d3748" },
-            hover: { color: "#C4972A" },
-          }}
-          transition={{ duration: 0.2 }}
-          style={{ display: "block" }}
-        >
-          {link.label}
-        </motion.span>
-        {/* Gold underline slide-in */}
-        <motion.span
-          variants={lineUnderline}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 2,
-            background: "#C4972A",
-            borderRadius: 2,
-            display: "block",
-          }}
-        />
-      </motion.a>
-    </motion.li>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MOBILE NAV LINK
-// ─────────────────────────────────────────────────────────────────────────────
-
-function MobileNavLink({ link, onClose, isFirst, firstRef }) {
-  return (
-    <motion.li variants={linkReveal} style={{ listStyle: "none" }}>
-      <motion.a
-        ref={isFirst ? firstRef : null}
-        href={link.href}
-        onClick={onClose}
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: 22,
-          fontWeight: 500,
-          color: "#2d3748",
-          textDecoration: "none",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "14px 20px",
-          borderRadius: 16,
-          margin: "2px 0",
-          cursor: "pointer",
-        }}
-        whileHover={{
-          x: 8,
-          color: "#C4972A",
-          backgroundColor: "rgba(196,151,42,0.08)",
-          transition: { type: "spring", damping: 20, stiffness: 300 },
-        }}
-        whileTap={{ scale: 0.97 }}
-      >
-        {link.label}
-        <motion.span
-          initial={{ x: -8, opacity: 0 }}
-          whileHover={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.2 }}
-          style={{ color: "#C4972A", fontSize: 20, lineHeight: 1 }}
-        >
-          →
-        </motion.span>
-      </motion.a>
-    </motion.li>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MAIN NAVBAR
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuButtonRef = useRef(null);
-  const firstMenuItemRef = useRef(null);
+  const [activeLink, setActiveLink] = useState("Home");
 
-  // ── Passive, rAF-throttled scroll listener (no jank) ──
-  const handleScroll = useCallback(() => {
-    setScrolled(window.scrollY > 60);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Prevent body scroll when mobile menu is open
   useEffect(() => {
-    let rafId;
-    const throttled = () => {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(handleScroll);
-    };
-    window.addEventListener("scroll", throttled, { passive: true });
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
     return () => {
-      window.removeEventListener("scroll", throttled);
-      cancelAnimationFrame(rafId);
-    };
-  }, [handleScroll]);
-
-  // ── Body scroll lock ──
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
-
-  // ── Keyboard trap + Escape to close ──
-  useEffect(() => {
-    if (!menuOpen) return;
-    const t = setTimeout(() => firstMenuItemRef.current?.focus(), 400);
-    const onKey = (e) => {
-      if (e.key === "Escape") {
-        setMenuOpen(false);
-        menuButtonRef.current?.focus();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      clearTimeout(t);
-      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "unset";
     };
   }, [menuOpen]);
 
-  const closeMenu = useCallback(() => setMenuOpen(false), []);
-  const toggleMenu = useCallback(() => setMenuOpen((v) => !v), []);
+  const links = ["Home", "About", "Jobs", "Training", "Register", "Contact"];
+
+  // Handle smooth scroll to section
+  const scrollToSection = (sectionId) => {
+    setActiveLink(sectionId);
+    const element = document.getElementById(sectionId.toLowerCase());
+    if (element) {
+      const offset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+    setMenuOpen(false);
+  };
+
+  // Advanced menu animation variants
+  const menuVariants = {
+    hidden: {
+      x: "-100%",
+      transition: {
+        type: "spring",
+        damping: 25,
+        stiffness: 200,
+        mass: 0.8,
+      },
+    },
+    visible: {
+      x: 0,
+      transition: {
+        type: "spring",
+        damping: 20,
+        stiffness: 180,
+        mass: 0.8,
+        staggerChildren: 0.05,
+        delayChildren: 0.1,
+      },
+    },
+    exit: {
+      x: "-100%",
+      transition: {
+        type: "spring",
+        damping: 30,
+        stiffness: 250,
+        mass: 0.8,
+      },
+    },
+  };
+
+  const overlayVariants = {
+    hidden: { 
+      opacity: 0,
+    },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        duration: 0.4,
+        ease: [0.25, 0.1, 0.25, 1],
+      } 
+    },
+    exit: { 
+      opacity: 0,
+      transition: { 
+        duration: 0.3,
+        ease: [0.25, 0.1, 0.25, 1],
+      } 
+    },
+  };
+
+  const linkVariants = {
+    hidden: { 
+      opacity: 0, 
+      x: -40,
+    },
+    visible: (i) => ({
+      opacity: 1,
+      x: 0,
+      transition: {
+        delay: 0.06 * i,
+        duration: 0.5,
+        type: "spring",
+        damping: 15,
+        stiffness: 120,
+      },
+    }),
+    hover: {
+      x: 12,
+      color: "#C4972A",
+      backgroundColor: "rgba(196,151,42,0.08)",
+      transition: {
+        type: "spring",
+        damping: 10,
+        stiffness: 200,
+      },
+    },
+    tap: {
+      scale: 0.97,
+      transition: {
+        duration: 0.1,
+      },
+    },
+  };
+
+  // Hamburger animation variants
+  const topLineVariants = {
+    closed: {
+      rotate: 0,
+      y: 0,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 200,
+      },
+    },
+    open: {
+      rotate: 45,
+      y: 10,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 200,
+      },
+    },
+  };
+
+  const middleLineVariants = {
+    closed: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.2,
+      },
+    },
+    open: {
+      opacity: 0,
+      scale: 0,
+      transition: {
+        duration: 0.15,
+      },
+    },
+  };
+
+  const bottomLineVariants = {
+    closed: {
+      rotate: 0,
+      y: 0,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 200,
+      },
+    },
+    open: {
+      rotate: -45,
+      y: -10,
+      transition: {
+        type: "spring",
+        damping: 12,
+        stiffness: 200,
+      },
+    },
+  };
+
+  const logoVariants = {
+    initial: { scale: 1 },
+    whileTap: { scale: 0.95 },
+  };
+
+  // Particle animation
+  const particleVariants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: (i) => ({
+      scale: [0, 1, 0],
+      opacity: [0, 0.08, 0],
+      transition: {
+        delay: i * 0.05,
+        duration: 2.5,
+        repeat: Infinity,
+        repeatType: "loop",
+      },
+    }),
+  };
+
+  // Generate random particles
+  const particles = [...Array(20)].map((_, i) => ({
+    id: i,
+    top: Math.random() * 100,
+    left: Math.random() * 100,
+    size: Math.random() * 4 + 2,
+    delay: Math.random() * 2,
+  }));
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; }
-
-        @media (prefers-reduced-motion: reduce) {
-          *, *::before, *::after {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-
-        .evs-desktop-links {
-          display: flex;
-          align-items: center;
-          gap: 32px;
-          list-style: none;
-          margin: 0;
-          padding: 0;
-        }
-
-        .evs-burger {
-          display: none;
-          background: rgba(26,45,90,0.05);
-          border: none;
-          cursor: pointer;
-          padding: 14px;
-          width: 52px;
-          height: 52px;
-          border-radius: 16px;
-          align-items: center;
-          justify-content: center;
-          backdrop-filter: blur(10px);
-          -webkit-tap-highlight-color: transparent;
-          position: relative;
-          z-index: 1002;
-          transition: background 0.3s ease;
-        }
-
-        .evs-burger:hover {
-          background: rgba(196,151,42,0.1);
-        }
-
-        .evs-burger:focus-visible {
-          outline: 2px solid #C4972A;
-          outline-offset: 3px;
-        }
-
-        @media (max-width: 768px) {
-          .evs-desktop-links,
-          .evs-desktop-cta {
-            display: none !important;
-          }
-          .evs-burger {
-            display: flex !important;
-          }
-        }
-
-        @media (min-width: 769px) {
-          .evs-burger {
-            display: none !important;
-          }
-        }
-      `}</style>
-
-      {/* ─────────────────── NAVBAR ─────────────────── */}
-      <motion.nav
-        role="navigation"
-        aria-label="Main navigation"
-        variants={navbarReveal}
-        initial="hidden"
-        animate="visible"
+      <nav
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           right: 0,
           zIndex: 1000,
-          height: 90,
-          padding: "0 5%",
+          background: scrolled ? "rgba(255,255,255,0.98)" : "#ffffff",
+          backdropFilter: scrolled ? "blur(10px)" : "none",
+          boxShadow: scrolled 
+            ? "0 4px 20px rgba(0,0,0,0.08)" 
+            : "0 1px 0 rgba(0,0,0,0.05)",
+          transition: "all 0.3s ease",
+          padding: scrolled ? "12px 5%" : "16px 5%",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          background: "#ffffff",
-          boxShadow: scrolled
-            ? "0 2px 24px rgba(0,0,0,0.10)"
-            : "0 2px 15px rgba(0,0,0,0.08)",
-          backdropFilter: scrolled ? "blur(16px) saturate(180%)" : "none",
-          transition: "box-shadow 0.35s ease, backdrop-filter 0.35s ease",
-          willChange: "transform",
         }}
       >
-        {/* ── Brand Lockup (full name restored) ── */}
-        <motion.a
-          href="#home"
-          aria-label="EVS Healthcare Solution Limited – return to homepage"
-          style={{ display: "flex", alignItems: "center", gap: 16, textDecoration: "none" }}
-          whileTap={{ scale: 0.97 }}
-          transition={{ duration: 0.15 }}
+        {/* Modern Hamburger Button */}
+        <motion.button
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{
+            display: "none",
+            background: "rgba(26,45,90,0.05)",
+            border: "none",
+            cursor: "pointer",
+            padding: "12px",
+            zIndex: 1002,
+            position: "relative",
+            width: "48px",
+            height: "48px",
+            borderRadius: "14px",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.3s ease",
+          }}
+          className="burger"
+          whileHover={{ 
+            background: "rgba(196,151,42,0.1)",
+            scale: 1.02,
+          }}
+          whileTap={{ scale: 0.95 }}
+          animate={menuOpen ? "open" : "closed"}
         >
-          <EVSLogo size={56} />
+          {/* Hamburger Icon */}
+          <div style={{ position: "relative", width: "22px", height: "18px" }}>
+            <motion.div
+              style={{
+                position: "absolute",
+                width: "22px",
+                height: "2.5px",
+                background: menuOpen ? "#C4972A" : "#1a2d5a",
+                borderRadius: "3px",
+                top: "0",
+                left: "0",
+              }}
+              variants={topLineVariants}
+              animate={menuOpen ? "open" : "closed"}
+            />
+            <motion.div
+              style={{
+                position: "absolute",
+                width: "22px",
+                height: "2.5px",
+                background: menuOpen ? "#C4972A" : "#1a2d5a",
+                borderRadius: "3px",
+                top: "7.5px",
+                left: "0",
+              }}
+              variants={middleLineVariants}
+              animate={menuOpen ? "open" : "closed"}
+            />
+            <motion.div
+              style={{
+                position: "absolute",
+                width: "22px",
+                height: "2.5px",
+                background: menuOpen ? "#C4972A" : "#1a2d5a",
+                borderRadius: "3px",
+                bottom: "0",
+                left: "0",
+              }}
+              variants={bottomLineVariants}
+              animate={menuOpen ? "open" : "closed"}
+            />
+          </div>
+        </motion.button>
+
+        {/* Logo */}
+        <motion.div 
+          style={{ display: "flex", alignItems: "center", gap: 14 }}
+          variants={logoVariants}
+          initial="initial"
+          whileTap="whileTap"
+        >
+          <motion.div
+            whileHover={{ rotate: 360, transition: { duration: 0.5 } }}
+            style={{ cursor: "pointer" }}
+            onClick={() => scrollToSection("home")}
+          >
+            <EVSLogo size={scrolled ? 48 : 52} />
+          </motion.div>
           <div>
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: EASING.smooth }}
               style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
-                fontWeight: 700,
-                fontSize: 18,
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 800,
+                fontSize: scrolled ? 14 : 15,
                 color: "#1a2d5a",
-                letterSpacing: 1.5,
+                letterSpacing: 1,
                 lineHeight: 1.2,
               }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-              EVS HEALTHCARE SOLUTION LIMITED
+              EVS HEALTHCARE LTD
             </motion.div>
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1, ease: EASING.smooth }}
               style={{
-                fontFamily: "Georgia, serif",
+                fontFamily: "'Inter', sans-serif",
                 fontStyle: "italic",
-                fontSize: 11,
+                fontSize: 10,
                 color: "#C4972A",
                 letterSpacing: 0.5,
-                marginTop: 3,
+                marginTop: 2,
               }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
             >
-              {BRAND.tagline}
+              We care in time.
             </motion.div>
           </div>
-        </motion.a>
+        </motion.div>
 
-        {/* ── Desktop Nav Links ── */}
-        <ul className="evs-desktop-links">
-          {NAV_LINKS.map((link, i) => (
-            <DesktopNavLink key={link.label} link={link} index={i} />
+        {/* Desktop Navigation Links */}
+        <div
+          style={{ display: "flex", gap: 28, alignItems: "center" }}
+          className="nav-links-desktop"
+        >
+          {links.map((l, i) => (
+            <motion.button
+              key={l}
+              onClick={() => scrollToSection(l)}
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 14,
+                fontWeight: 500,
+                color: activeLink === l ? "#C4972A" : "#2d3748",
+                textDecoration: "none",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                position: "relative",
+                padding: "8px 0",
+              }}
+              whileHover={{ color: "#C4972A" }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05, duration: 0.4 }}
+            >
+              {l}
+              {(activeLink === l || (!activeLink && l === "Home")) && (
+                <motion.div
+                  layoutId="activeNav"
+                  style={{
+                    position: "absolute",
+                    bottom: -4,
+                    left: 0,
+                    right: 0,
+                    height: 2,
+                    background: "#C4972A",
+                    borderRadius: 2,
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                />
+              )}
+              <motion.div
+                style={{
+                  position: "absolute",
+                  bottom: -4,
+                  left: 0,
+                  right: 0,
+                  height: 2,
+                  background: "#C4972A",
+                  borderRadius: 2,
+                }}
+                initial={{ scaleX: 0 }}
+                whileHover={{ scaleX: 1 }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.button>
           ))}
-        </ul>
+          <motion.button
+            onClick={() => scrollToSection("register")}
+            style={{
+              background: "linear-gradient(135deg, #C4972A, #8B6914)",
+              color: "#fff",
+              padding: "10px 24px",
+              borderRadius: 40,
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 600,
+              fontSize: 13,
+              border: "none",
+              cursor: "pointer",
+              letterSpacing: 0.5,
+              boxShadow: "0 4px 12px rgba(196,151,42,0.3)",
+            }}
+            whileHover={{ 
+              scale: 1.02,
+              boxShadow: "0 6px 20px rgba(196,151,42,0.4)",
+            }}
+            whileTap={{ scale: 0.98 }}
+          >
+            Apply Now
+          </motion.button>
+        </div>
 
-        {/* ── Desktop CTA — gold gradient (your original colour) ── */}
-        <motion.a
-          href={BRAND.primaryCta.href}
-          className="evs-desktop-cta"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45, duration: 0.4, ease: EASING.smooth }}
-          whileHover={{
-            scale: 1.05,
-            boxShadow: "0 8px 25px rgba(196,151,42,0.5)",
-            transition: { type: "spring", stiffness: 300 },
-          }}
-          whileTap={{ scale: 0.98 }}
-          style={{
-            background: "linear-gradient(135deg, #C4972A, #8B6914)",
-            color: "#ffffff",
-            padding: "10px 28px",
-            borderRadius: 30,
-            fontFamily: "'DM Sans', sans-serif",
-            fontWeight: 600,
-            fontSize: 14,
-            textDecoration: "none",
-            letterSpacing: 0.5,
-            boxShadow: "0 4px 15px rgba(196,151,42,0.4)",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {BRAND.primaryCta.label}
-        </motion.a>
+        {/* Spacer for mobile layout */}
+        <div style={{ width: "48px", visibility: "hidden" }} className="nav-spacer" />
+      </nav>
 
-        {/* ── Mobile Hamburger ── */}
-        <button
-          ref={menuButtonRef}
-          className="evs-burger"
-          onClick={toggleMenu}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-        >
-          <HamburgerIcon isOpen={menuOpen} />
-        </button>
-      </motion.nav>
-
-      {/* ─────────────────── MOBILE MENU ─────────────────── */}
-      <AnimatePresence>
+      {/* Mobile Menu with AnimatePresence */}
+      <AnimatePresence mode="wait">
         {menuOpen && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop Overlay */}
             <motion.div
-              key="backdrop"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
               variants={overlayVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              aria-hidden="true"
-              onClick={closeMenu}
-              style={{
-                position: "fixed",
-                inset: 0,
-                zIndex: 1000,
-                background: "rgba(15,43,77,0.75)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-              }}
-            />
-
-            {/* Drawer — slides from the right */}
-            <motion.div
-              key="drawer"
-              id="mobile-menu"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Navigation menu"
-              variants={drawerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
               style={{
                 position: "fixed",
                 top: 0,
+                left: 0,
                 right: 0,
                 bottom: 0,
+                background: "rgba(10,22,40,0.92)",
+                zIndex: 1000,
+              }}
+              onClick={() => setMenuOpen(false)}
+            />
+
+            {/* Floating Particles */}
+            {particles.map((particle) => (
+              <motion.div
+                key={particle.id}
+                custom={particle.delay}
+                variants={particleVariants}
+                initial="hidden"
+                animate="visible"
+                style={{
+                  position: "fixed",
+                  width: particle.size,
+                  height: particle.size,
+                  background: `rgba(196,151,42,0.4)`,
+                  borderRadius: "50%",
+                  top: `${particle.top}%`,
+                  left: `${particle.left}%`,
+                  zIndex: 1000,
+                  pointerEvents: "none",
+                }}
+              />
+            ))}
+
+            {/* Slide-out Menu Panel */}
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={menuVariants}
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                bottom: 0,
+                width: "min(85%, 360px)",
+                background: "linear-gradient(135deg, #ffffff 0%, #fefaf5 100%)",
+                boxShadow: "10px 0 40px rgba(0,0,0,0.2)",
                 zIndex: 1001,
-                width: "min(85%, 380px)",
-                background: "linear-gradient(160deg, #ffffff 0%, #fef9f0 100%)",
-                boxShadow: "-10px 0 50px rgba(0,0,0,0.12)",
                 display: "flex",
                 flexDirection: "column",
-                overflowY: "auto",
-                overscrollBehavior: "contain",
+                padding: "90px 28px 40px 28px",
               }}
             >
-              {/* ── Drawer Header ── */}
-              <div
+              {/* Close Button */}
+              <motion.button
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  position: "absolute",
+                  top: "24px",
+                  right: "24px",
+                  background: "rgba(196,151,42,0.08)",
+                  border: "1px solid rgba(196,151,42,0.15)",
+                  cursor: "pointer",
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "22px",
+                  color: "#C4972A",
+                }}
+                whileHover={{ 
+                  background: "rgba(196,151,42,0.15)",
+                  rotate: 90,
+                  scale: 1.05,
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                ✕
+              </motion.button>
+
+              {/* Menu Header */}
+              <motion.div
+                custom={0}
+                initial="hidden"
+                animate="visible"
+                variants={linkVariants}
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "28px 28px 24px 32px",
-                  borderBottom: "2px solid rgba(196,151,42,0.2)",
+                  gap: 14,
+                  marginBottom: 48,
+                  paddingBottom: 24,
+                  borderBottom: "2px solid rgba(196,151,42,0.12)",
                 }}
               >
-                {/* Brand lockup in menu — full name */}
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <motion.div
+                  whileHover={{ rotate: 360, transition: { duration: 0.5 } }}
+                >
                   <EVSLogo size={48} />
-                  <div>
-                    <div
-                      style={{
-                        fontFamily: "'Playfair Display', Georgia, serif",
-                        fontWeight: 700,
-                        fontSize: 14,
-                        color: "#1a2d5a",
-                        letterSpacing: 1,
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      EVS HEALTHCARE
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: "Georgia, serif",
-                        fontStyle: "italic",
-                        fontSize: 10,
-                        color: "#C4972A",
-                        marginTop: 2,
-                      }}
-                    >
-                      {BRAND.tagline}
-                    </div>
+                </motion.div>
+                <div>
+                  <div
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontWeight: 800,
+                      fontSize: 14,
+                      color: "#1a2d5a",
+                      letterSpacing: 0.5,
+                    }}
+                  >
+                    EVS HEALTHCARE LTD
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontStyle: "italic",
+                      fontSize: 9,
+                      color: "#C4972A",
+                      marginTop: 2,
+                    }}
+                  >
+                    We care in time.
                   </div>
                 </div>
+              </motion.div>
 
-                {/* Close button */}
-                <motion.button
-                  onClick={closeMenu}
-                  aria-label="Close navigation menu"
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: "50%",
-                    background: "rgba(196,151,42,0.08)",
-                    border: "1px solid rgba(196,151,42,0.2)",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 20,
-                    color: "#C4972A",
-                    flexShrink: 0,
-                  }}
-                  whileHover={{
-                    background: "rgba(196,151,42,0.18)",
-                    rotate: 90,
-                    scale: 1.08,
-                    borderColor: "rgba(196,151,42,0.4)",
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  ✕
-                </motion.button>
-              </div>
-
-              {/* ── Nav Links ── */}
-              <motion.ul
-                role="list"
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
+              {/* Navigation Links */}
+              <div
                 style={{
-                  flex: 1,
-                  padding: "16px 12px 8px 12px",
-                  margin: 0,
-                  listStyle: "none",
-                }}
-              >
-                {NAV_LINKS.map((link, i) => (
-                  <MobileNavLink
-                    key={link.label}
-                    link={link}
-                    onClose={closeMenu}
-                    isFirst={i === 0}
-                    firstRef={firstMenuItemRef}
-                  />
-                ))}
-              </motion.ul>
-
-              {/* ── Drawer Footer ── */}
-              <motion.div
-                variants={linkReveal}
-                initial="hidden"
-                animate="visible"
-                transition={{ delay: 0.45 }}
-                style={{
-                  padding: "20px 32px 36px",
-                  borderTop: "1px solid rgba(196,151,42,0.15)",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 12,
+                  gap: 8,
+                  flex: 1,
                 }}
               >
-                {/* Gold CTA — your original gradient */}
-                <motion.a
-                  href={BRAND.primaryCta.href}
-                  onClick={closeMenu}
-                  whileHover={{
-                    scale: 1.02,
-                    boxShadow: "0 12px 30px rgba(196,151,42,0.4)",
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  style={{
-                    display: "block",
-                    background: "linear-gradient(135deg, #C4972A, #8B6914)",
-                    color: "#ffffff",
-                    padding: "17px 28px",
-                    borderRadius: 50,
-                    textAlign: "center",
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontWeight: 700,
-                    fontSize: 17,
-                    textDecoration: "none",
-                    letterSpacing: 0.5,
-                    boxShadow: "0 6px 20px rgba(196,151,42,0.3)",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  {/* Shine sweep on hover */}
-                  <motion.span
-                    aria-hidden="true"
+                {links.map((l, i) => (
+                  <motion.button
+                    key={l}
+                    custom={i + 1}
+                    initial="hidden"
+                    animate="visible"
+                    variants={linkVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    onClick={() => scrollToSection(l)}
                     style={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)",
-                      transform: "translateX(-100%)",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 20,
+                      fontWeight: 500,
+                      color: activeLink === l ? "#C4972A" : "#2d3748",
+                      textDecoration: "none",
+                      padding: "12px 20px",
+                      borderRadius: "14px",
+                      margin: "2px 0",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      background: "none",
+                      border: "none",
+                      width: "100%",
+                      textAlign: "left",
                     }}
-                    whileHover={{
-                      transform: "translateX(100%)",
-                      transition: { duration: 0.55, ease: "easeInOut" },
-                    }}
-                  />
-                  Apply Now →
-                </motion.a>
+                  >
+                    {l}
+                    <motion.span
+                      initial={{ x: -10, opacity: 0 }}
+                      whileHover={{ x: 0, opacity: 1 }}
+                      style={{ color: "#C4972A", fontSize: 18 }}
+                    >
+                      →
+                    </motion.span>
+                  </motion.button>
+                ))}
+              </div>
 
-                {/* Phone — tap-to-call on mobile */}
-                <a
-                  href={BRAND.phoneHref}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 16,
-                    fontWeight: 600,
-                    color: "#C4972A",
-                    textDecoration: "none",
-                    padding: "12px",
-                  }}
-                >
-                  <span aria-hidden="true">📞</span>
-                  {BRAND.phone}
-                </a>
+              {/* CTA Button */}
+              <motion.button
+                custom={links.length + 1}
+                initial="hidden"
+                animate="visible"
+                variants={linkVariants}
+                onClick={() => {
+                  scrollToSection("register");
+                  setMenuOpen(false);
+                }}
+                style={{
+                  background: "linear-gradient(135deg, #C4972A, #8B6914)",
+                  color: "#fff",
+                  padding: "16px 24px",
+                  borderRadius: 50,
+                  textAlign: "center",
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 16,
+                  border: "none",
+                  cursor: "pointer",
+                  marginTop: 32,
+                  marginBottom: 20,
+                  boxShadow: "0 8px 20px rgba(196,151,42,0.3)",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+                whileHover={{ 
+                  scale: 1.02,
+                  boxShadow: "0 12px 30px rgba(196,151,42,0.4)",
+                }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Apply Now →
+              </motion.button>
 
+              {/* Contact Section */}
+              <motion.div
+                custom={links.length + 2}
+                initial="hidden"
+                animate="visible"
+                variants={linkVariants}
+                style={{
+                  marginTop: 20,
+                  paddingTop: 20,
+                  borderTop: "1px solid rgba(196,151,42,0.1)",
+                  textAlign: "center",
+                }}
+              >
                 <p
                   style={{
-                    margin: 0,
-                    textAlign: "center",
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 11,
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 12,
                     color: "#94a3b8",
-                    letterSpacing: "0.03em",
+                    marginBottom: 8,
                   }}
                 >
-                  Available 24/7 · Trusted by NHS trusts
+                  Need help? We're here 24/7
                 </p>
+                <motion.a
+                  href="tel:01772379989"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "#C4972A",
+                    textDecoration: "none",
+                    display: "inline-block",
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  animate={{ 
+                    scale: [1, 1.03, 1],
+                  }}
+                  transition={{ 
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatDelay: 3,
+                  }}
+                >
+                  📞 01772 379989
+                </motion.a>
               </motion.div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+        
+        @media (max-width: 768px) {
+          .nav-links-desktop {
+            display: none !important;
+          }
+          .burger {
+            display: flex !important;
+          }
+          .nav-spacer {
+            display: block !important;
+          }
+        }
+        
+        @media (min-width: 769px) {
+          .burger {
+            display: none !important;
+          }
+          .nav-spacer {
+            display: none !important;
+          }
+        }
+
+        /* Smooth scrolling */
+        html {
+          scroll-behavior: smooth;
+        }
+        
+        body {
+          transition: overflow 0.3s ease;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+          width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #C4972A;
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #8B6914;
+        }
+      `}</style>
     </>
   );
 }

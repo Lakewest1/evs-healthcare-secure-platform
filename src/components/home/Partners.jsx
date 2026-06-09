@@ -1,6 +1,17 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { motion, useInView, useMotionValue, AnimatePresence } from "framer-motion";
 
+// Lucide Icons - Professional icon set
+import {
+  Building2,
+  Shield,
+  GraduationCap,
+  Handshake,
+  Star,
+  MapPin,
+  CheckCircle,
+} from "lucide-react";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PERFORMANCE FIXES (design unchanged):
 //
@@ -29,32 +40,35 @@ const IS_TOUCH =
   typeof window !== "undefined" &&
   ("ontouchstart" in window || navigator.maxTouchPoints > 0);
 
+// Partner data with Lucide icons
 const partners = [
-  { id: 1, name: "NHS England",      color: "#005EB8", gradient: "linear-gradient(135deg, #005EB8, #0088E8)", icon: "🏥", delay: 0 },
-  { id: 2, name: "CQC Approved",     color: "#00A859", gradient: "linear-gradient(135deg, #00A859, #00C870)", icon: "✓",  delay: 0.1 },
-  { id: 3, name: "DBS Partner",      color: "#C4972A", gradient: "linear-gradient(135deg, #C4972A, #e8b84a)", icon: "🔒", delay: 0.2 },
-  { id: 4, name: "Skills for Care",  color: "#6C3B2A", gradient: "linear-gradient(135deg, #6C3B2A, #8B5A42)", icon: "📚", delay: 0.3 },
-  { id: 5, name: "Care Quality",     color: "#2C5F8A", gradient: "linear-gradient(135deg, #2C5F8A, #4A8BBA)", icon: "⭐", delay: 0.4 },
-  { id: 6, name: "Lancashire County",color: "#4A6FA5", gradient: "linear-gradient(135deg, #4A6FA5, #6A8FBF)", icon: "📍", delay: 0.5 },
-  { id: 7, name: "UKHCA",            color: "#7B2D8E", gradient: "linear-gradient(135deg, #7B2D8E, #9B4DAE)", icon: "🤝", delay: 0.6 },
-  { id: 8, name: "NCFE",             color: "#E65100", gradient: "linear-gradient(135deg, #E65100, #FF771D)", icon: "🎓", delay: 0.7 },
+  { id: 1, name: "NHS England",      color: "#005EB8", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Building2, delay: 0 },
+  { id: 2, name: "CQC Approved",     color: "#00A859", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Shield, delay: 0.1 },
+  { id: 3, name: "DBS Partner",      color: "#C4972A", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Shield, delay: 0.2 },
+  { id: 4, name: "Skills for Care",  color: "#6C3B2A", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: GraduationCap, delay: 0.3 },
+  { id: 5, name: "Care Quality",     color: "#2C5F8A", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Star, delay: 0.4 },
+  { id: 6, name: "Lancashire County",color: "#4A6FA5", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: MapPin, delay: 0.5 },
+  { id: 7, name: "UKHCA",            color: "#7B2D8E", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: Handshake, delay: 0.6 },
+  { id: 8, name: "NCFE",             color: "#E65100", gradient: "linear-gradient(135deg, #ffffff, #fefcf8)", icon: GraduationCap, delay: 0.7 },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FLOATING BALL CARD
+// FLOATING BALL CARD - White card with gold border (same as TrustBadges)
 // ─────────────────────────────────────────────────────────────────────────────
 function FloatingBallCard({ partner, index, isInView }) {
   const [isHovered, setIsHovered] = useState(false);
   const floatX = useMotionValue(0);
   const floatY = useMotionValue(0);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const cardSize = isMobile ? 85 : 110;
 
   // Mouse tracking — only attached on non-touch devices
   const handleMouseMove = useCallback((e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
-    floatX.set((x - 0.5) * 20);
-    floatY.set((y - 0.5) * 15);
+    floatX.set((x - 0.5) * 15);
+    floatY.set((y - 0.5) * 10);
   }, [floatX, floatY]);
 
   const handleMouseLeave = useCallback(() => {
@@ -70,7 +84,6 @@ function FloatingBallCard({ partner, index, isInView }) {
 
   return (
     <motion.div
-      // FIX 8: removed rotate: -180 from initial. Scale+fade is 10x cheaper.
       initial={{ opacity: 0, scale: 0.6 }}
       animate={isInView ? { opacity: 1, scale: 1 } : {}}
       transition={{
@@ -82,19 +95,18 @@ function FloatingBallCard({ partner, index, isInView }) {
       onMouseEnter={IS_TOUCH ? undefined : onEnter}
       onMouseMove={IS_TOUCH ? undefined : handleMouseMove}
       onMouseLeave={IS_TOUCH ? undefined : handleMouseLeave}
-      // FIX 5: motion values only wired on non-touch
       style={{
         position: "relative",
-        width: 130,
-        height: 130,
+        width: cardSize,
+        height: cardSize,
         flexShrink: 0,
         cursor: "pointer",
-        margin: "0 12px",
+        margin: "0 10px",
         x: IS_TOUCH ? 0 : floatX,
         y: IS_TOUCH ? 0 : floatY,
       }}
     >
-      {/* FIX 1: Float animation moved to CSS — runs on compositor, zero JS */}
+      {/* Float animation wrapper */}
       <div
         className="partners-ball-float"
         style={{ animationDelay: floatDelay, width: "100%", height: "100%" }}
@@ -103,59 +115,60 @@ function FloatingBallCard({ partner, index, isInView }) {
         <motion.div
           animate={{
             boxShadow: isHovered
-              ? `0 0 30px ${partner.color}80`
+              ? `0 0 25px ${partner.color}80`
               : `0 0 0px ${partner.color}00`,
           }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.3 }}
           style={{
             position: "absolute",
-            inset: -10,
+            inset: -8,
             borderRadius: "50%",
-            filter: "blur(8px)",
+            filter: "blur(6px)",
             pointerEvents: "none",
           }}
         />
 
-        {/* 3D scale on hover */}
+        {/* Scale on hover */}
         <motion.div
           animate={{
-            rotateX: isHovered ? 10 : 0,
-            rotateY: isHovered ? 10 : 0,
-            scale: isHovered ? 1.08 : 1,
+            rotateX: isHovered ? 8 : 0,
+            rotateY: isHovered ? 8 : 0,
+            scale: isHovered ? 1.05 : 1,
           }}
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
           style={{ position: "relative", width: "100%", height: "100%" }}
         >
-          {/* Main ball */}
+          {/* Main ball - White card with gold border */}
           <div
             style={{
               position: "absolute",
               inset: 0,
               borderRadius: "50%",
               background: partner.gradient,
+              border: `1.5px solid ${partner.color}20`,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: `0 15px 30px rgba(0,0,0,0.2), 0 0 0 3px rgba(255,255,255,0.3), inset 0 -8px 15px rgba(0,0,0,0.15)`,
+              boxShadow: `0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(196,151,42,0.08)`,
               overflow: "hidden",
             }}
           >
-            {/* FIX 2: Inner gradient pulse → CSS animation */}
+            {/* Inner pulse glow */}
             <div
               className="partners-ball-pulse"
               style={{
                 position: "absolute",
-                inset: 10,
+                inset: 8,
                 borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%)",
+                background: "radial-gradient(circle, rgba(196,151,42,0.08), transparent 70%)",
                 pointerEvents: "none",
               }}
             />
 
-            {/* FIX 10: Sweep light — always mounted, opacity toggled. No DOM thrash. */}
+            {/* Sweep light — always mounted, opacity toggled */}
             <motion.div
-              animate={{ x: isHovered ? "200%" : "-100%", opacity: isHovered ? 0.6 : 0 }}
+              animate={{ x: isHovered ? "200%" : "-100%", opacity: isHovered ? 0.4 : 0 }}
               transition={
                 isHovered
                   ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
@@ -167,41 +180,44 @@ function FloatingBallCard({ partner, index, isInView }) {
                 left: 0,
                 width: "50%",
                 height: "100%",
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)",
+                background: "linear-gradient(90deg, transparent, rgba(196,151,42,0.15), transparent)",
                 transform: "skewX(-20deg)",
                 pointerEvents: "none",
               }}
             />
 
-            {/* Icon */}
-            <motion.span
+            {/* Icon - Lucide */}
+            <motion.div
               animate={{
-                scale: isHovered ? [1, 1.2, 1] : 1,
-                rotate: isHovered ? [0, -5, 5, 0] : 0,
+                scale: isHovered ? [1, 1.1, 1] : 1,
+                rotate: isHovered ? [0, -3, 3, 0] : 0,
               }}
-              transition={{ duration: 0.5, type: "spring", stiffness: 500 }}
+              transition={{ duration: 0.4, type: "spring", stiffness: 500 }}
               style={{
-                fontSize: 36,
-                marginBottom: 8,
-                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))",
-                display: "block",
+                marginBottom: 6,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              {partner.icon}
-            </motion.span>
+              <partner.icon
+                size={isMobile ? 22 : 28}
+                strokeWidth={1.8}
+                color={partner.color}
+              />
+            </motion.div>
 
             {/* Partner name */}
             <motion.span
-              animate={{ opacity: isHovered ? 1 : 0.95, y: isHovered ? -2 : 0 }}
+              animate={{ opacity: isHovered ? 1 : 0.9, y: isHovered ? -1 : 0 }}
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontWeight: 700,
-                fontSize: 11,
-                color: "#fff",
+                fontWeight: 600,
+                fontSize: isMobile ? 8.5 : 10,
+                color: "#475569",
                 textAlign: "center",
-                padding: "0 10px",
+                padding: "0 8px",
                 lineHeight: 1.3,
-                textShadow: "0 1px 2px rgba(0,0,0,0.2)",
                 position: "relative",
                 zIndex: 1,
               }}
@@ -209,14 +225,14 @@ function FloatingBallCard({ partner, index, isInView }) {
               {partner.name}
             </motion.span>
 
-            {/* FIX 3: Rotating rings → CSS animations */}
+            {/* Rotating rings */}
             <div
               className="partners-ring-cw"
               style={{
                 position: "absolute",
                 inset: -4,
                 borderRadius: "50%",
-                border: "1.5px solid rgba(255,255,255,0.3)",
+                border: "1px solid rgba(196,151,42,0.15)",
                 pointerEvents: "none",
               }}
             />
@@ -224,24 +240,24 @@ function FloatingBallCard({ partner, index, isInView }) {
               className="partners-ring-ccw"
               style={{
                 position: "absolute",
-                inset: -8,
+                inset: -7,
                 borderRadius: "50%",
-                border: "1px solid rgba(255,255,255,0.15)",
+                border: "1px solid rgba(196,151,42,0.08)",
                 pointerEvents: "none",
               }}
             />
 
-            {/* Pulsing ring on hover — kept as Framer Motion (only active on hover, not perpetual) */}
+            {/* Pulsing ring on hover */}
             {isHovered && (
               <motion.div
-                initial={{ scale: 1, opacity: 0.5 }}
-                animate={{ scale: 1.5, opacity: 0 }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
+                initial={{ scale: 1, opacity: 0.4 }}
+                animate={{ scale: 1.4, opacity: 0 }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: "easeOut" }}
                 style={{
                   position: "absolute",
                   inset: 0,
                   borderRadius: "50%",
-                  border: `2px solid ${partner.color}`,
+                  border: `1.5px solid ${partner.color}`,
                   pointerEvents: "none",
                 }}
               />
@@ -255,17 +271,14 @@ function FloatingBallCard({ partner, index, isInView }) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // INFINITE MARQUEE
-// FIX 6+7: useAnimation + controls.stop() replaced with direct animate prop
-// + CSS animation-play-state for pause (no position jump on resume)
 // ─────────────────────────────────────────────────────────────────────────────
-function InfiniteMarquee({ partners: items, speed = 40, isInView }) {
+function InfiniteMarquee({ partners: items, speed = 45, isInView }) {
   const [isPaused, setIsPaused] = useState(false);
   const [contentWidth, setContentWidth] = useState(0);
   const contentRef = useRef(null);
 
   useEffect(() => {
     if (contentRef.current) {
-      // Measure once after mount
       setContentWidth(contentRef.current.scrollWidth / 2);
     }
   }, []);
@@ -286,7 +299,6 @@ function InfiniteMarquee({ partners: items, speed = 40, isInView }) {
       }}
     >
       {contentWidth > 0 && isInView ? (
-        // FIX 6: Direct animate prop — no useAnimation needed
         <motion.div
           ref={contentRef}
           animate={{ x: [0, -contentWidth] }}
@@ -294,9 +306,7 @@ function InfiniteMarquee({ partners: items, speed = 40, isInView }) {
             duration: speed,
             repeat: Infinity,
             ease: "linear",
-            // FIX 7: pause via repeatDelay trick — actually we use CSS below
           }}
-          // FIX 7: CSS animation-play-state handles pause without position jump
           style={{
             display: "flex",
             width: "fit-content",
@@ -313,13 +323,12 @@ function InfiniteMarquee({ partners: items, speed = 40, isInView }) {
           ))}
         </motion.div>
       ) : (
-        // Measurement pass — invisible, used only to measure width
         <div
           ref={contentRef}
           style={{ display: "flex", width: "fit-content", visibility: "hidden", position: "absolute" }}
         >
           {duplicated.map((partner, idx) => (
-            <div key={`measure-${idx}`} style={{ width: 130, height: 130, margin: "0 12px", flexShrink: 0 }} />
+            <div key={`measure-${idx}`} style={{ width: 110, height: 110, margin: "0 10px", flexShrink: 0 }} />
           ))}
         </div>
       )}
@@ -332,6 +341,7 @@ function InfiniteMarquee({ partners: items, speed = 40, isInView }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Partners() {
   const [ref, inView] = useReveal(0.15);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   const headerVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -360,23 +370,23 @@ export default function Partners() {
       <style>{`
         /* ── CSS ANIMATIONS — all run on GPU compositor thread, zero JS ── */
 
-        /* FIX 1: Ball float (replaces useAnimation y/rotateZ loop) */
+        /* Ball float animation */
         @keyframes partners-float {
           0%, 100% { transform: translateY(0)   rotateZ(0deg); }
-          25%       { transform: translateY(-8px) rotateZ(2deg); }
-          75%       { transform: translateY(8px)  rotateZ(-2deg); }
+          25%       { transform: translateY(-6px) rotateZ(1.5deg); }
+          75%       { transform: translateY(6px)  rotateZ(-1.5deg); }
         }
         .partners-ball-float {
-          animation: partners-float 6s ease-in-out infinite;
+          animation: partners-float 5s ease-in-out infinite;
         }
         @media (prefers-reduced-motion: reduce) {
           .partners-ball-float { animation: none; }
         }
 
-        /* FIX 2: Inner gradient pulse */
+        /* Inner gradient pulse */
         @keyframes partners-pulse {
-          0%, 100% { opacity: 0.1; }
-          50%       { opacity: 0.25; }
+          0%, 100% { opacity: 0.05; }
+          50%       { opacity: 0.15; }
         }
         .partners-ball-pulse {
           animation: partners-pulse 3s ease-in-out infinite;
@@ -385,7 +395,7 @@ export default function Partners() {
           .partners-ball-pulse { animation: none; }
         }
 
-        /* FIX 3: Rotating rings */
+        /* Rotating rings */
         @keyframes partners-ring-cw {
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }
@@ -395,43 +405,50 @@ export default function Partners() {
           to   { transform: rotate(-360deg); }
         }
         .partners-ring-cw {
-          animation: partners-ring-cw 12s linear infinite;
+          animation: partners-ring-cw 10s linear infinite;
         }
         .partners-ring-ccw {
-          animation: partners-ring-ccw 15s linear infinite;
+          animation: partners-ring-ccw 12s linear infinite;
         }
         @media (prefers-reduced-motion: reduce) {
           .partners-ring-cw,
           .partners-ring-ccw { animation: none; }
         }
 
-        /* FIX 4: Background blobs (replaces perpetual Framer Motion y/x) */
+        /* Background blobs */
         @keyframes partners-blob-a {
           0%, 100% { transform: translate(0, 0); }
-          25%       { transform: translate(20px, -30px); }
-          75%       { transform: translate(-20px, 30px); }
+          25%       { transform: translate(15px, -20px); }
+          75%       { transform: translate(-15px, 20px); }
         }
         @keyframes partners-blob-b {
           0%, 100% { transform: translate(0, 0); }
-          25%       { transform: translate(-20px, 30px); }
-          75%       { transform: translate(20px, -30px); }
+          25%       { transform: translate(-15px, 20px); }
+          75%       { transform: translate(15px, -20px); }
         }
         .partners-blob-a {
-          animation: partners-blob-a 20s ease-in-out infinite;
+          animation: partners-blob-a 18s ease-in-out infinite;
         }
         .partners-blob-b {
-          animation: partners-blob-b 25s ease-in-out infinite;
+          animation: partners-blob-b 22s ease-in-out infinite;
         }
         @media (prefers-reduced-motion: reduce) {
           .partners-blob-a,
           .partners-blob-b { animation: none; }
+        }
+
+        /* Ultra mobile optimization */
+        @media (max-width: 480px) {
+          .partners-ball-float > div > div {
+            border-width: 1px !important;
+          }
         }
       `}</style>
 
       <section
         ref={ref}
         style={{
-          padding: "clamp(60px, 10vh, 100px) clamp(16px, 5vw, 80px)",
+          padding: "clamp(50px, 8vh, 80px) clamp(16px, 5vw, 80px)",
           background: "linear-gradient(135deg, #ffffff 0%, #fefcf8 100%)",
           position: "relative",
           overflow: "hidden",
@@ -445,25 +462,25 @@ export default function Partners() {
             position: "absolute",
             inset: 0,
             backgroundImage: `
-              radial-gradient(circle at 20% 50%, rgba(196,151,42,0.1) 0%, transparent 50%),
+              radial-gradient(circle at 20% 50%, rgba(196,151,42,0.08) 0%, transparent 50%),
               repeating-linear-gradient(45deg, #C4972A 0px, #C4972A 1px, transparent 1px, transparent 20px)
             `,
-            backgroundSize: "100% 100%, 40px 40px",
+            backgroundSize: "100% 100%, 30px 30px",
             pointerEvents: "none",
           }}
         />
 
-        {/* FIX 4: Blobs use CSS animation class now */}
+        {/* Background blobs with CSS animation */}
         <div
           className="partners-blob-a"
           style={{
             position: "absolute",
             top: "5%",
             right: "2%",
-            width: 300,
-            height: 300,
+            width: isMobile ? 180 : 280,
+            height: isMobile ? 180 : 280,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(196,151,42,0.05), transparent 70%)",
+            background: "radial-gradient(circle, rgba(196,151,42,0.04), transparent 70%)",
             pointerEvents: "none",
           }}
         />
@@ -473,10 +490,10 @@ export default function Partners() {
             position: "absolute",
             bottom: "5%",
             left: "2%",
-            width: 350,
-            height: 350,
+            width: isMobile ? 200 : 320,
+            height: isMobile ? 200 : 320,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(196,151,42,0.04), transparent 70%)",
+            background: "radial-gradient(circle, rgba(196,151,42,0.03), transparent 70%)",
             pointerEvents: "none",
           }}
         />
@@ -492,8 +509,24 @@ export default function Partners() {
             left: 0,
             right: 0,
             height: 1,
-            background: "linear-gradient(90deg, transparent, #C4972A, transparent)",
+            background: "linear-gradient(90deg, transparent, #C4972A, #f0c060, #C4972A, transparent)",
             transformOrigin: "left",
+          }}
+        />
+
+        {/* Bottom animated border */}
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={inView ? { scaleX: 1 } : {}}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 1,
+            background: "linear-gradient(90deg, transparent, #C4972A, #f0c060, #C4972A, transparent)",
+            transformOrigin: "right",
           }}
         />
 
@@ -504,7 +537,7 @@ export default function Partners() {
             variants={headerVariants}
             initial="hidden"
             animate={inView ? "visible" : "hidden"}
-            style={{ textAlign: "center", marginBottom: 56 }}
+            style={{ textAlign: "center", marginBottom: isMobile ? 40 : 56 }}
           >
             {/* Eyebrow */}
             <motion.div
@@ -585,7 +618,7 @@ export default function Partners() {
           {/* Single infinite marquee row */}
           <InfiniteMarquee
             partners={partners}
-            speed={45}
+            speed={isMobile ? 35 : 45}
             isInView={inView}
           />
 
@@ -604,8 +637,8 @@ export default function Partners() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              marginTop: 56,
-              gap: 16,
+              marginTop: isMobile ? 40 : 56,
+              gap: isMobile ? 12 : 16,
               flexWrap: "wrap",
             }}
           >
@@ -618,7 +651,6 @@ export default function Partners() {
                 key={idx}
                 variants={{
                   hidden:   { opacity: 0, y: 20, scale: 0.9 },
-                  // FIX 9: rotate fired once on entry, not looping
                   visible:  { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, type: "spring" } },
                 }}
                 whileHover={{ scale: 1.05, y: -2 }}
@@ -626,17 +658,17 @@ export default function Partners() {
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  padding: "8px 20px",
+                  padding: `${isMobile ? 6 : 8}px ${isMobile ? 16 : 20}px`,
                   background: idx === 0 ? "rgba(196,151,42,0.08)" : "rgba(0,0,0,0.03)",
                   borderRadius: "50px",
                   cursor: "default",
                 }}
               >
-                <span style={{ fontSize: 16 }}>{badge.icon}</span>
+                <span style={{ fontSize: isMobile ? 14 : 16 }}>{badge.icon}</span>
                 <span
                   style={{
                     fontFamily: "'Inter', sans-serif",
-                    fontSize: 13,
+                    fontSize: isMobile ? 12 : 13,
                     fontWeight: idx === 0 ? 600 : 500,
                     color: badge.color,
                   }}
