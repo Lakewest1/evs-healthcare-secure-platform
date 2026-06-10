@@ -1,5 +1,14 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+import {
+  Stethoscope,
+  Building2,
+  HeartHandshake,
+  Brain,
+  Heart,
+  Star,
+  Flame,
+} from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Modern Featured Jobs Section — Premium Job Cards with Advanced Interactions
@@ -21,7 +30,7 @@ const jobs = [
     pay: "£18–£24/hr",
     payValue: 21,
     urgent: true,
-    icon: "👩‍⚕️",
+    icon: Stethoscope,
     shift: "Day & Night Shifts",
     experience: "2+ years preferred",
   },
@@ -33,7 +42,7 @@ const jobs = [
     pay: "£12–£15/hr",
     payValue: 13.5,
     urgent: false,
-    icon: "🏥",
+    icon: Building2,
     shift: "Flexible Hours",
     experience: "No experience required",
   },
@@ -45,7 +54,7 @@ const jobs = [
     pay: "£11–£14/hr",
     payValue: 12.5,
     urgent: true,
-    icon: "🤲",
+    icon: HeartHandshake,
     shift: "Weekend Availability",
     experience: "Driving license preferred",
   },
@@ -57,7 +66,7 @@ const jobs = [
     pay: "£22–£30/hr",
     payValue: 26,
     urgent: false,
-    icon: "🧠",
+    icon: Brain,
     shift: "Rotating Shifts",
     experience: "NMC Registered",
   },
@@ -69,7 +78,7 @@ const jobs = [
     pay: "£14–£17/hr",
     payValue: 15.5,
     urgent: false,
-    icon: "❤️",
+    icon: Heart,
     shift: "Day Shifts Only",
     experience: "NVQ Level 3 required",
   },
@@ -81,7 +90,7 @@ const jobs = [
     pay: "£10.50–£12/hr",
     payValue: 11.25,
     urgent: false,
-    icon: "🌟",
+    icon: Star,
     shift: "Morning / Afternoon",
     experience: "Basic cleaning skills",
   },
@@ -94,6 +103,8 @@ function JobCard({ job, index, isInView }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const JobIcon = job.icon;
 
   const cardVariants = {
     hidden: { opacity: 0, y: 50, scale: 0.95 },
@@ -150,9 +161,9 @@ function JobCard({ job, index, isInView }) {
           padding: "28px",
           height: "100%",
           boxShadow: isHovered
-            ? "0 25px 50px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(196,151,42,0.2)"
-            : "0 4px 20px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03)",
-          border: `1px solid ${isHovered ? "rgba(196,151,42,0.3)" : "rgba(0,0,0,0.06)"}`,
+            ? "0 20px 40px -12px rgba(15,29,61,0.15), 0 0 0 1px rgba(196,151,42,0.2)"
+            : "0 4px 12px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)",
+          border: `1px solid ${isHovered ? "rgba(196,151,42,0.25)" : "rgba(0,0,0,0.06)"}`,
           cursor: "pointer",
           overflow: "hidden",
           transition: "box-shadow 0.3s ease, border-color 0.3s ease",
@@ -199,6 +210,8 @@ function JobCard({ job, index, isInView }) {
             e.preventDefault();
             setIsSaved(!isSaved);
           }}
+          aria-label={isSaved ? "Remove from saved" : "Save job"}
+          aria-pressed={isSaved}
           style={{
             position: "absolute",
             top: 20,
@@ -206,7 +219,7 @@ function JobCard({ job, index, isInView }) {
             width: 32,
             height: 32,
             borderRadius: "50%",
-            background: isSaved ? "#C4972A" : "rgba(0,0,0,0.05)",
+            background: isSaved ? "#C4972A" : "rgba(0,0,0,0.04)",
             border: "none",
             display: "flex",
             alignItems: "center",
@@ -220,15 +233,15 @@ function JobCard({ job, index, isInView }) {
             width="16"
             height="16"
             viewBox="0 0 24 24"
-            fill={isSaved ? "#fff" : "none"}
-            stroke={isSaved ? "#fff" : "#64748b"}
+            fill={isSaved ? "#ffffff" : "none"}
+            stroke={isSaved ? "#ffffff" : "#64748b"}
             strokeWidth="2"
           >
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
           </svg>
         </motion.button>
 
-        {/* Urgent Badge */}
+        {/* Urgent Badge — Flame icon replaces 🔥 */}
         <AnimatePresence>
           {job.urgent && (
             <motion.div
@@ -245,18 +258,22 @@ function JobCard({ job, index, isInView }) {
                 fontFamily: "'Inter', sans-serif",
                 fontWeight: 700,
                 letterSpacing: 1,
-                padding: "4px 12px",
+                padding: "4px 10px 4px 8px",
                 borderRadius: "20px",
                 boxShadow: "0 2px 8px rgba(239,68,68,0.3)",
                 zIndex: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
               }}
             >
-              🔥 URGENT
+              <Flame size={11} strokeWidth={2} aria-hidden="true" />
+              URGENT
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Job Icon and Title */}
+        {/* Job Icon — Lucide, replaces emoji */}
         <div style={{ marginBottom: 20, marginTop: job.urgent ? 20 : 0 }}>
           <motion.div
             animate={{
@@ -272,11 +289,11 @@ function JobCard({ job, index, isInView }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 28,
               marginBottom: 16,
+              color: "#C4972A",
             }}
           >
-            {job.icon}
+            <JobIcon size={26} strokeWidth={1.6} aria-hidden="true" />
           </motion.div>
 
           <motion.h3
@@ -329,7 +346,7 @@ function JobCard({ job, index, isInView }) {
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 13,
-                color: "#475569",
+                color: "#4a5568",
               }}
             >
               {job.location}
@@ -406,11 +423,13 @@ function JobCard({ job, index, isInView }) {
           animate={{ opacity: isHovered ? 1 : 0 }}
           transition={{ duration: 0.3 }}
           style={{
-            background: "rgba(196,151,42,0.1)",
+            background: "rgba(196,151,42,0.08)",
             padding: "4px 10px",
             borderRadius: "12px",
             marginBottom: 16,
-            display: "inline-block",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
           }}
         >
           <span
@@ -421,7 +440,7 @@ function JobCard({ job, index, isInView }) {
               fontWeight: 500,
             }}
           >
-            📋 {job.experience}
+            {job.experience}
           </span>
         </motion.div>
 
@@ -433,8 +452,8 @@ function JobCard({ job, index, isInView }) {
           style={{
             display: "block",
             textAlign: "center",
-            background: "linear-gradient(135deg, #0f1d3d, #1a2d5a)",
-            color: "#fff",
+            background: "#0f1d3d",
+            color: "#ffffff",
             padding: "12px 20px",
             borderRadius: "14px",
             fontFamily: "'Inter', sans-serif",
@@ -447,9 +466,11 @@ function JobCard({ job, index, isInView }) {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = "linear-gradient(135deg, #C4972A, #8B6914)";
+            e.currentTarget.style.color = "#0f1d3d";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = "linear-gradient(135deg, #0f1d3d, #1a2d5a)";
+            e.currentTarget.style.background = "#0f1d3d";
+            e.currentTarget.style.color = "#ffffff";
           }}
         >
           <span style={{ position: "relative", zIndex: 2 }}>Apply for This Role →</span>
@@ -525,7 +546,7 @@ export default function FeaturedJobs() {
       ref={ref}
       style={{
         padding: "clamp(60px, 10vh, 100px) clamp(16px, 5vw, 80px)",
-        background: "linear-gradient(135deg, #fefcf8 0%, #faf9f7 100%)",
+        background: "#ffffff",
         position: "relative",
         overflow: "hidden",
       }}
@@ -589,8 +610,8 @@ export default function FeaturedJobs() {
               <span
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: 11,
-                  fontWeight: 800,
+                  fontSize: 10,
+                  fontWeight: 700,
                   letterSpacing: "4px",
                   textTransform: "uppercase",
                   color: "#C4972A",
@@ -624,7 +645,7 @@ export default function FeaturedJobs() {
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 14,
-                color: "#64748b",
+                color: "#4a5568",
                 marginTop: 12,
                 maxWidth: 400,
               }}
@@ -676,13 +697,13 @@ export default function FeaturedJobs() {
               onClick={() => setFilter(f.key)}
               style={{
                 background: filter === f.key ? "linear-gradient(135deg, #C4972A, #8B6914)" : "transparent",
-                border: filter === f.key ? "none" : "1px solid rgba(0,0,0,0.1)",
+                border: filter === f.key ? "none" : "1px solid rgba(0,0,0,0.08)",
                 padding: "8px 20px",
                 borderRadius: "40px",
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 13,
                 fontWeight: 600,
-                color: filter === f.key ? "#fff" : "#64748b",
+                color: filter === f.key ? "#0f1d3d" : "#64748b",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
               }}
@@ -738,7 +759,11 @@ export default function FeaturedJobs() {
               borderRadius: "24px",
             }}
           >
-            <span style={{ fontSize: 48, opacity: 0.5 }}>🔍</span>
+            {/* Search icon replaces 🔍 */}
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" style={{ opacity: 0.5, margin: "0 auto", display: "block" }} aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
             <h3
               style={{
                 fontFamily: "'Inter', sans-serif",

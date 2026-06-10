@@ -2,6 +2,7 @@
    EVS Healthcare Solutions — App.css
    Page-level layout, section backgrounds, nav, hero, footer,
    and cross-section harmony. Works alongside index.css tokens.
+   WCAG AA compliant gold text colors
    ============================================================ */
 
 /* ── 1. ROOT APP SHELL ────────────────────────────────────── */
@@ -77,7 +78,7 @@ main {
   letter-spacing: -0.02em;
   flex-shrink: 0;
 }
-.nav__logo span { color: var(--clr-gold); }
+.nav__logo span { color: var(--gold-text-dark); }
 
 .nav__links {
   display: flex;
@@ -95,6 +96,7 @@ main {
   position: relative;
   padding-bottom: 2px;
   transition: color var(--dur-fast) var(--ease-out);
+  touch-action: manipulation;
 }
 .nav__link::after {
   content: '';
@@ -108,7 +110,7 @@ main {
 .nav__link:hover             { color: var(--clr-white); }
 .nav__link:hover::after,
 .nav__link--active::after    { width: 100%; }
-.nav__link--active           { color: var(--clr-gold); }
+.nav__link--active           { color: var(--gold-text-dark); }
 
 .nav__cta {
   flex-shrink: 0;
@@ -124,6 +126,7 @@ main {
   padding: var(--space-2);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .nav__hamburger span {
   display: block;
@@ -156,6 +159,7 @@ main {
   z-index: var(--z-modal);
   transform: translateX(100%);
   transition: transform var(--dur-slow) var(--ease-out);
+  overflow-y: auto;
 }
 .nav__drawer--open   { transform: translateX(0); }
 .nav__drawer-overlay {
@@ -175,7 +179,7 @@ main {
 /* ── 4. HERO SECTION ──────────────────────────────────────── */
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 100svh; /* Better mobile viewport behavior */
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -211,7 +215,7 @@ main {
   font-weight: 800;
   letter-spacing: 4px;
   text-transform: uppercase;
-  color: var(--clr-gold);
+  color: var(--gold-text-dark);
   margin-bottom: var(--space-5);
 }
 
@@ -222,7 +226,7 @@ main {
 }
 
 .hero__subtitle {
-  color: rgba(255,255,255,0.72);
+  color: var(--text-dark-bg);
   font-size: clamp(var(--text-base), 1.5vw, var(--text-lg));
   max-width: 52ch;
   line-height: 1.7;
@@ -251,11 +255,11 @@ main {
 /* Navy — dark sections */
 .section-navy {
   background: linear-gradient(135deg, var(--clr-navy-deep) 0%, var(--clr-navy) 100%);
-  color: var(--clr-white);
+  color: var(--text-dark-bg);
 }
 .section-navy h2,
 .section-navy h3 { color: var(--clr-white); }
-.section-navy p   { color: rgba(255,255,255,0.72); }
+.section-navy p   { color: var(--text-dark-bg); }
 
 /* Navy with subtle grid texture */
 .section-navy-grid {
@@ -286,7 +290,7 @@ main {
   font-weight: 800;
   letter-spacing: 4px;
   text-transform: uppercase;
-  color: var(--clr-gold);
+  color: var(--gold-text);
   margin-bottom: var(--space-4);
 }
 .section-eyebrow::before,
@@ -299,6 +303,14 @@ main {
   border-radius: var(--radius-full);
   flex-shrink: 0;
 }
+/* Dark background eyebrow */
+.section-navy .section-eyebrow {
+  color: var(--gold-text-dark);
+}
+.section-navy .section-eyebrow::before,
+.section-navy .section-eyebrow::after {
+  background: var(--gold-text-dark);
+}
 
 .section-title {
   margin-bottom: var(--space-4);
@@ -306,18 +318,16 @@ main {
 
 .section-subtitle {
   font-size: var(--text-sm);
-  color: var(--clr-text-muted);
+  color: var(--muted-text);
   max-width: 520px;
   margin: 0 auto;
   line-height: 1.7;
 }
+.section-navy .section-subtitle {
+  color: var(--text-muted-dark);
+}
 
 /* ── 7. REVEAL ANIMATIONS ─────────────────────────────────── */
-/*
-   Lightweight CSS reveal for elements that don't need Framer Motion.
-   Add .reveal-up / .reveal-fade to a wrapper,
-   then .in-view when IntersectionObserver fires.
-*/
 .reveal-up {
   opacity: 0;
   transform: translateY(24px);
@@ -364,7 +374,7 @@ main {
   font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 800;
-  color: var(--clr-gold);
+  color: var(--gold-text-dark);
   line-height: 1;
   margin-bottom: var(--space-2);
 }
@@ -413,7 +423,7 @@ main {
 
 .feature-card__body {
   font-size: var(--text-sm);
-  color: var(--clr-text-muted);
+  color: var(--muted-text);
   line-height: 1.7;
   max-width: 100%;
 }
@@ -450,7 +460,7 @@ main {
 }
 .badge-gold {
   background: rgba(196,151,42,0.10);
-  color: var(--clr-gold);
+  color: var(--gold-text);
   border: 1px solid rgba(196,151,42,0.25);
 }
 .badge-navy {
@@ -463,11 +473,17 @@ main {
   color: var(--clr-nhs);
   border: 1px solid rgba(0,94,184,0.20);
 }
+/* Dark background badges */
+.section-navy .badge-gold {
+  background: rgba(196,151,42,0.15);
+  color: var(--gold-text-dark);
+  border-color: rgba(196,151,42,0.35);
+}
 
 /* ── 12. FOOTER ───────────────────────────────────────────── */
 .footer {
   background: linear-gradient(135deg, var(--clr-navy-deep) 0%, var(--clr-navy) 100%);
-  color: rgba(255,255,255,0.70);
+  color: var(--text-muted-dark);
   padding: clamp(3rem, 8vh, 5rem) clamp(1rem, 5vw, 5rem) clamp(1.5rem, 4vh, 2.5rem);
   position: relative;
   overflow: hidden;
@@ -493,12 +509,13 @@ main {
   color: var(--clr-white);
   margin-bottom: var(--space-4);
 }
-.footer__logo span { color: var(--clr-gold); }
+.footer__logo span { color: var(--gold-text-dark); }
 .footer__tagline {
   font-size: var(--text-sm);
   line-height: 1.7;
   margin-bottom: var(--space-6);
   max-width: 28ch;
+  color: var(--text-muted-dark);
 }
 .footer__heading {
   font-family: var(--font-ui);
@@ -506,7 +523,7 @@ main {
   font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: var(--clr-gold);
+  color: var(--gold-text-dark);
   margin-bottom: var(--space-5);
 }
 .footer__links {
@@ -516,14 +533,15 @@ main {
 }
 .footer__link {
   font-size: var(--text-sm);
-  color: rgba(255,255,255,0.65);
+  color: var(--text-muted-dark);
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease-out),
               transform var(--dur-fast) var(--ease-out);
   display: inline-block;
+  touch-action: manipulation;
 }
 .footer__link:hover {
-  color: var(--clr-gold);
+  color: var(--gold-text-dark);
   transform: translateX(3px);
 }
 .footer__bottom {
@@ -539,19 +557,22 @@ main {
 }
 .footer__copy {
   font-size: var(--text-xs);
-  color: rgba(255,255,255,0.45);
+  color: var(--text-muted-dark);
   max-width: 100%;
 }
 
-@media (max-width: 767px) {
+/* Tablet breakpoint for footer (768px–1024px) */
+@media (max-width: 1024px) {
   .footer__grid {
     grid-template-columns: 1fr 1fr;
+    gap: 2rem;
   }
   .footer__grid > :first-child {
     grid-column: 1 / -1;
   }
 }
-@media (max-width: 480px) {
+
+@media (max-width: 767px) {
   .footer__grid {
     grid-template-columns: 1fr;
   }
@@ -586,14 +607,9 @@ main {
 .skip-link:focus { top: var(--space-4); }
 
 /* ── 15. SECTION SPACING RHYTHM ──────────────────────────── */
-/*
-  Consistent visual cadence between sections.
-  Applied at App level so individual components
-  don't fight each other on margin/padding.
-*/
 .sections-wrapper > section + section {
   /* Sections handle their own padding; border creates breathing room */
-  border-top: 0; /* gold borders applied individually */
+  border-top: 0;
 }
 
 /* ── 16. MOBILE GLOBAL OVERRIDES ──────────────────────────── */

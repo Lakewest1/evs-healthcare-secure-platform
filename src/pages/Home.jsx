@@ -9,6 +9,7 @@ import Partners from "../components/home/Partners";
 import CTA from "../components/home/CTA";
 import FAQ from "../components/home/FAQ";
 import ContactStrip from "../components/home/ContactStrip";
+import ForEmployersSection from '../components/home/ForEmployersSection';
 
 
 export default function Home() {
@@ -18,6 +19,8 @@ export default function Home() {
       <TrustBadges/>
       <Stats />
       <WhyChooseUs />
+         {/* For Employers Section - placed here 
+      <ForEmployersSection /> */}
       <RecruitmentProcess />
       <FeaturedJobs />
       <Testimonials />

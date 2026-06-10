@@ -1,5 +1,23 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView, useAnimation, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Copy,
+  Check,
+  ArrowRight,
+  Send,
+  MessageCircle,
+  Building2,
+  Clock,
+  Sparkles,
+  User,
+  AtSign,
+  FileText,
+  CheckCircle,
+  AlertCircle
+} from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Fully Responsive Contact Section — Modern Contact Information + Contact Form
@@ -48,7 +66,7 @@ function UnifiedContactInfo({ isInView }) {
 
   const contactItems = [
     { 
-      icon: "📍", 
+      icon: MapPin, 
       label: "Office Address", 
       value: "1a John William Street, Preston, PR1 4XE",
       action: "Get Directions",
@@ -56,7 +74,7 @@ function UnifiedContactInfo({ isInView }) {
       isLink: true,
     },
     { 
-      icon: "📞", 
+      icon: Phone, 
       label: "Phone", 
       value: "01772 493994",
       secondary: "07466 999218",
@@ -65,7 +83,7 @@ function UnifiedContactInfo({ isInView }) {
       isLink: true,
     },
     { 
-      icon: "✉️", 
+      icon: Mail, 
       label: "Email", 
       value: "admin_1@evshealthcare.co.uk",
       action: "Copy Email",
@@ -122,12 +140,12 @@ function UnifiedContactInfo({ isInView }) {
       <div
         style={{
           position: "relative",
-          background: "rgba(255,255,255,0.03)",
+          background: "rgba(15,29,61,0.95)",
           backdropFilter: "blur(10px)",
-          borderRadius: "20px",
+          borderRadius: "24px",
           padding: cardPadding,
           height: "100%",
-          border: `1px solid ${isHovered ? "rgba(196,151,42,0.3)" : "rgba(255,255,255,0.08)"}`,
+          border: `1px solid ${isHovered ? "rgba(196,151,42,0.35)" : "rgba(196,151,42,0.15)"}`,
           transition: "border-color 0.2s ease",
         }}
       >
@@ -139,7 +157,7 @@ function UnifiedContactInfo({ isInView }) {
             gap: 12,
             marginBottom: 20,
             paddingBottom: 12,
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            borderBottom: "1px solid rgba(196,151,42,0.15)",
           }}
         >
           <div
@@ -151,10 +169,10 @@ function UnifiedContactInfo({ isInView }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: isMobile ? 20 : 22,
+              color: "#C4972A",
             }}
           >
-            📬
+            <MessageCircle size={isMobile ? 20 : 22} strokeWidth={1.6} />
           </div>
           <div>
             <h3
@@ -182,131 +200,137 @@ function UnifiedContactInfo({ isInView }) {
 
         {/* Contact Items */}
         <div style={{ display: "flex", flexDirection: "column", gap: contactItemGap }}>
-          {contactItems.map((item, idx) => (
-            <div
-              key={idx}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: isMobile ? 10 : 12,
-              }}
-            >
+          {contactItems.map((item, idx) => {
+            const IconComponent = item.icon;
+            return (
               <div
+                key={idx}
                 style={{
-                  width: iconBoxSize,
-                  height: iconBoxSize,
-                  borderRadius: "10px",
-                  background: "rgba(196,151,42,0.1)",
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: isMobile ? 16 : 18,
-                  flexShrink: 0,
+                  alignItems: "flex-start",
+                  gap: isMobile ? 10 : 12,
                 }}
               >
-                {item.icon}
-              </div>
-              <div style={{ flex: 1 }}>
                 <div
                   style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: isMobile ? 9 : 10,
-                    fontWeight: 600,
-                    letterSpacing: "1px",
-                    textTransform: "uppercase",
-                    color: "rgba(255,255,255,0.45)",
-                    marginBottom: 2,
+                    width: iconBoxSize,
+                    height: iconBoxSize,
+                    borderRadius: "12px",
+                    background: "rgba(196,151,42,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    color: "#C4972A",
                   }}
                 >
-                  {item.label}
+                  <IconComponent size={isMobile ? 16 : 18} strokeWidth={1.6} />
                 </div>
-                <div
-                  style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: isMobile ? 12 : 13,
-                    fontWeight: 500,
-                    color: "#fff",
-                    lineHeight: 1.4,
-                    marginBottom: item.secondary ? 2 : 6,
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {item.value}
-                </div>
-                {item.secondary && (
+                <div style={{ flex: 1 }}>
                   <div
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: isMobile ? 11 : 12,
-                      color: "rgba(255,255,255,0.6)",
-                      marginBottom: 6,
+                      fontSize: isMobile ? 9 : 10,
+                      fontWeight: 600,
+                      letterSpacing: "1px",
+                      textTransform: "uppercase",
+                      color: "rgba(255,255,255,0.45)",
+                      marginBottom: 2,
                     }}
                   >
-                    {item.secondary}
+                    {item.label}
                   </div>
-                )}
-                {item.isLink ? (
-                  <a
-                    href={item.link}
-                    target={item.label === "Office Address" ? "_blank" : "_self"}
-                    rel="noopener noreferrer"
+                  <div
                     style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 5,
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: isMobile ? 9 : 10,
+                      fontSize: isMobile ? 12 : 13,
                       fontWeight: 500,
-                      color: "#C4972A",
-                      textDecoration: "none",
-                      background: "rgba(196,151,42,0.1)",
-                      padding: "3px 8px",
-                      borderRadius: "14px",
-                      transition: "all 0.2s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "rgba(196,151,42,0.2)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "rgba(196,151,42,0.1)";
+                      color: "#fff",
+                      lineHeight: 1.4,
+                      marginBottom: item.secondary ? 2 : 6,
+                      wordBreak: "break-word",
                     }}
                   >
-                    <span>{item.action}</span>
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => handleCopy(item.value, item.label)}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 5,
-                      fontFamily: "'Inter', sans-serif",
-                      fontSize: isMobile ? 9 : 10,
-                      fontWeight: 500,
-                      color: "#C4972A",
-                      textDecoration: "none",
-                      background: "rgba(196,151,42,0.1)",
-                      padding: "3px 8px",
-                      borderRadius: "14px",
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    <span>{copiedItem === item.label ? "Copied!" : item.action}</span>
-                    {copiedItem !== item.label && (
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M16 3h5v5M14 10l6-6M4 20L20 4"/>
-                      </svg>
-                    )}
-                  </button>
-                )}
+                    {item.value}
+                  </div>
+                  {item.secondary && (
+                    <div
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: isMobile ? 11 : 12,
+                        color: "rgba(255,255,255,0.6)",
+                        marginBottom: 6,
+                      }}
+                    >
+                      {item.secondary}
+                    </div>
+                  )}
+                  {item.isLink ? (
+                    <a
+                      href={item.link}
+                      target={item.label === "Office Address" ? "_blank" : "_self"}
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: isMobile ? 9 : 10,
+                        fontWeight: 500,
+                        color: "#C4972A",
+                        textDecoration: "none",
+                        background: "rgba(196,151,42,0.12)",
+                        padding: "4px 10px",
+                        borderRadius: "20px",
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(196,151,42,0.22)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "rgba(196,151,42,0.12)";
+                      }}
+                    >
+                      <span>{item.action}</span>
+                      <ArrowRight size={8} />
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => handleCopy(item.value, item.label)}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 5,
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: isMobile ? 9 : 10,
+                        fontWeight: 500,
+                        color: "#C4972A",
+                        textDecoration: "none",
+                        background: "rgba(196,151,42,0.12)",
+                        padding: "4px 10px",
+                        borderRadius: "20px",
+                        border: "none",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {copiedItem === item.label ? (
+                        <>
+                          <Check size={8} />
+                          <span>Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={8} />
+                          <span>{item.action}</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </motion.div>
@@ -386,8 +410,8 @@ function ContactForm() {
   const cardPadding = isMobile ? "20px" : "24px";
   const headerIconSize = isMobile ? 40 : 44;
   const headerFontSize = isMobile ? 15 : 16;
-  const inputPadding = isMobile ? "8px 12px" : "10px 14px";
-  const textareaRows = isMobile ? 2 : 3;
+  const inputPadding = isMobile ? "10px 12px" : "12px 14px";
+  const textareaRows = isMobile ? 3 : 4;
 
   return (
     <motion.div
@@ -403,12 +427,12 @@ function ContactForm() {
       <div
         style={{
           position: "relative",
-          background: "rgba(255,255,255,0.03)",
+          background: "rgba(15,29,61,0.95)",
           backdropFilter: "blur(10px)",
-          borderRadius: "20px",
+          borderRadius: "24px",
           padding: cardPadding,
           height: "100%",
-          border: `1px solid ${isHovered ? "rgba(196,151,42,0.3)" : "rgba(255,255,255,0.08)"}`,
+          border: `1px solid ${isHovered ? "rgba(196,151,42,0.35)" : "rgba(196,151,42,0.15)"}`,
           transition: "border-color 0.2s ease",
         }}
       >
@@ -420,7 +444,7 @@ function ContactForm() {
             gap: 12,
             marginBottom: 20,
             paddingBottom: 12,
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            borderBottom: "1px solid rgba(196,151,42,0.15)",
           }}
         >
           <div
@@ -432,10 +456,10 @@ function ContactForm() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: isMobile ? 20 : 22,
+              color: "#C4972A",
             }}
           >
-            ✉️
+            <Send size={isMobile ? 20 : 22} strokeWidth={1.6} />
           </div>
           <div>
             <h3
@@ -465,32 +489,31 @@ function ContactForm() {
           <div
             style={{
               textAlign: "center",
-              padding: isMobile ? "20px" : "30px 20px",
+              padding: isMobile ? "30px 20px" : "40px 20px",
             }}
           >
             <div
               style={{
-                width: isMobile ? 48 : 56,
-                height: isMobile ? 48 : 56,
+                width: isMobile ? 56 : 64,
+                height: isMobile ? 56 : 64,
                 borderRadius: "50%",
                 background: "rgba(16,185,129,0.15)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                margin: "0 auto 12px",
+                margin: "0 auto 16px",
+                color: "#10b981",
               }}
             >
-              <svg width={isMobile ? 24 : 28} height={isMobile ? 24 : 28} viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
-                <path d="M20 6L9 17l-5-5"/>
-              </svg>
+              <CheckCircle size={isMobile ? 28 : 32} strokeWidth={1.6} />
             </div>
             <h4
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: isMobile ? 15 : 16,
+                fontSize: isMobile ? 16 : 18,
                 fontWeight: 700,
                 color: "#fff",
-                marginBottom: 6,
+                marginBottom: 8,
               }}
             >
               Message Sent!
@@ -498,7 +521,7 @@ function ContactForm() {
             <p
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: isMobile ? 11 : 12,
+                fontSize: isMobile ? 12 : 13,
                 color: "rgba(255,255,255,0.6)",
               }}
             >
@@ -507,18 +530,21 @@ function ContactForm() {
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 14 }}>
               <label
                 htmlFor="name"
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: isMobile ? 10 : 11,
+                  fontSize: isMobile ? 11 : 12,
                   fontWeight: 500,
-                  color: "rgba(255,255,255,0.6)",
-                  marginBottom: 4,
-                  display: "block",
+                  color: "rgba(255,255,255,0.7)",
+                  marginBottom: 6,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
+                <User size={12} style={{ color: "#C4972A" }} />
                 Full Name *
               </label>
               <input
@@ -528,41 +554,45 @@ function ContactForm() {
                 value={formData.name}
                 onChange={handleChange}
                 required
+                placeholder="John Smith"
                 style={{
                   width: "100%",
                   padding: inputPadding,
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(196,151,42,0.2)",
                   background: "rgba(255,255,255,0.05)",
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: isMobile ? 11 : 12,
+                  fontSize: isMobile ? 13 : 14,
                   color: "#fff",
                   outline: "none",
                   transition: "all 0.2s ease",
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#C4972A";
-                  e.target.style.background = "rgba(255,255,255,0.1)";
+                  e.target.style.background = "rgba(255,255,255,0.08)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.borderColor = "rgba(196,151,42,0.2)";
                   e.target.style.background = "rgba(255,255,255,0.05)";
                 }}
               />
             </div>
 
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 14 }}>
               <label
                 htmlFor="email"
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: isMobile ? 10 : 11,
+                  fontSize: isMobile ? 11 : 12,
                   fontWeight: 500,
-                  color: "rgba(255,255,255,0.6)",
-                  marginBottom: 4,
-                  display: "block",
+                  color: "rgba(255,255,255,0.7)",
+                  marginBottom: 6,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
+                <AtSign size={12} style={{ color: "#C4972A" }} />
                 Email Address *
               </label>
               <input
@@ -572,41 +602,45 @@ function ContactForm() {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                placeholder="john@example.com"
                 style={{
                   width: "100%",
                   padding: inputPadding,
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(196,151,42,0.2)",
                   background: "rgba(255,255,255,0.05)",
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: isMobile ? 11 : 12,
+                  fontSize: isMobile ? 13 : 14,
                   color: "#fff",
                   outline: "none",
                   transition: "all 0.2s ease",
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#C4972A";
-                  e.target.style.background = "rgba(255,255,255,0.1)";
+                  e.target.style.background = "rgba(255,255,255,0.08)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.borderColor = "rgba(196,151,42,0.2)";
                   e.target.style.background = "rgba(255,255,255,0.05)";
                 }}
               />
             </div>
 
-            <div style={{ marginBottom: 12 }}>
+            <div style={{ marginBottom: 14 }}>
               <label
                 htmlFor="phone"
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: isMobile ? 10 : 11,
+                  fontSize: isMobile ? 11 : 12,
                   fontWeight: 500,
-                  color: "rgba(255,255,255,0.6)",
-                  marginBottom: 4,
-                  display: "block",
+                  color: "rgba(255,255,255,0.7)",
+                  marginBottom: 6,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
+                <Phone size={12} style={{ color: "#C4972A" }} />
                 Phone (Optional)
               </label>
               <input
@@ -615,41 +649,45 @@ function ContactForm() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
+                placeholder="01234 567890"
                 style={{
                   width: "100%",
                   padding: inputPadding,
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(196,151,42,0.2)",
                   background: "rgba(255,255,255,0.05)",
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: isMobile ? 11 : 12,
+                  fontSize: isMobile ? 13 : 14,
                   color: "#fff",
                   outline: "none",
                   transition: "all 0.2s ease",
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#C4972A";
-                  e.target.style.background = "rgba(255,255,255,0.1)";
+                  e.target.style.background = "rgba(255,255,255,0.08)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.borderColor = "rgba(196,151,42,0.2)";
                   e.target.style.background = "rgba(255,255,255,0.05)";
                 }}
               />
             </div>
 
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 18 }}>
               <label
                 htmlFor="message"
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: isMobile ? 10 : 11,
+                  fontSize: isMobile ? 11 : 12,
                   fontWeight: 500,
-                  color: "rgba(255,255,255,0.6)",
-                  marginBottom: 4,
-                  display: "block",
+                  color: "rgba(255,255,255,0.7)",
+                  marginBottom: 6,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
+                <FileText size={12} style={{ color: "#C4972A" }} />
                 Message *
               </label>
               <textarea
@@ -659,14 +697,15 @@ function ContactForm() {
                 value={formData.message}
                 onChange={handleChange}
                 required
+                placeholder="Tell us how we can help..."
                 style={{
                   width: "100%",
                   padding: inputPadding,
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(196,151,42,0.2)",
                   background: "rgba(255,255,255,0.05)",
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: isMobile ? 11 : 12,
+                  fontSize: isMobile ? 13 : 14,
                   color: "#fff",
                   outline: "none",
                   resize: "vertical",
@@ -674,10 +713,10 @@ function ContactForm() {
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#C4972A";
-                  e.target.style.background = "rgba(255,255,255,0.1)";
+                  e.target.style.background = "rgba(255,255,255,0.08)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.target.style.borderColor = "rgba(196,151,42,0.2)";
                   e.target.style.background = "rgba(255,255,255,0.05)";
                 }}
               />
@@ -688,15 +727,19 @@ function ContactForm() {
                 style={{
                   background: "rgba(239,68,68,0.1)",
                   border: "1px solid rgba(239,68,68,0.3)",
-                  borderRadius: "10px",
-                  padding: "8px 12px",
-                  marginBottom: 14,
+                  borderRadius: "12px",
+                  padding: "10px 14px",
+                  marginBottom: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
                 }}
               >
+                <AlertCircle size={14} style={{ color: "#ef4444" }} />
                 <p
                   style={{
                     fontFamily: "'Inter', sans-serif",
-                    fontSize: isMobile ? 10 : 11,
+                    fontSize: isMobile ? 11 : 12,
                     color: "#ef4444",
                     margin: 0,
                   }}
@@ -711,20 +754,31 @@ function ContactForm() {
               disabled={isSubmitting}
               style={{
                 width: "100%",
-                padding: isMobile ? "8px 16px" : "10px 16px",
-                borderRadius: "10px",
+                padding: isMobile ? "12px 16px" : "14px 20px",
+                borderRadius: "40px",
                 border: "none",
                 background: "linear-gradient(135deg, #C4972A, #8B6914)",
                 fontFamily: "'Inter', sans-serif",
-                fontSize: isMobile ? 12 : 13,
+                fontSize: isMobile ? 13 : 14,
                 fontWeight: 600,
-                color: "#fff",
+                color: "#0f1d3d",
                 cursor: isSubmitting ? "not-allowed" : "pointer",
                 opacity: isSubmitting ? 0.7 : 1,
                 transition: "all 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
               }}
             >
-              {isSubmitting ? "Sending..." : "Send Message →"}
+              {isSubmitting ? (
+                <>Sending...</>
+              ) : (
+                <>
+                  Send Message
+                  <Send size={14} />
+                </>
+              )}
             </button>
           </form>
         )}
@@ -775,7 +829,7 @@ export default function ContactStrip() {
       style={{
         position: "relative",
         padding: isMobile ? "clamp(40px, 8vh, 60px) clamp(16px, 4vw, 80px)" : "clamp(60px, 12vh, 100px) clamp(16px, 5vw, 80px)",
-        background: "linear-gradient(135deg, #0a1628 0%, #0f1d3d 50%, #1a2a4a 100%)",
+        background: "linear-gradient(135deg, #0f1d3d 0%, #1a2a50 100%)",
         overflow: "hidden",
       }}
     >
@@ -785,7 +839,7 @@ export default function ContactStrip() {
           position: "absolute",
           inset: 0,
           backgroundImage: `
-            radial-gradient(circle at 20% 30%, rgba(196,151,42,0.06) 0%, transparent 50%),
+            radial-gradient(circle at 20% 30%, rgba(196,151,42,0.05) 0%, transparent 50%),
             repeating-linear-gradient(45deg, rgba(196,151,42,0.02) 0px, rgba(196,151,42,0.02) 1px, transparent 1px, transparent 30px)
           `,
           backgroundSize: "100% 100%, 40px 40px",
@@ -804,7 +858,7 @@ export default function ContactStrip() {
               width: 250,
               height: 250,
               borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(196,151,42,0.04), transparent 70%)",
+              background: "radial-gradient(circle, rgba(196,151,42,0.03), transparent 70%)",
               pointerEvents: "none",
             }}
           />
@@ -816,7 +870,7 @@ export default function ContactStrip() {
               width: 300,
               height: 300,
               borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(196,151,42,0.03), transparent 70%)",
+              background: "radial-gradient(circle, rgba(196,151,42,0.02), transparent 70%)",
               pointerEvents: "none",
             }}
           />
@@ -886,7 +940,7 @@ export default function ContactStrip() {
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: isMobile ? 10 : 11,
-                fontWeight: 800,
+                fontWeight: 700,
                 letterSpacing: "4px",
                 textTransform: "uppercase",
                 color: "#C4972A",

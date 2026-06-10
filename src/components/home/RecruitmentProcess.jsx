@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+import { FileText, File, Handshake, ShieldCheck, Target } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Modern Recruitment Process — Clean White Background, Performance Optimized
@@ -23,12 +24,22 @@ const getResponsiveLayout = () => {
   };
 };
 
+// ── Icon wrapper — consistent sizing and colour for all step icons ──
+const StepIconWrapper = ({ icon: Icon, size = 26 }) => (
+  <Icon
+    size={size}
+    strokeWidth={1.6}
+    style={{ color: "currentColor", display: "block" }}
+    aria-hidden="true"
+  />
+);
+
 const steps = [
   {
     num: "01",
     title: "Apply Online",
     desc: "Submit your application with basic details and your preferred role type in under 5 minutes.",
-    icon: "📝",
+    icon: FileText,
     accent: "#C4972A",
     bgGradient: "linear-gradient(135deg, #FFF8F0, #FFFFFF)",
   },
@@ -36,7 +47,7 @@ const steps = [
     num: "02",
     title: "Upload Your CV",
     desc: "Share your CV and relevant certifications securely through our encrypted portal.",
-    icon: "📄",
+    icon: File,
     accent: "#C4972A",
     bgGradient: "linear-gradient(135deg, #FFFFFF, #FFF8F0)",
   },
@@ -44,7 +55,7 @@ const steps = [
     num: "03",
     title: "Interview",
     desc: "Meet with our dedicated team for a quick and professional interview, virtual or in-person.",
-    icon: "🤝",
+    icon: Handshake,
     accent: "#C4972A",
     bgGradient: "linear-gradient(135deg, #FFF8F0, #FFFFFF)",
   },
@@ -52,7 +63,7 @@ const steps = [
     num: "04",
     title: "Compliance Checks",
     desc: "We process your enhanced DBS check and verify all required documents seamlessly.",
-    icon: "✅",
+    icon: ShieldCheck,
     accent: "#C4972A",
     bgGradient: "linear-gradient(135deg, #FFFFFF, #FFF8F0)",
   },
@@ -60,7 +71,7 @@ const steps = [
     num: "05",
     title: "Job Placement",
     desc: "Get placed in a role that matches your skills, location, and career preferences.",
-    icon: "🎯",
+    icon: Target,
     accent: "#C4972A",
     bgGradient: "linear-gradient(135deg, #FFF8F0, #FFFFFF)",
   },
@@ -87,52 +98,54 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
 
   // Responsive paddings and sizes
   const getPadding = () => {
-    if (layoutType === "mobile") return "20px 16px";
-    if (layoutType === "tablet") return "20px 16px";
-    return "24px 20px";
+    if (layoutType === "mobile") return "24px 16px";
+    if (layoutType === "tablet") return "24px 16px";
+    return "28px 20px";
   };
 
   const getTitleSize = () => {
-    if (layoutType === "mobile") return "16px";
-    if (layoutType === "tablet") return "15px";
-    return "17px";
+    if (layoutType === "mobile") return "17px";
+    if (layoutType === "tablet") return "16px";
+    return "18px";
   };
 
   const getDescSize = () => {
-    if (layoutType === "mobile") return "12px";
-    if (layoutType === "tablet") return "11px";
-    return "12.5px";
+    if (layoutType === "mobile") return "12.5px";
+    if (layoutType === "tablet") return "12px";
+    return "13px";
   };
 
   const getIconSize = () => {
-    if (layoutType === "mobile") return "28px";
-    if (layoutType === "tablet") return "26px";
-    return "30px";
+    if (layoutType === "mobile") return 24;
+    if (layoutType === "tablet") return 24;
+    return 26;
   };
 
   const getNumberSize = () => {
     if (layoutType === "mobile") return "clamp(44px, 7vw, 50px)";
     if (layoutType === "tablet") return "48px";
-    return "clamp(50px, 7vw, 60px)";
+    return "clamp(52px, 7vw, 60px)";
   };
+
+  const isInteractive = layoutType === "desktop" || layoutType === "tablet";
 
   return (
     <motion.div
       variants={stepVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
-      onMouseEnter={() => (layoutType === "desktop" || layoutType === "tablet") && setIsHovered(true)}
-      onMouseLeave={() => (layoutType === "desktop" || layoutType === "tablet") && setIsHovered(false)}
+      onMouseEnter={() => isInteractive && setIsHovered(true)}
+      onMouseLeave={() => isInteractive && setIsHovered(false)}
       style={{
         background: "#ffffff",
         borderRadius: "20px",
-        border: `1px solid ${isHovered && (layoutType === "desktop" || layoutType === "tablet") ? "rgba(196,151,42,0.25)" : "#f0f0f0"}`,
+        border: `1px solid ${isHovered && isInteractive ? "rgba(196,151,42,0.25)" : "rgba(0,0,0,0.06)"}`,
         padding: getPadding(),
         transition: "all 0.3s ease",
-        boxShadow: isHovered && (layoutType === "desktop" || layoutType === "tablet")
-          ? "0 8px 25px rgba(0,0,0,0.08), 0 0 0 1px rgba(196,151,42,0.1)"
-          : "0 2px 8px rgba(0,0,0,0.04)",
-        transform: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? "translateY(-4px)" : "translateY(0)",
+        boxShadow: isHovered && isInteractive
+          ? "0 12px 24px -8px rgba(15,29,61,0.12), 0 0 0 1px rgba(196,151,42,0.1)"
+          : "0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)",
+        transform: isHovered && isInteractive ? "translateY(-4px)" : "translateY(0)",
         textAlign: "center",
         height: "100%",
         display: "flex",
@@ -142,16 +155,16 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
       {/* Number Circle */}
       <motion.div
         animate={{
-          scale: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? 1.05 : 1,
-          borderColor: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? step.accent : "#e2e8f0",
+          scale: isHovered && isInteractive ? 1.05 : 1,
+          borderColor: isHovered && isInteractive ? step.accent : "#e2e8f0",
         }}
         transition={{ duration: 0.3 }}
         style={{
           width: getNumberSize(),
           height: getNumberSize(),
           borderRadius: "50%",
-          background: "#fff",
-          border: `2px solid ${isHovered && (layoutType === "desktop" || layoutType === "tablet") ? step.accent : "#e2e8f0"}`,
+          background: "#ffffff",
+          border: `2px solid ${isHovered && isInteractive ? step.accent : "#e2e8f0"}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -159,7 +172,7 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
           fontWeight: 800,
           fontSize: layoutType === "mobile" ? "16px" : "18px",
           color: step.accent,
-          boxShadow: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? `0 4px 12px ${step.accent}30` : "none",
+          boxShadow: isHovered && isInteractive ? `0 4px 12px rgba(196,151,42,0.15)` : "none",
           margin: "0 auto 16px auto",
           transition: "all 0.3s ease",
         }}
@@ -167,24 +180,27 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
         {step.num}
       </motion.div>
 
-      {/* Icon */}
+      {/* Icon — Lucide, replaces emoji */}
       <motion.div
         animate={{
-          scale: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? 1.05 : 1,
+          scale: isHovered && isInteractive ? 1.05 : 1,
         }}
         transition={{ duration: 0.3 }}
-        style={{ 
-          fontSize: getIconSize(),
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           marginBottom: 12,
+          color: step.accent,
         }}
       >
-        {step.icon}
+        <StepIconWrapper icon={step.icon} size={getIconSize()} />
       </motion.div>
 
       {/* Title */}
       <motion.h3
         animate={{
-          color: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? step.accent : "#1e293b",
+          color: isHovered && isInteractive ? step.accent : "#0f1d3d",
         }}
         transition={{ duration: 0.3 }}
         style={{
@@ -202,9 +218,9 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
       <p
         style={{
           fontFamily: "'Inter', sans-serif",
-          color: "#64748b",
+          color: "#4a5568",
           fontSize: getDescSize(),
-          lineHeight: 1.6,
+          lineHeight: 1.65,
           margin: 0,
           flex: 1,
         }}
@@ -216,8 +232,8 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
       <motion.div
         initial={{ width: 0, opacity: 0 }}
         animate={{ 
-          width: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? "40px" : 0,
-          opacity: isHovered && (layoutType === "desktop" || layoutType === "tablet") ? 1 : 0,
+          width: isHovered && isInteractive ? "40px" : 0,
+          opacity: isHovered && isInteractive ? 1 : 0,
         }}
         transition={{ duration: 0.3 }}
         style={{
@@ -274,7 +290,7 @@ export default function RecruitmentProcess() {
     return {
       display: "flex",
       flexDirection: "row",
-      gap: "20px",
+      gap: "22px",
       justifyContent: "center",
       alignItems: "stretch",
     };
@@ -295,7 +311,7 @@ export default function RecruitmentProcess() {
         overflow: "hidden",
       }}
     >
-      {/* Decorative Background Elements */}
+      {/* Decorative Background Elements - subtle gold gradients */}
       <div
         style={{
           position: "absolute",
@@ -328,7 +344,7 @@ export default function RecruitmentProcess() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: "center", marginBottom: "clamp(40px, 8vh, 60px)" }}
+          style={{ textAlign: "center", marginBottom: "clamp(40px, 8vh, 56px)" }}
         >
           {/* Eyebrow Badge */}
           <div
@@ -350,8 +366,8 @@ export default function RecruitmentProcess() {
             <span
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 11,
-                fontWeight: 800,
+                fontSize: 10,
+                fontWeight: 700,
                 letterSpacing: "4px",
                 textTransform: "uppercase",
                 color: "#C4972A",
@@ -375,7 +391,7 @@ export default function RecruitmentProcess() {
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
               fontWeight: 800,
-              color: "#0f172a",
+              color: "#0f1d3d",
               letterSpacing: "-0.02em",
               marginBottom: 16,
             }}
@@ -389,10 +405,10 @@ export default function RecruitmentProcess() {
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(14px, 1.6vw, 15px)",
-              color: "#64748b",
+              color: "#4a5568",
               maxWidth: 520,
               margin: "0 auto",
-              lineHeight: 1.6,
+              lineHeight: 1.65,
             }}
           >
             A simple, transparent 5-step journey from application to your dream healthcare role
@@ -404,7 +420,7 @@ export default function RecruitmentProcess() {
             animate={inView ? { width: 60 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
             style={{
-              height: 2,
+              height: 2.5,
               background: "linear-gradient(90deg, #C4972A, #f0c060)",
               borderRadius: 999,
               margin: "24px auto 0",
@@ -468,7 +484,7 @@ export default function RecruitmentProcess() {
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(13px, 1.5vw, 14px)",
               fontWeight: 600,
-              color: "#fff",
+              color: "#0f1d3d",
               cursor: "pointer",
               boxShadow: "0 4px 15px rgba(196,151,42,0.3)",
               transition: "all 0.2s ease",

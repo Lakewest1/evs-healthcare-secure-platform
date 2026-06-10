@@ -1,6 +1,24 @@
 import { motion, useInView, useAnimation, AnimatePresence } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import EVSLogo from "../EVSLogo";
+import {
+  Briefcase,
+  Phone,
+  Mail,
+  Send,
+  CheckCircle,
+  AlertCircle,
+  ArrowUp,
+  ChevronRight,
+  Shield,
+  Heart,
+  Globe,
+  Users,
+  Building2,
+  MapPin,
+  Clock,
+  Award
+} from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Modern 2026 Footer — Premium Design with Glass Morphism
@@ -94,11 +112,12 @@ export default function Footer() {
     },
   };
 
+  // Social links using only icons that definitely exist in lucide-react
   const socialLinks = [
-    { name: "LinkedIn", icon: "💼", url: "#", color: "#0077B5" },
-    { name: "Facebook", icon: "📘", url: "#", color: "#1877F2" },
-    { name: "Twitter", icon: "🐦", url: "#", color: "#1DA1F2" },
-    { name: "Instagram", icon: "📸", url: "#", color: "#E4405F" },
+    { name: "LinkedIn", icon: Briefcase, url: "#", color: "#0077B5" },
+    { name: "Facebook", icon: Users, url: "#", color: "#1877F2" },
+    { name: "Twitter", icon: Globe, url: "#", color: "#1DA1F2" },
+    { name: "Instagram", icon: Building2, url: "#", color: "#E4405F" },
   ];
 
   const quickLinks = [
@@ -118,11 +137,11 @@ export default function Footer() {
   ];
 
   // Floating particles for background
-  const particles = Array.from({ length: 15 }, (_, i) => ({
+  const particles = Array.from({ length: 12 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
-    size: Math.random() * 3 + 1,
+    size: Math.random() * 2.5 + 1,
     duration: Math.random() * 20 + 10,
     delay: Math.random() * 5,
   }));
@@ -134,9 +153,9 @@ export default function Footer() {
         <motion.div
           key={particle.id}
           animate={{
-            y: [0, -80, 0],
-            x: [0, Math.sin(particle.id) * 40, 0],
-            opacity: [0, 0.3, 0],
+            y: [0, -60, 0],
+            x: [0, Math.sin(particle.id) * 30, 0],
+            opacity: [0, 0.2, 0],
           }}
           transition={{
             duration: particle.duration,
@@ -151,7 +170,7 @@ export default function Footer() {
             width: particle.size,
             height: particle.size,
             borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(196,151,42,${0.5}), transparent)`,
+            background: `radial-gradient(circle, rgba(196,151,42,${0.4}), transparent)`,
             pointerEvents: "none",
             zIndex: 0,
           }}
@@ -163,7 +182,7 @@ export default function Footer() {
         style={{
           position: "absolute",
           inset: 0,
-          background: "radial-gradient(ellipse at 50% 0%, rgba(196,151,42,0.08), transparent 60%)",
+          background: "radial-gradient(ellipse at 50% 0%, rgba(196,151,42,0.06), transparent 60%)",
           pointerEvents: "none",
         }}
       />
@@ -273,41 +292,46 @@ export default function Footer() {
             
             {/* Social Links with Glass Morphism */}
             <div style={{ display: "flex", gap: 12 }}>
-              {socialLinks.map((social, idx) => (
-                <motion.a
-                  key={social.name}
-                  href={social.url}
-                  whileHover={{ y: -4, scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 400 }}
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: "50%",
-                    background: "rgba(255,255,255,0.05)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textDecoration: "none",
-                    fontSize: 18,
-                    transition: "all 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = `${social.color}20`;
-                    e.currentTarget.style.borderColor = `${social.color}60`;
-                    e.currentTarget.style.transform = "translateY(-4px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
-                >
-                  {social.icon}
-                </motion.a>
-              ))}
+              {socialLinks.map((social, idx) => {
+                const IconComponent = social.icon;
+                return (
+                  <motion.a
+                    key={social.name}
+                    href={social.url}
+                    whileHover={{ y: -4, scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400 }}
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: "50%",
+                      background: "rgba(255,255,255,0.05)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textDecoration: "none",
+                      transition: "all 0.3s ease",
+                      color: "rgba(255,255,255,0.7)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = `${social.color}20`;
+                      e.currentTarget.style.borderColor = `${social.color}60`;
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.color = social.color;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.color = "rgba(255,255,255,0.7)";
+                    }}
+                  >
+                    <IconComponent size={18} strokeWidth={1.5} />
+                  </motion.a>
+                );
+              })}
             </div>
           </motion.div>
 
@@ -370,7 +394,7 @@ export default function Footer() {
                       e.currentTarget.style.transform = "translateX(0)";
                     }}
                   >
-                    <span style={{ fontSize: 12, opacity: 0.7 }}>→</span>
+                    <ChevronRight size={12} style={{ opacity: 0.7 }} />
                     {link.name}
                   </a>
                 </motion.li>
@@ -437,7 +461,7 @@ export default function Footer() {
                       e.currentTarget.style.transform = "translateX(0)";
                     }}
                   >
-                    <span style={{ fontSize: 10, opacity: 0.7 }}>•</span>
+                    <Shield size={10} style={{ opacity: 0.7 }} />
                     {link.name}
                   </a>
                 </motion.li>
@@ -501,7 +525,7 @@ export default function Footer() {
                     minWidth: 160,
                     padding: "12px 16px",
                     borderRadius: "12px",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid rgba(196,151,42,0.2)",
                     background: "rgba(255,255,255,0.05)",
                     fontFamily: "'Inter', sans-serif",
                     fontSize: 13,
@@ -511,10 +535,10 @@ export default function Footer() {
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = "#C4972A";
-                    e.target.style.background = "rgba(255,255,255,0.1)";
+                    e.target.style.background = "rgba(255,255,255,0.08)";
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = "rgba(255,255,255,0.1)";
+                    e.target.style.borderColor = "rgba(196,151,42,0.2)";
                     e.target.style.background = "rgba(255,255,255,0.05)";
                   }}
                 />
@@ -525,10 +549,10 @@ export default function Footer() {
                   whileTap={{ scale: 0.98 }}
                   style={{
                     padding: "12px 24px",
-                    borderRadius: "12px",
+                    borderRadius: "40px",
                     border: "none",
                     background: "linear-gradient(135deg, #C4972A, #8B6914)",
-                    color: "#fff",
+                    color: "#0f1d3d",
                     fontFamily: "'Inter', sans-serif",
                     fontSize: 13,
                     fontWeight: 600,
@@ -536,9 +560,22 @@ export default function Footer() {
                     opacity: isSubmitting ? 0.7 : 1,
                     transition: "all 0.3s ease",
                     whiteSpace: "nowrap",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
                   }}
                 >
-                  {isSubmitting ? "Sending..." : isSubscribed ? "✓ Subscribed!" : "Subscribe"}
+                  {isSubmitting ? (
+                    "Sending..."
+                  ) : isSubscribed ? (
+                    <>
+                      <CheckCircle size={14} /> Subscribed!
+                    </>
+                  ) : (
+                    <>
+                      Subscribe <Send size={12} />
+                    </>
+                  )}
                 </motion.button>
               </div>
               
@@ -552,8 +589,12 @@ export default function Footer() {
                     fontSize: 11,
                     color: "#ef4444",
                     fontFamily: "'Inter', sans-serif",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
                   }}
                 >
+                  <AlertCircle size={12} />
                   {error}
                 </motion.p>
               )}
@@ -568,8 +609,12 @@ export default function Footer() {
                     fontSize: 11,
                     color: "#10b981",
                     fontFamily: "'Inter', sans-serif",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
                   }}
                 >
+                  <CheckCircle size={12} />
                   Thank you for subscribing! You'll receive updates soon.
                 </motion.p>
               )}
@@ -582,7 +627,7 @@ export default function Footer() {
                 flexDirection: "column",
                 gap: 14,
                 paddingTop: 20,
-                borderTop: "1px solid rgba(255,255,255,0.06)",
+                borderTop: "1px solid rgba(196,151,42,0.12)",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -591,21 +636,24 @@ export default function Footer() {
                     width: 36,
                     height: 36,
                     borderRadius: "10px",
-                    background: "rgba(196,151,42,0.1)",
+                    background: "rgba(196,151,42,0.12)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 16,
+                    color: "#C4972A",
                   }}
                 >
-                  📞
+                  <Phone size={16} strokeWidth={1.5} />
                 </div>
                 <div>
                   <div
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 11,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      letterSpacing: "1px",
                       color: "rgba(255,255,255,0.4)",
+                      textTransform: "uppercase",
                     }}
                   >
                     24/7 Support Line
@@ -628,21 +676,24 @@ export default function Footer() {
                     width: 36,
                     height: 36,
                     borderRadius: "10px",
-                    background: "rgba(196,151,42,0.1)",
+                    background: "rgba(196,151,42,0.12)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 16,
+                    color: "#C4972A",
                   }}
                 >
-                  ✉️
+                  <Mail size={16} strokeWidth={1.5} />
                 </div>
                 <div>
                   <div
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 11,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      letterSpacing: "1px",
                       color: "rgba(255,255,255,0.4)",
+                      textTransform: "uppercase",
                     }}
                   >
                     Email Us
@@ -650,7 +701,7 @@ export default function Footer() {
                   <div
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: 500,
                       color: "rgba(255,255,255,0.8)",
                     }}
@@ -669,8 +720,7 @@ export default function Footer() {
           initial="hidden"
           animate={controls}
           style={{
-            borderTop: "1px solid rgba(255,255,255,0.06)",
-            paddingTop: "clamp(28px, 5vh, 36px)",
+            borderTop: "1px solid rgba(196,151,42,0.12)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -678,7 +728,7 @@ export default function Footer() {
             gap: 20,
             background: "rgba(255,255,255,0.02)",
             backdropFilter: "blur(10px)",
-            borderRadius: "16px",
+            borderRadius: "20px",
             padding: "24px 28px",
             marginTop: "20px",
           }}
@@ -748,14 +798,12 @@ export default function Footer() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 8px 20px rgba(196,151,42,0.35)",
+              boxShadow: "0 6px 16px rgba(196,151,42,0.3)",
               zIndex: 1000,
               transition: "all 0.3s ease",
             }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M18 15l-6-6-6 6" />
-            </svg>
+            <ArrowUp size={20} strokeWidth={2.5} style={{ color: "#0f1d3d" }} />
           </motion.button>
         )}
       </AnimatePresence>

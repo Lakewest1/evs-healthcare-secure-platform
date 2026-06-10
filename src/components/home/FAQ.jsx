@@ -1,5 +1,25 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView, useAnimation, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  GraduationCap,
+  Zap,
+  Users,
+  CheckCircle,
+  DollarSign,
+  MapPin,
+  FolderOpen,
+  MessageCircle,
+  ArrowRight,
+  Plus,
+  Minus,
+  Sparkles,
+  Clock,
+  Briefcase,
+  Shield,
+  CreditCard,
+  Compass
+} from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Premium FAQ Section — Enterprise-Grade Accordion with Advanced Animations
@@ -18,42 +38,42 @@ const faqs = [
     q: "Do I need experience to apply?",
     a: "Not necessarily. If you have at least 5 months of care experience, you may be eligible for immediate start. For candidates without experience, we offer mandatory training including manual handling onsite and care certification to get you work-ready.",
     category: "Application",
-    icon: "🎓",
+    icon: GraduationCap,
   },
   {
     id: 2,
     q: "How quickly can I be placed?",
     a: "Candidates with relevant experience can often be placed within days of completing compliance checks. We work as fast as possible to match you with appropriate local shifts. Our record placement time is just 48 hours from application to first shift!",
     category: "Placement",
-    icon: "⚡",
+    icon: Zap,
   },
   {
     id: 3,
     q: "What types of roles do you recruit for?",
     a: "We recruit for Healthcare Care Assistants, Support Workers, Social Workers, RGN and RMN Nurses, Domestic Workers, and other care sector roles on both temporary and permanent basis. We have opportunities across all skill levels and specializations.",
     category: "Roles",
-    icon: "👥",
+    icon: Users,
   },
   {
     id: 4,
     q: "Do you cover enhanced DBS checks?",
     a: "Yes, we assist with the enhanced DBS application process. We guide you through every step to ensure you're fully compliant before your first shift. Our dedicated compliance team handles all paperwork and follows up with you throughout the process.",
     category: "Compliance",
-    icon: "✓",
+    icon: Shield,
   },
   {
     id: 5,
     q: "What is the pay structure?",
     a: "We offer competitive pay rates with both weekly and monthly payment options. Holiday pay is included and rates vary by role and grade. Contact us for specific salary information for your role. We also offer bonuses for referrals and long-term placements.",
     category: "Pay",
-    icon: "💷",
+    icon: CreditCard,
   },
   {
     id: 6,
     q: "What areas do you cover?",
     a: "Our primary coverage is across the North-West of England, with a particular focus on Preston and surrounding Lancashire areas. Most of our shifts are local to where you live. We're expanding our coverage area based on demand.",
     category: "Location",
-    icon: "📍",
+    icon: Compass,
   },
 ];
 
@@ -65,6 +85,7 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const contentRef = useRef(null);
   const [height, setHeight] = useState(0);
+  const IconComponent = faq.icon;
 
   useEffect(() => {
     if (contentRef.current) {
@@ -122,12 +143,12 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
           position: "relative",
           background: "white",
           borderRadius: "24px",
-          border: `1px solid ${isOpen ? "#C4972A" : isHovered ? "rgba(196,151,42,0.3)" : "#eef0f8"}`,
+          border: `1px solid ${isOpen ? "#C4972A" : isHovered ? "rgba(196,151,42,0.25)" : "rgba(0,0,0,0.06)"}`,
           boxShadow: isOpen
-            ? "0 20px 40px -12px rgba(196,151,42,0.2)"
+            ? "0 12px 24px -8px rgba(196,151,42,0.15)"
             : isHovered
-            ? "0 10px 30px -10px rgba(0,0,0,0.1)"
-            : "0 2px 10px rgba(0,0,0,0.03)",
+            ? "0 8px 20px -8px rgba(0,0,0,0.08)"
+            : "0 1px 3px rgba(0,0,0,0.03)",
           overflow: "hidden",
           transition: "all 0.3s ease",
         }}
@@ -135,7 +156,7 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
         {/* Dynamic Spotlight Effect */}
         <motion.div
           animate={{
-            opacity: isHovered ? 0.05 : 0,
+            opacity: isHovered ? 0.04 : 0,
             background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(196,151,42,0.8), transparent 60%)`,
           }}
           transition={{ duration: 0.2 }}
@@ -169,33 +190,36 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
             {/* Animated Icon */}
             <motion.div
               animate={{
-                scale: isHovered ? 1.1 : 1,
-                rotate: isHovered ? [0, -10, 10, 0] : 0,
+                scale: isHovered ? 1.08 : 1,
+                rotate: isHovered ? [0, -5, 5, 0] : 0,
               }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.4 }}
               style={{
                 width: 44,
                 height: 44,
                 borderRadius: "14px",
                 background: isOpen
                   ? "linear-gradient(135deg, #C4972A, #8B6914)"
-                  : "linear-gradient(135deg, rgba(196,151,42,0.1), rgba(196,151,42,0.05))",
+                  : "rgba(196,151,42,0.08)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 22,
                 flexShrink: 0,
                 transition: "background 0.3s ease",
               }}
             >
-              {faq.icon}
+              <IconComponent 
+                size={22} 
+                strokeWidth={1.6} 
+                style={{ color: isOpen ? "#fff" : "#C4972A" }} 
+              />
             </motion.div>
 
             {/* Question Text */}
             <motion.span
               animate={{
                 color: isOpen ? "#C4972A" : "#0f1d3d",
-                x: isHovered ? 5 : 0,
+                x: isHovered ? 3 : 0,
               }}
               transition={{ duration: 0.3 }}
               style={{
@@ -214,7 +238,7 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
           <motion.div
             animate={{
               rotate: isOpen ? 45 : 0,
-              scale: isHovered ? 1.1 : 1,
+              scale: isHovered ? 1.05 : 1,
             }}
             transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
             style={{
@@ -229,18 +253,11 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
               transition: "background 0.3s ease",
             }}
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke={isOpen || isHovered ? "#C4972A" : "#64748b"}
-              strokeWidth="2.5"
-              style={{ transition: "stroke 0.3s ease" }}
-            >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
+            {isOpen ? (
+              <Minus size={16} strokeWidth={2.5} style={{ color: "#C4972A" }} />
+            ) : (
+              <Plus size={16} strokeWidth={2.5} style={{ color: isHovered ? "#C4972A" : "#64748b" }} />
+            )}
           </motion.div>
         </button>
 
@@ -267,7 +284,7 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
                   transition={{ delay: 0.1, duration: 0.3 }}
                   style={{
                     fontFamily: "'Inter', sans-serif",
-                    color: "#64748b",
+                    color: "#4a5568",
                     fontSize: "clamp(13px, 1.5vw, 14px)",
                     lineHeight: 1.8,
                     borderLeft: "3px solid #C4972A",
@@ -292,7 +309,7 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
                     borderRadius: "20px",
                   }}
                 >
-                  <span style={{ fontSize: 11 }}>📂</span>
+                  <FolderOpen size={11} style={{ color: "#C4972A" }} />
                   <span
                     style={{
                       fontFamily: "'Inter', sans-serif",
@@ -374,14 +391,12 @@ export default function FAQ() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
-  const categories = [...new Set(faqs.map(f => f.category))];
-
   return (
     <section
       ref={ref}
       style={{
         padding: "clamp(60px, 10vh, 100px) clamp(16px, 5vw, 80px)",
-        background: "linear-gradient(135deg, #fefcf8 0%, #faf9f7 100%)",
+        background: "#ffffff",
         position: "relative",
         overflow: "hidden",
       }}
@@ -395,7 +410,7 @@ export default function FAQ() {
           width: 300,
           height: 300,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(196,151,42,0.03), transparent)",
+          background: "radial-gradient(circle, rgba(196,151,42,0.02), transparent)",
           pointerEvents: "none",
         }}
       />
@@ -407,7 +422,7 @@ export default function FAQ() {
           width: 250,
           height: 250,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(196,151,42,0.02), transparent)",
+          background: "radial-gradient(circle, rgba(196,151,42,0.015), transparent)",
           pointerEvents: "none",
         }}
       />
@@ -442,8 +457,8 @@ export default function FAQ() {
               <span
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: 11,
-                  fontWeight: 800,
+                  fontSize: 10,
+                  fontWeight: 700,
                   letterSpacing: "4px",
                   textTransform: "uppercase",
                   color: "#C4972A",
@@ -493,7 +508,7 @@ export default function FAQ() {
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: 14,
-              color: "#64748b",
+              color: "#4a5568",
               maxWidth: 500,
               margin: "0 auto",
               lineHeight: 1.65,
@@ -503,7 +518,7 @@ export default function FAQ() {
           </motion.p>
         </motion.div>
 
-        {/* Search Bar */}
+        {/* Search Bar - Using Lucide Search Icon */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -517,25 +532,20 @@ export default function FAQ() {
               margin: "0 auto",
             }}
           >
-            <svg
+            <div
               style={{
                 position: "absolute",
                 left: 16,
                 top: "50%",
                 transform: "translateY(-50%)",
-                width: 18,
-                height: 18,
-                color: "#94a3b8",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 pointerEvents: "none",
               }}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
             >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
+              <Search size={18} strokeWidth={1.8} style={{ color: "#94a3b8" }} />
+            </div>
             <input
               type="text"
               placeholder="Search your question..."
@@ -545,7 +555,7 @@ export default function FAQ() {
                 width: "100%",
                 padding: "14px 20px 14px 48px",
                 borderRadius: "60px",
-                border: "1px solid #eef0f8",
+                border: "1px solid rgba(0,0,0,0.06)",
                 background: "#fff",
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 14,
@@ -554,10 +564,10 @@ export default function FAQ() {
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = "#C4972A";
-                e.target.style.boxShadow = "0 0 0 3px rgba(196,151,42,0.1)";
+                e.target.style.boxShadow = "0 0 0 3px rgba(196,151,42,0.08)";
               }}
               onBlur={(e) => {
-                e.target.style.borderColor = "#eef0f8";
+                e.target.style.borderColor = "rgba(0,0,0,0.06)";
                 e.target.style.boxShadow = "none";
               }}
             />
@@ -586,10 +596,10 @@ export default function FAQ() {
                 padding: "60px 20px",
                 background: "#fff",
                 borderRadius: "24px",
-                border: "1px solid #eef0f8",
+                border: "1px solid rgba(0,0,0,0.06)",
               }}
             >
-              <span style={{ fontSize: 48, opacity: 0.5 }}>🔍</span>
+              <Search size={48} strokeWidth={1.5} style={{ color: "#94a3b8", opacity: 0.5, margin: "0 auto" }} />
               <h3
                 style={{
                   fontFamily: "'Inter', sans-serif",
@@ -622,7 +632,7 @@ export default function FAQ() {
           style={{
             marginTop: 48,
             padding: "32px 24px",
-            background: "linear-gradient(135deg, #fefcf8, #ffffff)",
+            background: "#f8fafc",
             borderRadius: "24px",
             textAlign: "center",
             border: "1px solid rgba(196,151,42,0.1)",
@@ -651,27 +661,26 @@ export default function FAQ() {
           </p>
           <motion.a
             href="#contact"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: 10,
               background: "linear-gradient(135deg, #C4972A, #8B6914)",
-              color: "#fff",
+              color: "#0f1d3d",
               padding: "12px 32px",
               borderRadius: "40px",
               fontFamily: "'Inter', sans-serif",
               fontSize: 14,
               fontWeight: 600,
               textDecoration: "none",
-              boxShadow: "0 8px 20px rgba(196,151,42,0.3)",
+              boxShadow: "0 4px 12px rgba(196,151,42,0.25)",
             }}
           >
+            <MessageCircle size={16} />
             Contact Support
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+            <ArrowRight size={14} />
           </motion.a>
         </motion.div>
 

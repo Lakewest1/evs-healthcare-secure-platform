@@ -1,16 +1,21 @@
 // components/home/Partners.jsx
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 
-// Lucide Icons
+// Lucide Icons for fallbacks and badges
 import {
+  Star,
+  Trophy,
+  Award,
+  BadgeCheck,
   Building2,
   Shield,
   GraduationCap,
   Handshake,
-  Star,
   MapPin,
-  CheckCircle,
+  ShieldCheck,
+  Heart,
+  CheckCircle
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -18,6 +23,10 @@ import {
 // Strategy: zero Framer Motion per card — all per-card animations are pure CSS
 // running on the GPU compositor thread (transform / opacity only).
 // Framer Motion kept ONLY for section header reveal (one staggered sequence).
+// 
+// UPDATED: Using actual organization logos instead of generic icons
+// Logos are displayed on white pill backgrounds with grayscale → color on hover
+// Fallback icons use Lucide React components instead of emojis
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -27,17 +36,66 @@ function useReveal(threshold = 0.2) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Partner Data
+// Partner Data with actual logo paths and Lucide fallback icons
+// All logos should be placed in /public/images/partners/ directory
 // ─────────────────────────────────────────────────────────────────────────────
 const PARTNERS = [
-  { id: 1, name: "NHS England",       color: "#005EB8", icon: Building2    },
-  { id: 2, name: "CQC Approved",      color: "#00A859", icon: Shield       },
-  { id: 3, name: "DBS Partner",       color: "#C4972A", icon: Shield       },
-  { id: 4, name: "Skills for Care",   color: "#6C3B2A", icon: GraduationCap},
-  { id: 5, name: "Care Quality",      color: "#2C5F8A", icon: Star         },
-  { id: 6, name: "Lancashire County", color: "#4A6FA5", icon: MapPin       },
-  { id: 7, name: "UKHCA",             color: "#7B2D8E", icon: Handshake    },
-  { id: 8, name: "NCFE",              color: "#E65100", icon: GraduationCap},
+  { 
+    id: 1, 
+    name: "NHS England", 
+    logo: "../src/images/NSH.jpeg",
+    fallbackIcon: Building2,
+    fallbackColor: "#005EB8",
+    website: "https://www.england.nhs.uk/"
+  },
+  { 
+    id: 2, 
+    name: "CQC", 
+    logo: "../src/images/cqc.jpeg",
+    fallbackIcon: ShieldCheck,
+    fallbackColor: "#00A859",
+    website: "https://www.cqc.org.uk/"
+  },
+  { 
+    id: 3, 
+    name: "DBS", 
+    logo: "../src/images/dbs.jpeg",
+    fallbackIcon: Shield,
+    fallbackColor: "#C4972A",
+    website: "https://www.gov.uk/government/organisations/disclosure-and-barring-service"
+  },
+  { 
+    id: 4, 
+    name: "Skills for Care", 
+     logo: "../src/images/skillcare.jpeg",
+    fallbackIcon: GraduationCap,
+    fallbackColor: "#6C3B2A",
+    website: "https://www.skillsforcare.org.uk/"
+  },
+  { 
+    id: 5, 
+    name: "Lancashire County Council", 
+    logo: "../src/images/lacashire.jpeg",
+    fallbackIcon: MapPin,
+    fallbackColor: "#4A6FA5",
+    website: "https://www.lancashire.gov.uk/"
+  },
+  { 
+    id: 6, 
+    name: "Homecare Association", 
+     logo: "../src/images/homecare.jpeg",
+    fallbackIcon: Heart,
+    fallbackColor: "#7B2D8E",
+    website: "https://www.homecareassociation.org.uk/"
+  },
+  { 
+    id: 7, 
+    name: "NCFE", 
+     logo: "../src/images/ncfe.jpeg",
+    fallbackIcon: Award,
+    fallbackColor: "#E65100",
+    website: "https://www.ncfe.org.uk/"
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -63,90 +121,72 @@ const CSS = `
     to   { opacity: 1; transform: scale(1); }
   }
   @keyframes pt-float {
-    0%,100% { transform: translateY(0)   rotateZ(0deg); }
-    25%     { transform: translateY(-6px) rotateZ(1.5deg); }
-    75%     { transform: translateY(6px)  rotateZ(-1.5deg); }
+    0%,100% { transform: translateY(0) rotateZ(0deg); }
+    25%     { transform: translateY(-4px) rotateZ(1deg); }
+    75%     { transform: translateY(4px) rotateZ(-1deg); }
   }
   .pt-card {
     position: relative;
     flex-shrink: 0;
     cursor: pointer;
-    margin: 0 10px;
-    width: 110px;
-    height: 110px;
+    margin: 0 12px;
+    width: 120px;
+    height: 120px;
     animation:
       pt-pop   0.45s cubic-bezier(0.22,1,0.36,1) both,
       pt-float 5s   ease-in-out infinite;
-    animation-delay: calc(var(--i) * 0.2s), calc(var(--i) * 0.2s);
+    animation-delay: calc(var(--i) * 0.15s), calc(var(--i) * 0.15s);
   }
 
-  /* ── Ball face ── */
+  /* ── Card face — white pill background ── */
   .pt-face {
     position: absolute;
     inset: 0;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ffffff, #fefcf8);
-    border: 1.5px solid rgba(196,151,42,0.20);
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(196,151,42,0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     overflow: hidden;
     transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
   }
   .pt-card:hover .pt-face {
-    box-shadow:
-      0 0 22px rgba(196,151,42,0.38),
-      0 6px 20px rgba(0,0,0,0.08),
-      0 0 0 1px rgba(196,151,42,0.20);
-    border-color: rgba(196,151,42,0.45);
-    transform: scale(1.06);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border-color: rgba(196, 151, 42, 0.3);
+    transform: scale(1.05);
   }
 
-  /* ── Inner gradient pulse ── */
-  @keyframes pt-pulse {
-    0%,100% { opacity: 0.05; }
-    50%      { opacity: 0.15; }
+  /* ── Logo image styling ── */
+  .pt-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    filter: grayscale(100%);
+    transition: filter 0.3s ease, transform 0.3s ease;
   }
-  .pt-inner-pulse {
-    position: absolute;
-    inset: 8px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(196,151,42,0.08), transparent 70%);
-    pointer-events: none;
-    animation: pt-pulse 3s ease-in-out infinite;
-  }
-
-  /* ── Sweep shimmer on hover ── */
-  .pt-sweep {
-    position: absolute;
-    top: 0; left: -55%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(196,151,42,0.15), transparent);
-    transform: skewX(-20deg);
-    pointer-events: none;
-    opacity: 0;
-  }
-  @keyframes pt-sweep {
-    from { left: -55%; opacity: 0.4; }
-    to   { left: 110%; opacity: 0.4; }
-  }
-  .pt-card:hover .pt-sweep {
-    animation: pt-sweep 1.2s ease-in-out infinite;
+  .pt-card:hover .pt-logo {
+    filter: grayscale(0%);
+    transform: scale(1.05);
   }
 
-  /* ── Icon micro-bounce on hover ── */
-  .pt-icon {
-    margin-bottom: 6px;
+  /* ── Fallback icon styling (Lucide icons) ── */
+  .pt-fallback-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    filter: grayscale(100%);
+    transition: filter 0.3s ease, transform 0.3s ease;
   }
-  .pt-card:hover .pt-icon {
-    transform: scale(1.12) rotate(-3deg);
+  .pt-card:hover .pt-fallback-icon {
+    filter: grayscale(0%);
+    transform: scale(1.05);
   }
 
   /* ── Partner name label ── */
@@ -154,74 +194,75 @@ const CSS = `
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 10px;
-    color: #475569;
+    color: #4a5568;
     text-align: center;
     padding: 0 8px;
     line-height: 1.3;
     position: relative;
     z-index: 1;
-    opacity: 0.9;
-    transition: opacity 0.2s ease;
+    transition: color 0.2s ease;
   }
-  .pt-card:hover .pt-label { opacity: 1; }
+  .pt-card:hover .pt-label {
+    color: #C4972A;
+  }
 
-  /* ── Rotating rings ── */
+  /* ── Rotating rings (decorative) ── */
   @keyframes pt-ring-cw  { to { transform: rotate(360deg);  } }
   @keyframes pt-ring-ccw { to { transform: rotate(-360deg); } }
   .pt-ring-cw {
     position: absolute;
     inset: -4px;
-    border-radius: 50%;
-    border: 1px solid rgba(196,151,42,0.15);
+    border-radius: 20px;
+    border: 1px solid rgba(196, 151, 42, 0.1);
     pointer-events: none;
-    animation: pt-ring-cw  10s linear infinite;
+    animation: pt-ring-cw  12s linear infinite;
   }
   .pt-ring-ccw {
     position: absolute;
-    inset: -7px;
-    border-radius: 50%;
-    border: 1px solid rgba(196,151,42,0.08);
+    inset: -8px;
+    border-radius: 24px;
+    border: 1px solid rgba(196, 151, 42, 0.06);
     pointer-events: none;
-    animation: pt-ring-ccw 12s linear infinite;
+    animation: pt-ring-ccw 15s linear infinite;
   }
 
-  /* ── Pulsing outer ring on hover ── */
-  @keyframes pt-hover-ring {
-    from { transform: scale(1); opacity: 0.4; }
-    to   { transform: scale(1.4); opacity: 0;  }
+  /* ── Pulse effect on hover ── */
+  @keyframes pt-hover-pulse {
+    from { transform: scale(1); opacity: 0.2; }
+    to   { transform: scale(1.3); opacity: 0; }
   }
-  .pt-hover-ring {
+  .pt-hover-pulse {
     position: absolute;
     inset: 0;
-    border-radius: 50%;
-    border: 1.5px solid var(--partner-color, #C4972A);
+    border-radius: 20px;
+    background: rgba(196, 151, 42, 0.15);
     pointer-events: none;
     opacity: 0;
-    animation: none;
   }
-  .pt-card:hover .pt-hover-ring {
-    animation: pt-hover-ring 1.2s ease-out infinite;
+  .pt-card:hover .pt-hover-pulse {
+    animation: pt-hover-pulse 0.8s ease-out infinite;
   }
 
-  /* ── Background blobs — CSS only, no JS ── */
+  /* ── Background blobs — CSS only ── */
   @keyframes pt-blob-a {
     0%,100% { transform: translate(0, 0); }
-    25%     { transform: translate(15px, -20px); }
-    75%     { transform: translate(-15px, 20px); }
+    25%     { transform: translate(12px, -16px); }
+    75%     { transform: translate(-12px, 16px); }
   }
   @keyframes pt-blob-b {
     0%,100% { transform: translate(0, 0); }
-    25%     { transform: translate(-15px, 20px); }
-    75%     { transform: translate(15px, -20px); }
+    25%     { transform: translate(-12px, 16px); }
+    75%     { transform: translate(12px, -16px); }
   }
   .pt-blob-a { animation: pt-blob-a 18s ease-in-out infinite; }
   .pt-blob-b { animation: pt-blob-b 22s ease-in-out infinite; }
 
   /* ── Mobile sizing ── */
   @media (max-width: 767px) {
-    .pt-card   { width: 85px; height: 85px; }
+    .pt-card   { width: 100px; height: 100px; margin: 0 8px; }
+    .pt-logo   { width: 44px; height: 44px; margin-bottom: 6px; }
+    .pt-fallback-icon { width: 38px; height: 38px; margin-bottom: 4px; }
     .pt-label  { font-size: 8.5px; }
-    .pt-icon svg { width: 22px !important; height: 22px !important; }
   }
 
   /* ── Reduced motion ── */
@@ -230,42 +271,67 @@ const CSS = `
     .pt-card         { animation: none !important; }
     .pt-ring-cw,
     .pt-ring-ccw,
-    .pt-inner-pulse,
-    .pt-hover-ring,
-    .pt-sweep,
+    .pt-hover-pulse,
     .pt-blob-a,
     .pt-blob-b       { animation: none !important; }
-  }
-
-  /* ── Ultra-mobile border thinning ── */
-  @media (max-width: 480px) {
-    .pt-face { border-width: 1px; }
   }
 `;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PARTNER CARD — pure HTML + CSS, zero JS animation overhead
+// PARTNER CARD — with actual logo, grayscale to color on hover
+// Lucide fallback icons instead of emojis
 // ─────────────────────────────────────────────────────────────────────────────
 function PartnerCard({ partner, index }) {
-  const Icon = partner.icon;
+  const [imgError, setImgError] = useState(false);
+  const FallbackIcon = partner.fallbackIcon;
+
+  const handleImageError = () => {
+    setImgError(true);
+  };
+
+  const openPartnerWebsite = () => {
+    window.open(partner.website, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div
       className="pt-card"
-      style={{ "--i": index, "--partner-color": partner.color }}
+      style={{ "--i": index }}
+      onClick={openPartnerWebsite}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          openPartnerWebsite();
+        }
+      }}
+      aria-label={`Visit ${partner.name} website`}
     >
       <div className="pt-face">
-        <div className="pt-inner-pulse" />
-        <div className="pt-sweep" />
-
-        <div className="pt-icon">
-          <Icon size={28} strokeWidth={1.8} color={partner.color} />
-        </div>
+        <div className="pt-hover-pulse" />
+        
+        {!imgError ? (
+          <img
+            src={partner.logo}
+            alt={`${partner.name} logo`}
+            className="pt-logo"
+            onError={handleImageError}
+            loading="lazy"
+          />
+        ) : (
+          <div className="pt-fallback-icon">
+            <FallbackIcon 
+              size={40} 
+              strokeWidth={1.5} 
+              color={partner.fallbackColor}
+            />
+          </div>
+        )}
 
         <span className="pt-label">{partner.name}</span>
 
         <div className="pt-ring-cw" />
         <div className="pt-ring-ccw" />
-        <div className="pt-hover-ring" />
       </div>
     </div>
   );
@@ -277,7 +343,7 @@ function PartnerCard({ partner, index }) {
 function InfiniteMarquee({ items, isInView }) {
   const doubled = [...items, ...items];
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-  const speed = isMobile ? "35s" : "45s";
+  const speed = isMobile ? "40s" : "50s";
 
   return (
     <div
@@ -285,11 +351,11 @@ function InfiniteMarquee({ items, isInView }) {
         overflow: "hidden",
         position: "relative",
         width: "100%",
-        padding: "16px 0",
+        padding: "20px 0",
         maskImage:
-          "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
+          "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
         WebkitMaskImage:
-          "linear-gradient(to right, transparent, black 5%, black 95%, transparent)",
+          "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
       }}
     >
       {isInView && (
@@ -337,6 +403,10 @@ export default function Partners() {
   const [ref, inView] = useReveal(0.15);
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
+  const TrophyIcon = Trophy;
+  const BadgeCheckIcon = BadgeCheck;
+  const AwardIcon = Award;
+
   return (
     <>
       <style>{CSS}</style>
@@ -345,12 +415,12 @@ export default function Partners() {
         ref={ref}
         style={{
           padding: "clamp(50px, 8vh, 80px) clamp(16px, 5vw, 80px)",
-          background: "linear-gradient(135deg, #ffffff 0%, #fefcf8 100%)",
+          background: "#ffffff",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Animated background grid — one Framer instance, not per-card */}
+        {/* Animated background grid */}
         <motion.div
           animate={{ opacity: inView ? 0.03 : 0 }}
           transition={{ duration: 1 }}
@@ -358,15 +428,15 @@ export default function Partners() {
             position: "absolute",
             inset: 0,
             backgroundImage: `
-              radial-gradient(circle at 20% 50%, rgba(196,151,42,0.08) 0%, transparent 50%),
-              repeating-linear-gradient(45deg, #C4972A 0px, #C4972A 1px, transparent 1px, transparent 20px)
+              radial-gradient(circle at 20% 50%, rgba(196,151,42,0.06) 0%, transparent 50%),
+              repeating-linear-gradient(45deg, #C4972A 0px, #C4972A 1px, transparent 1px, transparent 30px)
             `,
             backgroundSize: "100% 100%, 30px 30px",
             pointerEvents: "none",
           }}
         />
 
-        {/* Background blobs — pure CSS, zero JS */}
+        {/* Background blobs */}
         <div
           className="pt-blob-a"
           style={{
@@ -375,7 +445,7 @@ export default function Partners() {
             width: isMobile ? 180 : 280,
             height: isMobile ? 180 : 280,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(196,151,42,0.04), transparent 70%)",
+            background: "radial-gradient(circle, rgba(196,151,42,0.03), transparent 70%)",
             pointerEvents: "none",
           }}
         />
@@ -387,12 +457,12 @@ export default function Partners() {
             width: isMobile ? 200 : 320,
             height: isMobile ? 200 : 320,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(196,151,42,0.03), transparent 70%)",
+            background: "radial-gradient(circle, rgba(196,151,42,0.02), transparent 70%)",
             pointerEvents: "none",
           }}
         />
 
-        {/* Top border — one Framer instance */}
+        {/* Top border */}
         <motion.div
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: 1 } : {}}
@@ -404,7 +474,7 @@ export default function Partners() {
           }}
         />
 
-        {/* Bottom border — one Framer instance */}
+        {/* Bottom border */}
         <motion.div
           initial={{ scaleX: 0 }}
           animate={inView ? { scaleX: 1 } : {}}
@@ -418,7 +488,7 @@ export default function Partners() {
 
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 2 }}>
 
-          {/* ── Section header — Framer Motion stagger (runs ONCE on reveal) ── */}
+          {/* Section header */}
           <motion.div
             variants={headerVariants}
             initial="hidden"
@@ -439,8 +509,10 @@ export default function Partners() {
               <span
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: 11, fontWeight: 800,
-                  letterSpacing: "4px", textTransform: "uppercase",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: "4px",
+                  textTransform: "uppercase",
                   color: "#C4972A",
                 }}
               >
@@ -460,8 +532,10 @@ export default function Partners() {
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: "clamp(1.5rem, 3.5vw, 2.4rem)",
-                fontWeight: 800, color: "#0f1d3d",
-                letterSpacing: "-0.02em", marginBottom: 16,
+                fontWeight: 800,
+                color: "#0f1d3d",
+                letterSpacing: "-0.02em",
+                marginBottom: 16,
               }}
             >
               Trusted By Leading{" "}
@@ -486,59 +560,118 @@ export default function Partners() {
               variants={childVariants}
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 14, color: "#64748b",
-                maxWidth: 520, margin: "0 auto", lineHeight: 1.65,
+                fontSize: 14,
+                color: "#4a5568",
+                maxWidth: 520,
+                margin: "0 auto",
+                lineHeight: 1.65,
               }}
             >
               We're proud to work with and be recognized by industry leaders across healthcare
             </motion.p>
           </motion.div>
 
-          {/* ── Marquee — pure CSS per card ── */}
+          {/* Marquee with actual partner logos */}
           <InfiniteMarquee items={PARTNERS} isInView={inView} />
 
-          {/* ── Trust indicator badges — stagger runs ONCE on reveal ── */}
+          {/* Trust indicator badges */}
           <motion.div
             initial="hidden"
             animate={inView ? "visible" : "hidden"}
             variants={badgeContainerVariants}
             style={{
-              display: "flex", alignItems: "center", justifyContent: "center",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               marginTop: isMobile ? 40 : 56,
               gap: isMobile ? 12 : 16,
               flexWrap: "wrap",
             }}
           >
-            {[
-              { icon: "🏆", text: "8+ Trusted Partnerships", highlight: true },
-              { icon: "✓",  text: "Full Compliance Certified" },
-              { icon: "⭐", text: "Rated Excellent" },
-            ].map((badge, idx) => (
-              <motion.div
-                key={idx}
-                variants={badgeVariants}
-                whileHover={{ scale: 1.05, y: -2 }}
+            <motion.div
+              variants={badgeVariants}
+              whileHover={{ scale: 1.03, y: -2 }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: `${isMobile ? 6 : 8}px ${isMobile ? 16 : 20}px`,
+                background: "rgba(196,151,42,0.08)",
+                borderRadius: "50px",
+                cursor: "default",
+                border: "1px solid rgba(196,151,42,0.12)",
+              }}
+            >
+              <TrophyIcon size={isMobile ? 14 : 16} style={{ color: "#C4972A" }} />
+              <span
                 style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  padding: `${isMobile ? 6 : 8}px ${isMobile ? 16 : 20}px`,
-                  background: badge.highlight ? "rgba(196,151,42,0.08)" : "rgba(0,0,0,0.03)",
-                  borderRadius: "50px",
-                  cursor: "default",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 12 : 13,
+                  fontWeight: 600,
+                  color: "#C4972A",
                 }}
               >
-                <span style={{ fontSize: isMobile ? 14 : 16 }}>{badge.icon}</span>
-                <span
-                  style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: isMobile ? 12 : 13,
-                    fontWeight: badge.highlight ? 600 : 500,
-                    color: badge.highlight ? "#C4972A" : "#64748b",
-                  }}
-                >
-                  {badge.text}
-                </span>
-              </motion.div>
-            ))}
+                7+ Trusted Partnerships
+              </span>
+            </motion.div>
+
+            <motion.div
+              variants={badgeVariants}
+              whileHover={{ scale: 1.03, y: -2 }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: `${isMobile ? 6 : 8}px ${isMobile ? 16 : 20}px`,
+                background: "rgba(0,0,0,0.03)",
+                borderRadius: "50px",
+                cursor: "default",
+                border: "1px solid rgba(0,0,0,0.06)",
+              }}
+            >
+              <BadgeCheckIcon size={isMobile ? 14 : 16} style={{ color: "#4a5568" }} />
+              <span
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 12 : 13,
+                  fontWeight: 500,
+                  color: "#64748b",
+                }}
+              >
+                Full Compliance Certified
+              </span>
+            </motion.div>
+
+            <motion.div
+              variants={badgeVariants}
+              whileHover={{ scale: 1.03, y: -2 }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: `${isMobile ? 6 : 8}px ${isMobile ? 16 : 20}px`,
+                background: "rgba(0,0,0,0.03)",
+                borderRadius: "50px",
+                cursor: "default",
+                border: "1px solid rgba(0,0,0,0.06)",
+              }}
+            >
+              <div style={{ display: "flex", gap: 2 }}>
+                {[1, 2, 3, 4, 5].map((_, i) => (
+                  <Star key={i} size={isMobile ? 10 : 12} fill="#f0c060" stroke="#f0c060" style={{ color: "#f0c060" }} />
+                ))}
+              </div>
+              <span
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: isMobile ? 12 : 13,
+                  fontWeight: 500,
+                  color: "#64748b",
+                }}
+              >
+                Rated Excellent
+              </span>
+            </motion.div>
           </motion.div>
         </div>
       </section>

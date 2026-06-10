@@ -176,17 +176,17 @@ function FeatureCard({ feature, index }) {
         position: "relative",
         borderRadius: 20,
         overflow: "hidden",
-        background: "#fff",
-        border: `1px solid ${hovered ? `rgba(${feature.accentRgb},0.28)` : "#e4e7eb"}`,
+        background: "#ffffff",
+        border: `1px solid ${hovered ? `rgba(${feature.accentRgb},0.28)` : "rgba(0,0,0,0.06)"}`,
         boxShadow: hovered
-          ? `0 24px 48px rgba(15,23,42,0.12), 0 8px 16px rgba(15,23,42,0.06)`
-          : `0 8px 24px rgba(15,23,42,0.06), 0 2px 6px rgba(15,23,42,0.03)`,
+          ? `0 20px 40px rgba(15,29,61,0.12), 0 4px 12px rgba(15,29,61,0.06)`
+          : `0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)`,
         transition: "box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease",
         cursor: "pointer",
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        transform: hovered ? "translateY(-6px)" : "translateY(0)",
+        transform: hovered ? "translateY(-4px)" : "translateY(0)",
       }}
     >
       {/* Image overlay on hover */}
@@ -250,21 +250,21 @@ function FeatureCard({ feature, index }) {
           >
             {feature.icon}
           </div>
-          <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", marginBottom: 5 }}>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", marginBottom: 5 }}>
             EVS Healthcare
           </div>
-          <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 20, fontWeight: 700, lineHeight: 1.25, marginBottom: 8, color: "#fff" }}>
+          <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 700, lineHeight: 1.25, marginBottom: 8, color: "#fff" }}>
             {feature.title}
           </h3>
           <div style={{ display: "flex", alignItems: "baseline", gap: 7, marginBottom: 10 }}>
-            <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: "#fff", lineHeight: 1 }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: "#fff", lineHeight: 1 }}>
               {feature.stat}
             </span>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.72)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.72)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
               {feature.statLabel}
             </span>
           </div>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, lineHeight: 1.65, color: "rgba(255,255,255,0.88)", marginBottom: 18 }}>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, lineHeight: 1.65, color: "rgba(255,255,255,0.88)", marginBottom: 18 }}>
             {feature.desc}
           </p>
           <motion.div
@@ -276,8 +276,8 @@ function FeatureCard({ feature, index }) {
       </motion.div>
 
       {/* Default card face */}
-      <div style={{ padding: "26px 26px 22px", display: "flex", flexDirection: "column", flex: 1, position: "relative", zIndex: 2 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 20 }}>
+      <div style={{ padding: "24px 24px 20px", display: "flex", flexDirection: "column", flex: 1, position: "relative", zIndex: 2 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 18 }}>
           <div
             style={{
               width: 52,
@@ -294,20 +294,20 @@ function FeatureCard({ feature, index }) {
           >
             {feature.icon}
           </div>
-          <span aria-hidden="true" style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(15,37,71,0.15)" }}>
+          <span aria-hidden="true" style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(15,29,61,0.15)" }}>
             {feature.number}
           </span>
         </div>
 
-        <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: 18, fontWeight: 700, color: "#1a2d5a", marginBottom: 6, lineHeight: 1.3, letterSpacing: "-0.01em" }}>
+        <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: 18, fontWeight: 700, color: "#0f1d3d", marginBottom: 6, lineHeight: 1.3, letterSpacing: "-0.01em" }}>
           {feature.title}
         </h3>
 
         <div style={{ display: "flex", alignItems: "baseline", gap: 7, margin: "10px 0 6px" }}>
-          <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: feature.accent, lineHeight: 1 }}>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: feature.accent, lineHeight: 1 }}>
             {feature.stat}
           </span>
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 500, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 500, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             {feature.statLabel}
           </span>
         </div>
@@ -319,9 +319,9 @@ function FeatureCard({ feature, index }) {
           style={{ height: 2, width: 52, background: `linear-gradient(90deg, ${feature.accent}, rgba(${feature.accentRgb},0.15))`, borderRadius: 999, marginBottom: 14 }}
         />
 
-        <div style={{ height: 1, background: "rgba(15,37,71,0.07)", marginBottom: 14 }} />
+        <div style={{ height: 1, background: "rgba(15,29,61,0.06)", marginBottom: 14 }} />
 
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, fontWeight: 400, color: "#5a6a80", lineHeight: 1.7, flex: 1 }}>
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13.5, fontWeight: 400, color: "#4a5568", lineHeight: 1.65, flex: 1 }}>
           {feature.desc}
         </p>
 
@@ -329,7 +329,7 @@ function FeatureCard({ feature, index }) {
           onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
           aria-expanded={expanded}
           className="evs-expand-btn"
-          style={{ display: "none", alignItems: "center", gap: 5, marginTop: 14, background: "none", border: "none", padding: 0, cursor: "pointer", color: feature.accent, fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600 }}
+          style={{ display: "none", alignItems: "center", gap: 5, marginTop: 14, background: "none", border: "none", padding: 0, cursor: "pointer", color: feature.accent, fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 600 }}
         >
           <span>{expanded ? "Show less" : "Read more"}</span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s ease" }} aria-hidden="true">
@@ -351,7 +351,7 @@ function HeroBanner() {
       variants={fadeUp(0)}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
-      style={{ position: "relative", width: "100%", borderRadius: 24, overflow: "hidden", marginBottom: 64, boxShadow: "0 24px 56px -16px rgba(0,0,0,0.14)", aspectRatio: "21 / 7", minHeight: 220 }}
+      style={{ position: "relative", width: "100%", borderRadius: 24, overflow: "hidden", marginBottom: 64, boxShadow: "0 20px 40px -12px rgba(15,29,61,0.15)", aspectRatio: "21 / 7", minHeight: 220 }}
     >
       <motion.div
         initial={{ scale: 1.06 }}
@@ -359,7 +359,7 @@ function HeroBanner() {
         transition={{ duration: 1.2, ease: EASE.smooth }}
         style={{ position: "absolute", inset: 0, backgroundImage: "url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1600&q=80')", backgroundSize: "cover", backgroundPosition: "center" }}
       />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(10,22,52,0.88) 0%, rgba(10,22,52,0.60) 100%)" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,29,61,0.88) 0%, rgba(15,29,61,0.60) 100%)" }} />
       <div aria-hidden="true" style={{ position: "absolute", left: 0, top: "15%", bottom: "15%", width: 4, background: "linear-gradient(180deg, transparent, #C4972A, transparent)", borderRadius: "0 4px 4px 0" }} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -371,16 +371,16 @@ function HeroBanner() {
           initial={{ scale: 0.7, opacity: 0 }}
           animate={inView ? { scale: 1, opacity: 1 } : {}}
           transition={{ duration: 0.5, delay: 0.3, ease: EASE.smooth }}
-          style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(196,151,42,0.18)", border: "1.5px solid rgba(196,151,42,0.35)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}
+          style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(196,151,42,0.15)", border: "1.5px solid rgba(196,151,42,0.35)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
         </motion.div>
-        <h2 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(1.6rem, 4vw, 2.8rem)", fontWeight: 700, color: "#fff", marginBottom: 10, letterSpacing: "-0.01em", lineHeight: 1.2 }}>
+        <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(1.6rem, 4vw, 2.8rem)", fontWeight: 700, color: "#fff", marginBottom: 10, letterSpacing: "-0.01em", lineHeight: 1.2 }}>
           Exceptional Care,{" "}<span style={{ color: "#C4972A" }}>Trusted Service</span>
         </h2>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", color: "rgba(255,255,255,0.82)", fontSize: "clamp(13px, 1.5vw, 15px)", maxWidth: 480, lineHeight: 1.65 }}>
+        <p style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.85)", fontSize: "clamp(13px, 1.5vw, 15px)", maxWidth: 480, lineHeight: 1.65 }}>
           Professional healthcare staffing solutions tailored to your needs
         </p>
       </motion.div>
@@ -401,7 +401,7 @@ function SectionHeader() {
         style={{ display: "inline-flex", alignItems: "center", gap: 12, marginBottom: 18 }}
       >
         <motion.div initial={{ scaleX: 0, originX: 0 }} animate={inView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay: 0.2, ease: EASE.smooth }} style={{ width: 32, height: 2, background: "#C4972A", borderRadius: 999 }} />
-        <span style={{ fontFamily: "'Sora', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", color: "#C4972A" }}>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", color: "#C4972A" }}>
           Why Choose Us
         </span>
         <motion.div initial={{ scaleX: 0, originX: 1 }} animate={inView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay: 0.2, ease: EASE.smooth }} style={{ width: 32, height: 2, background: "#C4972A", borderRadius: 999 }} />
@@ -411,7 +411,7 @@ function SectionHeader() {
         variants={fadeUp(0.1)}
         initial="hidden"
         animate={inView ? "visible" : "hidden"}
-        style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(1.85rem, 4vw, 2.9rem)", fontWeight: 700, color: "#1a2d5a", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 16 }}
+        style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(1.85rem, 4vw, 2.9rem)", fontWeight: 700, color: "#0f1d3d", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 16 }}
       >
         Your Career,{" "}
         <span style={{ position: "relative", display: "inline-block" }}>
@@ -429,7 +429,7 @@ function SectionHeader() {
         variants={fadeUp(0.2)}
         initial="hidden"
         animate={inView ? "visible" : "hidden"}
-        style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 400, color: "#5a6a80", maxWidth: 520, margin: "0 auto", lineHeight: 1.75 }}
+        style={{ fontFamily: "'Inter', sans-serif", fontSize: 15, fontWeight: 400, color: "#4a5568", maxWidth: 520, margin: "0 auto", lineHeight: 1.65 }}
       >
         A 24/7 agency placing healthcare professionals into NHS trusts,
         private hospitals and care homes across North-West England.
@@ -448,24 +448,24 @@ function CtaStrip() {
       variants={fadeUp(0)}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
-      style={{ marginTop: 64, borderRadius: 24, background: "linear-gradient(135deg, #1a2d5a 0%, #0f1e3d 100%)", padding: "clamp(36px, 5vw, 52px) clamp(28px, 5vw, 52px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 28, flexWrap: "wrap", position: "relative", overflow: "hidden" }}
+      style={{ marginTop: 64, borderRadius: 24, background: "linear-gradient(135deg, #0f1d3d 0%, #1a2a50 100%)", padding: "clamp(36px, 5vw, 52px) clamp(28px, 5vw, 52px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 28, flexWrap: "wrap", position: "relative", overflow: "hidden" }}
     >
       <div aria-hidden="true" style={{ position: "absolute", top: -60, right: -60, width: 240, height: 240, borderRadius: "50%", border: "36px solid rgba(196,151,42,0.07)", pointerEvents: "none" }} />
       <div style={{ position: "relative", zIndex: 1 }}>
-        <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#C4972A", marginBottom: 8 }}>
+        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#C4972A", marginBottom: 8 }}>
           Ready to get started?
         </div>
-        <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "clamp(1.3rem, 2.5vw, 1.9rem)", fontWeight: 700, color: "#ffffff", lineHeight: 1.28, letterSpacing: "-0.01em" }}>
+        <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(1.3rem, 2.5vw, 1.9rem)", fontWeight: 700, color: "#ffffff", lineHeight: 1.28, letterSpacing: "-0.01em" }}>
           Join hundreds of healthcare<br />professionals placed by EVS.
         </h3>
       </div>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", position: "relative", zIndex: 1 }}>
-        <motion.a href="#register" whileHover={{ scale: 1.04, boxShadow: "0 10px 28px rgba(196,151,42,0.45)" }} whileTap={{ scale: 0.97 }} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg, #C4972A, #8B6914)", color: "#ffffff", padding: "13px 30px", borderRadius: 50, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, textDecoration: "none", letterSpacing: "0.03em", boxShadow: "0 4px 16px rgba(196,151,42,0.3)", whiteSpace: "nowrap" }}>
+        <motion.a href="#register" whileHover={{ scale: 1.04, boxShadow: "0 10px 28px rgba(196,151,42,0.45)" }} whileTap={{ scale: 0.97 }} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg, #C4972A, #8B6914)", color: "#0f1d3d", padding: "13px 30px", borderRadius: 50, fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 14, textDecoration: "none", letterSpacing: "0.03em", boxShadow: "0 4px 16px rgba(196,151,42,0.3)", whiteSpace: "nowrap" }}>
           Apply Now
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </motion.a>
-        <motion.a href="tel:+441772379989" whileHover={{ scale: 1.03, background: "rgba(255,255,255,0.13)" }} whileTap={{ scale: 0.97 }} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.08)", color: "#ffffff", padding: "13px 26px", borderRadius: 50, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 14, textDecoration: "none", letterSpacing: "0.02em", border: "1px solid rgba(255,255,255,0.15)", whiteSpace: "nowrap" }}>
-          📞 01772 379989
+        <motion.a href="tel:+441772379989" whileHover={{ scale: 1.03, background: "rgba(255,255,255,0.13)" }} whileTap={{ scale: 0.97 }} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.08)", color: "#ffffff", padding: "13px 26px", borderRadius: 50, fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 14, textDecoration: "none", letterSpacing: "0.02em", border: "1px solid rgba(255,255,255,0.15)", whiteSpace: "nowrap" }}>
+          <span style={{ marginRight: 4 }}>📞</span> 01772 379989
         </motion.a>
       </div>
     </motion.div>
@@ -513,14 +513,14 @@ function HorizontalScroll({ children }) {
     <div style={{ position: "relative" }}>
       <AnimatePresence>
         {showLeft && (
-          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollBy("left")} aria-label="Scroll left" style={{ position: "absolute", left: -14, top: "50%", transform: "translateY(-50%)", width: 36, height: 36, borderRadius: "50%", background: "#fff", border: "1px solid rgba(15,37,71,0.12)", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", cursor: "pointer", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollBy("left")} aria-label="Scroll left" style={{ position: "absolute", left: -14, top: "50%", transform: "translateY(-50%)", width: 36, height: 36, borderRadius: "50%", background: "#fff", border: "1px solid rgba(15,29,61,0.12)", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", cursor: "pointer", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
           </motion.button>
         )}
       </AnimatePresence>
       <AnimatePresence>
         {showRight && (
-          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollBy("right")} aria-label="Scroll right" style={{ position: "absolute", right: -14, top: "50%", transform: "translateY(-50%)", width: 36, height: 36, borderRadius: "50%", background: "#fff", border: "1px solid rgba(15,37,71,0.12)", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", cursor: "pointer", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} onClick={() => scrollBy("right")} aria-label="Scroll right" style={{ position: "absolute", right: -14, top: "50%", transform: "translateY(-50%)", width: 36, height: 36, borderRadius: "50%", background: "#fff", border: "1px solid rgba(15,29,61,0.12)", boxShadow: "0 2px 10px rgba(0,0,0,0.08)", cursor: "pointer", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
           </motion.button>
         )}
@@ -542,7 +542,7 @@ export default function WhyChooseUs() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
 
         *, *::before, *::after {
           margin: 0;
@@ -568,7 +568,6 @@ export default function WhyChooseUs() {
           gap: 22px;
         }
 
-        /* Card hover animation */
         .why-choose-card {
           transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease !important;
         }

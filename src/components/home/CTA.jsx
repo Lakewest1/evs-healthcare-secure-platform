@@ -1,5 +1,19 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView, useAnimation, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { 
+  Phone, 
+  Mail, 
+  Star, 
+  Building2, 
+  CheckCircle, 
+  MessageCircle,
+  ArrowRight,
+  Sparkles,
+  Shield,
+  Users,
+  Award,
+  ClipboardCheck
+} from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Premium CTA Section — Enterprise-Grade Call to Action
@@ -15,7 +29,7 @@ function useReveal(threshold = 0.3) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Magnetic Button Component with Advanced Haptics
 // ─────────────────────────────────────────────────────────────────────────────
-function MagneticButton({ children, href, variant = "primary", icon, onClick }) {
+function MagneticButton({ children, href, variant = "primary", icon: IconComponent, onClick }) {
   const buttonRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
@@ -36,7 +50,7 @@ function MagneticButton({ children, href, variant = "primary", icon, onClick }) 
   const buttonStyles = {
     primary: {
       background: "linear-gradient(135deg, #ffffff, #fefaf5)",
-      color: "#8B6914",
+      color: "#0f1d3d",
       boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
       hoverShadow: "0 15px 40px rgba(0,0,0,0.25)",
     },
@@ -108,16 +122,15 @@ function MagneticButton({ children, href, variant = "primary", icon, onClick }) 
         )}
       </AnimatePresence>
 
-      {icon && <span style={{ fontSize: 18 }}>{icon}</span>}
+      {IconComponent && <IconComponent size={18} strokeWidth={1.8} />}
       <span>{children}</span>
       
       {/* Arrow Animation on Hover */}
       <motion.span
         animate={{ x: isHovered ? 5 : 0 }}
         transition={{ duration: 0.3 }}
-        style={{ fontSize: 16 }}
       >
-        →
+        <ArrowRight size={16} />
       </motion.span>
     </motion.a>
   );
@@ -137,11 +150,11 @@ export default function CTA() {
 
   // Create floating particles
   useEffect(() => {
-    const newParticles = Array.from({ length: 30 }, (_, i) => ({
+    const newParticles = Array.from({ length: 25 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 4 + 2,
+      size: Math.random() * 3 + 1.5,
       duration: Math.random() * 20 + 10,
       delay: Math.random() * 5,
       angle: Math.random() * 360,
@@ -201,6 +214,22 @@ export default function CTA() {
     },
   };
 
+  const trustIndicators = [
+    { icon: Users, text: "500+ Happy Workers", color: "#C4972A" },
+    { icon: Building2, text: "NHS Approved", color: "#005EB8" },
+    { icon: ClipboardCheck, text: "Free Compliance", color: "#10b981" },
+  ];
+
+  const handleCopyPhone = () => {
+    navigator.clipboard.writeText("01772 493994");
+    // Optional: Add toast notification here
+  };
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText("admin_1@evshealthcare.co.uk");
+    // Optional: Add toast notification here
+  };
+
   return (
     <section
       ref={ref}
@@ -208,7 +237,7 @@ export default function CTA() {
       style={{
         position: "relative",
         padding: "clamp(80px, 15vh, 120px) clamp(16px, 5vw, 80px)",
-        background: "linear-gradient(135deg, #0a1628 0%, #0f1d3d 50%, #1a2a4a 100%)",
+        background: "linear-gradient(135deg, #0f1d3d 0%, #1a2a50 50%, #0f1d3d 100%)",
         overflow: "hidden",
         isolation: "isolate",
       }}
@@ -216,7 +245,7 @@ export default function CTA() {
       {/* Animated Gradient Background */}
       <motion.div
         animate={{
-          background: `radial-gradient(circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, rgba(196,151,42,0.15), transparent 50%)`,
+          background: `radial-gradient(circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, rgba(196,151,42,0.12), transparent 50%)`,
         }}
         transition={{ duration: 0.3 }}
         style={{
@@ -231,9 +260,9 @@ export default function CTA() {
         <motion.div
           key={particle.id}
           animate={{
-            y: [0, -100, 0],
-            x: [0, Math.sin(particle.angle) * 80, 0],
-            opacity: [0, 0.4, 0],
+            y: [0, -80, 0],
+            x: [0, Math.sin(particle.angle) * 60, 0],
+            opacity: [0, 0.3, 0],
           }}
           transition={{
             duration: particle.duration,
@@ -248,7 +277,7 @@ export default function CTA() {
             width: particle.size,
             height: particle.size,
             borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(196,151,42,${0.3 + particle.id * 0.01}), transparent)`,
+            background: `radial-gradient(circle, rgba(196,151,42,${0.25 + particle.id * 0.005}), transparent)`,
             pointerEvents: "none",
             zIndex: 0,
           }}
@@ -259,11 +288,11 @@ export default function CTA() {
       <motion.div
         style={{ y }}
         animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
+          scale: [1, 1.15, 1],
+          opacity: [0.25, 0.4, 0.25],
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        css={{
+        style={{
           position: "absolute",
           top: "-30%",
           right: "-20%",
@@ -272,7 +301,7 @@ export default function CTA() {
           maxWidth: 600,
           maxHeight: 600,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(196,151,42,0.08), transparent 70%)",
+          background: "radial-gradient(circle, rgba(196,151,42,0.06), transparent 70%)",
           pointerEvents: "none",
           zIndex: 0,
         }}
@@ -280,11 +309,11 @@ export default function CTA() {
       <motion.div
         style={{ y: useTransform(scrollYProgress, [0, 1], [0, -80]) }}
         animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.2, 0.4, 0.2],
+          scale: [1, 1.2, 1],
+          opacity: [0.15, 0.3, 0.15],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        css={{
+        style={{
           position: "absolute",
           bottom: "-30%",
           left: "-20%",
@@ -293,7 +322,7 @@ export default function CTA() {
           maxWidth: 500,
           maxHeight: 500,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(100,100,255,0.06), transparent 70%)",
+          background: "radial-gradient(circle, rgba(100,100,255,0.04), transparent 70%)",
           pointerEvents: "none",
           zIndex: 0,
         }}
@@ -351,13 +380,11 @@ export default function CTA() {
               transform: "translateX(-50%)",
               width: 60,
               height: 60,
-              opacity: 0.3,
+              opacity: 0.25,
               pointerEvents: "none",
             }}
           >
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-            </svg>
+            <Sparkles size={50} strokeWidth={1} style={{ color: "#C4972A" }} />
           </motion.div>
 
           {/* Main Heading with Animated Gradient */}
@@ -415,27 +442,23 @@ export default function CTA() {
               lineHeight: 1.7,
             }}
           >
-            Whether you're experienced or just starting out — at EVS Healthcare,
+            Whether you're experienced or just starting out at EVS Healthcare,
             there's a chance for everyone. Join our growing team of healthcare
             professionals today.
           </motion.p>
 
-          {/* Trust Indicators */}
+          {/* Trust Indicators - Using Lucide Icons */}
           <motion.div
             variants={itemVariants}
             style={{
               display: "flex",
               justifyContent: "center",
-              gap: 24,
+              gap: 20,
               marginBottom: 40,
               flexWrap: "wrap",
             }}
           >
-            {[
-              { icon: "⭐", text: "500+ Happy Workers" },
-              { icon: "🏥", text: "NHS Approved" },
-              { icon: "✓", text: "Free Compliance" },
-            ].map((item, idx) => (
+            {trustIndicators.map((item, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
@@ -445,14 +468,14 @@ export default function CTA() {
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  background: "rgba(255,255,255,0.05)",
+                  background: "rgba(255,255,255,0.06)",
                   backdropFilter: "blur(10px)",
-                  padding: "8px 18px",
+                  padding: "8px 20px",
                   borderRadius: "40px",
                   border: "1px solid rgba(196,151,42,0.2)",
                 }}
               >
-                <span style={{ fontSize: 14 }}>{item.icon}</span>
+                <item.icon size={14} style={{ color: item.color }} />
                 <span
                   style={{
                     fontFamily: "'Inter', sans-serif",
@@ -480,7 +503,7 @@ export default function CTA() {
             <MagneticButton
               href="#register"
               variant="primary"
-              icon="📝"
+              icon={ClipboardCheck}
             >
               Apply Today
             </MagneticButton>
@@ -488,13 +511,13 @@ export default function CTA() {
             <MagneticButton
               href="https://wa.me/447466999218"
               variant="secondary"
-              icon="💬"
+              icon={MessageCircle}
             >
               WhatsApp Us
             </MagneticButton>
           </motion.div>
 
-          {/* Contact Info Note */}
+          {/* Contact Info Note - Using Lucide Icons */}
           <motion.div
             variants={itemVariants}
             style={{
@@ -514,14 +537,15 @@ export default function CTA() {
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
-                background: "rgba(255,255,255,0.03)",
+                background: "rgba(255,255,255,0.04)",
                 padding: "8px 20px",
                 borderRadius: "40px",
                 cursor: "pointer",
+                border: "1px solid rgba(255,255,255,0.08)",
               }}
-              onClick={() => navigator.clipboard.writeText("01772 493994")}
+              onClick={handleCopyPhone}
             >
-              <span style={{ fontSize: 14 }}>📞</span>
+              <Phone size={14} style={{ color: "#C4972A" }} />
               <span
                 style={{
                   fontFamily: "'Inter', sans-serif",
@@ -538,14 +562,15 @@ export default function CTA() {
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
-                background: "rgba(255,255,255,0.03)",
+                background: "rgba(255,255,255,0.04)",
                 padding: "8px 20px",
                 borderRadius: "40px",
                 cursor: "pointer",
+                border: "1px solid rgba(255,255,255,0.08)",
               }}
-              onClick={() => navigator.clipboard.writeText("admin_1@evshealthcare.co.uk")}
+              onClick={handleCopyEmail}
             >
-              <span style={{ fontSize: 14 }}>✉️</span>
+              <Mail size={14} style={{ color: "#C4972A" }} />
               <span
                 style={{
                   fontFamily: "'Inter', sans-serif",
@@ -579,11 +604,11 @@ export default function CTA() {
               }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               style={{
-                width: 8,
-                height: 8,
+                width: 6,
+                height: 6,
                 borderRadius: "50%",
                 background: "#C4972A",
-                boxShadow: "0 0 15px rgba(196,151,42,0.8)",
+                boxShadow: "0 0 12px rgba(196,151,42,0.6)",
               }}
             />
             <div style={{ width: 60, height: 1, background: "rgba(196,151,42,0.3)", borderRadius: 999 }} />
@@ -595,11 +620,6 @@ export default function CTA() {
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
         }
         
         @media (prefers-reduced-motion: reduce) {

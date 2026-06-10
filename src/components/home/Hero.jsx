@@ -1,8 +1,29 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { 
+  Briefcase, 
+  Building2, 
+  Star, 
+  ArrowRight, 
+  Eye,
+  Sparkles,
+  ChevronRight,
+  Users,
+  Clock,
+  CheckCircle,
+  Zap,
+  Stethoscope,
+  Heart,
+  TrendingUp,
+  Award
+} from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// EVS Healthcare Hero — Optimized for Mobile Performance
-// Features: Reduced particles on mobile, disabled parallax, simplified animations
+// EVS Healthcare Hero — Professional Clean Design
+// UPDATED: Premium Open Positions widget with brand palette
+// • Urgent badge now uses amber/gold instead of red
+// • Glassmorphism styling with white/10 backdrop-blur
+// • Reduced width to 240px, positioned bottom-right
+// • Consistent brand styling throughout
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Detect mobile device for performance optimization
@@ -30,18 +51,42 @@ const getParticles = () => {
 const PARTICLES = getParticles();
 
 const TESTIMONIALS = [
-  { emoji: "👩‍⚕️", quote: "EVS found me a placement within 5 days.", name: "Sarah M.", role: "Registered Nurse" },
-  { emoji: "👨‍⚕️", quote: "Professional, fast and genuinely caring team.", name: "James T.", role: "Mental Health Nurse" },
-  { emoji: "👩‍⚕️", quote: "Weekly pay and great shifts, couldn't ask for more.", name: "Amara O.", role: "Healthcare Assistant" },
-  { emoji: "👨‍⚕️", quote: "Placed into my ideal NHS trust within a week.", name: "David K.", role: "Senior Care Worker" },
+  { 
+    emoji: "👨‍⚕️", 
+    quote: "Professional, fast and genuinely caring team.", 
+    name: "James T.", 
+    role: "Mental Health Nurse",
+    rating: 5
+  },
+  { 
+    emoji: "👩‍⚕️", 
+    quote: "EVS found me a placement within 5 days. The team was incredibly supportive.", 
+    name: "Sarah M.", 
+    role: "Registered Nurse",
+    rating: 5
+  },
+  { 
+    emoji: "👩‍⚕️", 
+    quote: "Weekly pay and great shifts, couldn't ask for more.", 
+    name: "Amara O.", 
+    role: "Healthcare Assistant",
+    rating: 5
+  },
+  { 
+    emoji: "👨‍⚕️", 
+    quote: "Placed into my ideal NHS trust within a week.", 
+    name: "David K.", 
+    role: "Senior Care Worker",
+    rating: 5
+  },
 ];
 
 const JOBS = [
-  { title: "Registered Nurse (RGN)", pay: "£18–£24/hr", urgent: true },
-  { title: "Mental Health Nurse (RMN)", pay: "£22–£30/hr", urgent: false },
+  { title: "Registered Nurse (RGN)", pay: "£18–£24/hr", urgent: true, icon: Stethoscope },
+  { title: "Mental Health Nurse (RMN)", pay: "£22–£30/hr", urgent: false, icon: Heart },
 ];
 
-// ── Testimonial Carousel Component (Optimized) ────────────────────────────────
+// ── Testimonial Carousel Component ────────────────────────────────────────
 function TestimonialCarousel({ contentVisible }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -74,7 +119,7 @@ function TestimonialCarousel({ contentVisible }) {
 
   const t = TESTIMONIALS[currentIndex];
 
-  // Hide on mobile if needed
+  // Hide on mobile
   if (isMobile()) return null;
 
   return (
@@ -84,7 +129,7 @@ function TestimonialCarousel({ contentVisible }) {
       onMouseLeave={() => setIsPaused(false)}
       style={{
         position: "absolute",
-        bottom: 118,
+        bottom: 100,
         left: 24,
         zIndex: 10,
         pointerEvents: "auto",
@@ -98,15 +143,15 @@ function TestimonialCarousel({ contentVisible }) {
           display: "inline-flex",
           alignItems: "center",
           gap: 12,
-          background: "rgba(255,255,255,0.08)",
-          border: "1px solid rgba(255,255,255,0.15)",
-          borderRadius: 14,
-          padding: "10px 16px",
+          background: "rgba(15,29,61,0.85)",
+          border: "1px solid rgba(196,151,42,0.25)",
+          borderRadius: 16,
+          padding: "12px 18px",
           backdropFilter: "blur(14px)",
           WebkitBackdropFilter: "blur(14px)",
-          boxShadow: "0 4px 18px rgba(0,0,0,0.22)",
-          minWidth: 240,
-          maxWidth: 320,
+          boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+          minWidth: 260,
+          maxWidth: 340,
           opacity: isTransitioning ? 0 : 1,
           transform: isTransitioning ? "translateX(-40px)" : "translateX(0)",
           transition: `opacity ${transitionDuration}ms cubic-bezier(0.4,0,0.2,1), transform ${transitionDuration}ms cubic-bezier(0.4,0,0.2,1)`,
@@ -114,34 +159,33 @@ function TestimonialCarousel({ contentVisible }) {
       >
         <div
           style={{
-            width: 34,
-            height: 34,
+            width: 36,
+            height: 36,
             borderRadius: "50%",
             background: "linear-gradient(135deg, #C4972A, #8B6914)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: 15,
+            fontSize: 18,
             flexShrink: 0,
           }}
         >
           {t.emoji}
         </div>
 
-        <div style={{ textAlign: "left" }}>
-          <div style={{ display: "flex", gap: 1, marginBottom: 2 }}>
+        <div style={{ textAlign: "left", flex: 1 }}>
+          <div style={{ display: "flex", gap: 2, marginBottom: 3 }}>
             {[1, 2, 3, 4, 5].map((s) => (
-              <span key={s} style={{ color: "#f0c060", fontSize: 10 }}>★</span>
+              <Star key={s} size={10} fill="#f0c060" stroke="#f0c060" style={{ color: "#f0c060" }} />
             ))}
           </div>
           <div
             style={{
               fontFamily: "'Nunito Sans', sans-serif",
-              fontSize: 11.5,
-              color: "rgba(255,255,255,0.88)",
+              fontSize: 12,
+              color: "rgba(255,255,255,0.9)",
               fontStyle: "italic",
-              lineHeight: 1.35,
-              maxWidth: 210,
+              lineHeight: 1.4,
             }}
           >
             "{t.quote}"
@@ -150,8 +194,8 @@ function TestimonialCarousel({ contentVisible }) {
             style={{
               fontFamily: "'Nunito Sans', sans-serif",
               fontSize: 10,
-              color: "rgba(255,255,255,0.45)",
-              marginTop: 3,
+              color: "rgba(255,255,255,0.5)",
+              marginTop: 4,
               fontWeight: 600,
             }}
           >
@@ -160,15 +204,15 @@ function TestimonialCarousel({ contentVisible }) {
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 4, marginTop: 8, justifyContent: "center" }}>
+      <div style={{ display: "flex", gap: 6, marginTop: 10, justifyContent: "center" }}>
         {TESTIMONIALS.map((_, i) => (
           <div
             key={i}
             style={{
-              width: i === currentIndex ? 14 : 5,
-              height: 5,
+              width: i === currentIndex ? 16 : 6,
+              height: 6,
               borderRadius: 3,
-              background: i === currentIndex ? "#C4972A" : "rgba(255,255,255,0.2)",
+              background: i === currentIndex ? "#C4972A" : "rgba(255,255,255,0.25)",
               transition: "all 0.3s ease",
             }}
           />
@@ -178,9 +222,71 @@ function TestimonialCarousel({ contentVisible }) {
   );
 }
 
+// Role switcher component
+function RoleSwitcher({ activeRole, onRoleChange }) {
+  const mobile = isMobile();
+  
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        background: "rgba(255,255,255,0.08)",
+        backdropFilter: "blur(12px)",
+        borderRadius: 999,
+        padding: "4px",
+        border: "1px solid rgba(255,255,255,0.12)",
+      }}
+    >
+      <button
+        onClick={() => onRoleChange("jobseeker")}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: `${mobile ? "8px 20px" : "10px 28px"}`,
+          borderRadius: 999,
+          background: activeRole === "jobseeker" ? "#C4972A" : "transparent",
+          color: activeRole === "jobseeker" ? "#0f1d3d" : "rgba(255,255,255,0.8)",
+          border: "none",
+          fontFamily: "'Nunito Sans', sans-serif",
+          fontWeight: 600,
+          fontSize: mobile ? 13 : 14,
+          cursor: "pointer",
+          transition: "all 0.2s ease",
+        }}
+      >
+        <Briefcase size={14} />
+        Job Seeker
+      </button>
+      <button
+        onClick={() => onRoleChange("employer")}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: `${mobile ? "8px 20px" : "10px 28px"}`,
+          borderRadius: 999,
+          background: activeRole === "employer" ? "#C4972A" : "transparent",
+          color: activeRole === "employer" ? "#0f1d3d" : "rgba(255,255,255,0.8)",
+          border: "none",
+          fontFamily: "'Nunito Sans', sans-serif",
+          fontWeight: 600,
+          fontSize: mobile ? 13 : 14,
+          cursor: "pointer",
+          transition: "all 0.2s ease",
+        }}
+      >
+        <Building2 size={14} />
+        Employer
+      </button>
+    </div>
+  );
+}
+
 export default function Hero() {
   const [phase, setPhase] = useState("split");
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const [activeRole, setActiveRole] = useState("jobseeker");
   const heroRef = useRef(null);
   const videoRef = useRef(null);
   const mobile = useMemo(() => isMobile(), []);
@@ -228,6 +334,23 @@ export default function Hero() {
   const contentVisible = phase === "open" || phase === "done";
   const CURTAIN = mobile ? "transform 0.8s cubic-bezier(0.76,0,0.24,1)" : "transform 1.2s cubic-bezier(0.76,0,0.24,1)";
 
+  // Smooth scroll helper
+  const goToSection = (sectionId) => {
+    const el = document.getElementById(sectionId.toLowerCase());
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({ top, behavior: "smooth" });
+    }
+  };
+
+  const handlePrimaryCTA = () => {
+    if (activeRole === "jobseeker") {
+      goToSection("register");
+    } else {
+      goToSection("employers");
+    }
+  };
+
   const enter = (delay = "0s") => ({
     opacity: contentVisible ? 1 : 0,
     transform: contentVisible ? "none" : "translateY(22px)",
@@ -235,10 +358,14 @@ export default function Hero() {
                  transform ${mobile ? 0.5 : 0.85}s cubic-bezier(0.22,1,0.36,1) ${delay}`,
   });
 
+  const primaryCTAText = activeRole === "jobseeker" ? "Find Your Role" : "Request Staff";
+  const secondaryCTAText = "View Open Roles";
+
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito Sans:wght@300;400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { overflow-x: hidden; width: 100%; }
@@ -278,11 +405,14 @@ export default function Hero() {
           100% { opacity:0; transform: rotate(-15deg) translateX(220%); }
         }
 
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
+        /* Hide jobs card on tablet and mobile */
+        @media (max-width: 1200px) {
           .evs-float-card { 
             display: none !important; 
           }
+        }
+
+        @media (max-width: 768px) {
           .evs-testimonial-stack { 
             display: none !important; 
           }
@@ -317,14 +447,14 @@ export default function Hero() {
           height: "100vh",
           minHeight: mobile ? 600 : 640,
           overflow: "hidden",
-          background: "#FFFFFF",
+          background: "#0f1d3d",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           textAlign: "center",
         }}
       >
-        {/* Video Background - Mobile optimized */}
+        {/* Video Background */}
         <video
           ref={videoRef}
           muted
@@ -347,8 +477,7 @@ export default function Hero() {
             transition: (!mobile && phase === "done") ? "transform 0.18s ease-out" : "none",
             opacity: panelOpen ? 1 : 0,
             willChange: "transform",
-            // ── BRIGHTNESS FIX: lifted from default (≈0.5 after overlay) to visibly brighter
-            filter: "brightness(1.18) contrast(1.05) saturate(1.1)",
+            filter: "brightness(1.1) contrast(1.05) saturate(1.1)",
           }}
         >
           <source
@@ -357,26 +486,21 @@ export default function Hero() {
           />
         </video>
 
-        {/* Dark overlay
-            ── CHANGE: was rgba(4,10,32,0.60/0.50/0.72) — too dark, killed the video.
-               Now  rgba(4,10,32,0.38/0.28/0.52) — lighter across all three stops,
-               video reads clearly while text contrast is maintained.
-               Bottom stop kept slightly stronger so CTAs stay legible on mobile.
-        */}
+        {/* Dark overlay */}
         <div
           aria-hidden="true"
           style={{
             position: "absolute",
             inset: 0,
             zIndex: 2,
-            background: "linear-gradient(170deg, rgba(4,10,32,0.38) 0%, rgba(4,10,32,0.28) 55%, rgba(4,10,32,0.52) 100%)",
+            background: "linear-gradient(170deg, rgba(15,29,61,0.5) 0%, rgba(15,29,61,0.3) 55%, rgba(15,29,61,0.55) 100%)",
             opacity: panelOpen ? 1 : 0,
             transition: "opacity 1.8s ease 0.2s",
             pointerEvents: "none",
           }}
         />
 
-        {/* Light ray sweep - disabled on mobile */}
+        {/* Light ray sweep */}
         {contentVisible && !mobile && (
           <div
             aria-hidden="true"
@@ -394,7 +518,7 @@ export default function Hero() {
           />
         )}
 
-        {/* Floating particles - reduced on mobile */}
+        {/* Floating particles */}
         {contentVisible && PARTICLES.map((p) =>
           p.type === "cross" ? (
             <div
@@ -436,7 +560,7 @@ export default function Hero() {
           )
         )}
 
-        {/* LEFT CURTAIN - Simplified on mobile */}
+        {/* LEFT CURTAIN */}
         <div
           aria-hidden="true"
           style={{
@@ -534,7 +658,7 @@ export default function Hero() {
           />
         </div>
 
-        {/* RIGHT CURTAIN - Simplified on mobile */}
+        {/* RIGHT CURTAIN */}
         <div
           aria-hidden="true"
           style={{
@@ -660,10 +784,9 @@ export default function Hero() {
               zIndex: 22,
               textAlign: "center",
               pointerEvents: "none",
-              animation: "evsCentreIn 0.5s ease 0.1s both",
             }}
           >
-            <div style={{ width: 40, height: 1, background: "rgba(196,151,42,0.6)", margin: "8px auto 0" }} />
+            <Sparkles size={24} style={{ color: "#C4972A", margin: "0 auto" }} />
           </div>
         )}
 
@@ -671,7 +794,7 @@ export default function Hero() {
         <div
           style={{
             position: "absolute",
-            top: mobile ? "55%" : "60%",
+            top: mobile ? "55%" : "58%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             zIndex: 10,
@@ -684,6 +807,12 @@ export default function Hero() {
             padding: "0 20px",
           }}
         >
+          {/* Role Switcher */}
+          <div style={{ marginBottom: 24, ...enter(mobile ? "0.2s" : "0.3s") }}>
+            <RoleSwitcher activeRole={activeRole} onRoleChange={setActiveRole} />
+          </div>
+
+          {/* Headline */}
           <h1
             style={{
               fontFamily: "'Nunito Sans', sans-serif",
@@ -693,9 +822,8 @@ export default function Hero() {
               lineHeight: 1.1,
               letterSpacing: "-0.01em",
               marginBottom: mobile ? 12 : 18,
-              // ── text-shadow added for legibility against brighter video ──
               textShadow: "0 2px 20px rgba(4,10,32,0.55), 0 1px 4px rgba(4,10,32,0.4)",
-              ...enter(mobile ? "0.3s" : "0.55s"),
+              ...enter(mobile ? "0.35s" : "0.55s"),
             }}
           >
             Find Your Next
@@ -710,189 +838,274 @@ export default function Hero() {
                 animation: mobile ? "none" : "evsShimmer 4s linear 1s infinite",
               }}
             >
-              HealthCare Career
-            </span> 
+              Healthcare
+            </span>{" "}
+            Career
             <br />
-            With EVS
+            <span style={{ fontSize: "0.6em", fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
+              With EVS
+            </span>
           </h1>
 
+          {/* Description */}
           <p
             style={{
               fontFamily: "'Nunito Sans', sans-serif",
-              color: "rgba(255,255,255,0.92)",
-              fontSize: mobile ? "clamp(0.85rem, 3.5vw, 1rem)" : "clamp(1rem, 1.6vw, 1.16rem)",
+              color: "rgba(255,255,255,0.85)",
+              fontSize: mobile ? "clamp(0.85rem, 3.5vw, 1rem)" : "clamp(1rem, 1.6vw, 1.1rem)",
               fontWeight: 400,
-              lineHeight: 1.72,
+              lineHeight: 1.65,
               maxWidth: 520,
-              marginBottom: mobile ? 24 : 36,
+              marginBottom: mobile ? 28 : 36,
               padding: "0 16px",
-              // ── slightly stronger text shadow so sub-copy stays readable ──
-              textShadow: "0 1px 10px rgba(4,10,32,0.5)",
-              ...enter(mobile ? "0.45s" : "0.7s"),
+              ...enter(mobile ? "0.45s" : "0.65s"),
             }}
           >
             Connecting exceptional healthcare professionals with NHS trusts,
             private hospitals, and leading care providers across North-West England.
           </p>
 
+          {/* Primary CTA Buttons */}
           <div
             style={{
               display: "flex",
-              gap: mobile ? 10 : 14,
+              gap: mobile ? 12 : 16,
               flexWrap: "wrap",
               justifyContent: "center",
-              ...enter(mobile ? "0.6s" : "0.84s"),
+              marginBottom: 0,
+              ...enter(mobile ? "0.6s" : "0.8s"),
             }}
           >
-            <a
-              href="#register"
+            <button
+              onClick={handlePrimaryCTA}
               style={{
                 background: "#C4972A",
-                color: "#fff",
-                padding: mobile ? "10px 24px" : "14px 38px",
+                color: "#0f1d3d",
+                padding: mobile ? "12px 28px" : "14px 36px",
                 borderRadius: 999,
                 fontFamily: "'Nunito Sans', sans-serif",
                 fontWeight: 800,
-                fontSize: mobile ? 11 : 13,
-                letterSpacing: "1.2px",
+                fontSize: mobile ? 13 : 14,
+                letterSpacing: "1px",
                 textTransform: "uppercase",
-                textDecoration: "none",
-                boxShadow: "0 8px 26px rgba(196,151,42,0.45)",
+                border: "none",
+                cursor: "pointer",
+                boxShadow: "0 8px 24px rgba(196,151,42,0.35)",
                 transition: "all 0.2s ease",
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 6,
+                gap: 8,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 12px 32px rgba(196,151,42,0.45)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 8px 24px rgba(196,151,42,0.35)";
               }}
             >
-              Apply Now 
-            </a>
-            <a
-              href="#jobs"
+              {primaryCTAText} <ArrowRight size={14} />
+            </button>
+
+            <button
+              onClick={() => activeRole === "jobseeker" ? goToSection("jobs") : goToSection("employers")}
               style={{
-                background: "rgba(255,255,255,0.11)",
-                border: "1.5px solid rgba(255,255,255,0.50)",
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.25)",
                 color: "#fff",
-                padding: mobile ? "10px 24px" : "14px 38px",
+                padding: mobile ? "12px 28px" : "14px 36px",
                 borderRadius: 999,
                 fontFamily: "'Nunito Sans', sans-serif",
-                fontWeight: 700,
-                fontSize: mobile ? 11 : 13,
-                letterSpacing: "1.2px",
-                textTransform: "uppercase",
-                textDecoration: "none",
+                fontWeight: 600,
+                fontSize: mobile ? 13 : 14,
+                letterSpacing: "0.5px",
                 backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
+                cursor: "pointer",
                 transition: "all 0.2s ease",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.2)";
+                e.currentTarget.style.borderColor = "rgba(196,151,42,0.5)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.1)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)";
               }}
             >
-              View Open Roles
-            </a>
+              <Eye size={14} /> {secondaryCTAText}
+            </button>
+          </div>
+
+          {/* Trust Indicators */}
+          <div
+            style={{
+              marginTop: 36,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 24,
+              flexWrap: "wrap",
+              ...enter(mobile ? "0.7s" : "0.9s"),
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <CheckCircle size={12} style={{ color: "#C4972A" }} />
+              <span style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>NHS Approved</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Users size={12} style={{ color: "#C4972A" }} />
+              <span style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>500+ Workers Placed</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Clock size={12} style={{ color: "#C4972A" }} />
+              <span style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>24/7 Support</span>
+            </div>
           </div>
         </div>
 
+        {/* TESTIMONIAL CAROUSEL - Bottom Left */}
         <TestimonialCarousel contentVisible={contentVisible} />
 
-        {/* Floating Open Positions - Hidden on mobile */}
+        {/* ────────────────────────────────────────────────────────────────── */}
+        {/* PREMIUM OPEN POSITIONS WIDGET - RESTYLED WITH BRAND PALETTE */}
+        {/* ────────────────────────────────────────────────────────────────── */}
         <div
           className="evs-float-card"
           style={{
             position: "absolute",
-            right: "3%",
-            top: "70%",
-            transform: contentVisible ? "translateY(-50%)" : "translateY(-50%) translateX(22px)",
+            right: "2%",
+            bottom: "12%",
             zIndex: 10,
-            background: "rgba(255,255,255,0.10)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(214, 119, 119, 0.18)",
-            borderRadius: 20,
-            padding: "20px 22px",
-            minWidth: 220,
-            boxShadow: "0 12px 40px rgba(0,0,0,0.30)",
+            background: "rgba(255,255,255,0.08)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: 24,
+            padding: "16px 18px",
+            width: 240,
             opacity: contentVisible ? 1 : 0,
-            transition: "opacity 0.9s ease 1.0s, transform 0.9s cubic-bezier(0.22,1,0.36,1) 1.0s",
+            transform: contentVisible ? "translateY(0)" : "translateY(30px)",
+            transition: "opacity 0.9s ease 1.2s, transform 0.9s cubic-bezier(0.22,1,0.36,1) 1.2s",
+            pointerEvents: "auto",
+            cursor: "pointer",
           }}
+          onClick={() => goToSection("jobs")}
         >
+          {/* Header with icon */}
           <div style={{
-            fontFamily: "'Nunito Sans', sans-serif",
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.45)",
-            marginBottom: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 14,
           }}>
-            Open Positions Today
+            <div style={{
+              width: 28,
+              height: 28,
+              borderRadius: 10,
+              background: "rgba(196,151,42,0.15)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <TrendingUp size={14} style={{ color: "#C4972A" }} />
+            </div>
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              color: "#C4972A",
+            }}>
+              Open Positions Today
+            </span>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-            {JOBS.map((job, i) => (
-              <div key={i} style={{
-                background: "rgba(255,255,255,0.07)",
-                borderRadius: 10,
-                padding: "9px 12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 8,
-              }}>
-                <div>
+          {/* Job listings */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {JOBS.map((job, i) => {
+              const JobIcon = job.icon;
+              return (
+                <div key={i} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "8px 0",
+                  borderBottom: i < JOBS.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
+                }}>
                   <div style={{
-                    fontFamily: "'Nunito Sans', sans-serif",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: "#fff",
-                    lineHeight: 1.3,
-                  }}>
-                    {job.title}
-                  </div>
-                  <div style={{
-                    fontFamily: "'Nunito Sans', sans-serif",
-                    fontSize: 11,
-                    color: "#C4972A",
-                    fontWeight: 600,
-                    marginTop: 2,
-                  }}>
-                    {job.pay}
-                  </div>
-                </div>
-                {job.urgent && (
-                  <div style={{
-                    background: "#ef4444",
-                    borderRadius: 4,
-                    padding: "2px 7px",
-                    fontFamily: "'Nunito Sans', sans-serif",
-                    fontSize: 9,
-                    fontWeight: 800,
-                    color: "#fff",
-                    letterSpacing: "0.5px",
+                    width: 32,
+                    height: 32,
+                    borderRadius: 10,
+                    background: "rgba(196,151,42,0.12)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     flexShrink: 0,
                   }}>
-                    URGENT
+                    <JobIcon size={14} style={{ color: "#C4972A" }} />
                   </div>
-                )}
-              </div>
-            ))}
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "#fff",
+                      lineHeight: 1.3,
+                    }}>
+                      {job.title}
+                    </div>
+                    <div style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 10,
+                      color: "#C4972A",
+                      fontWeight: 500,
+                      marginTop: 2,
+                    }}>
+                      {job.pay}
+                    </div>
+                  </div>
+                  {job.urgent && (
+                    <span style={{
+                      background: "#C4972A",
+                      color: "#0f1d3d",
+                      fontSize: 8,
+                      fontWeight: 800,
+                      padding: "3px 8px",
+                      borderRadius: 20,
+                      letterSpacing: "0.5px",
+                      whiteSpace: "nowrap",
+                    }}>
+                      URGENT
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          <a href="#register" style={{
-            display: "block",
-            textAlign: "center",
-            marginTop: 14,
-            background: "linear-gradient(135deg, #C4972A, #8B6914)",
-            color: "#fff",
-            padding: "9px 16px",
-            borderRadius: 10,
-            fontFamily: "'Nunito Sans', sans-serif",
-            fontSize: 11,
-            fontWeight: 800,
-            letterSpacing: "1px",
-            textTransform: "uppercase",
-            textDecoration: "none",
-            transition: "opacity 0.2s",
+          {/* View all link */}
+          <div style={{
+            marginTop: 12,
+            paddingTop: 10,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderTop: "1px solid rgba(255,255,255,0.08)",
           }}>
-            Apply in 60 seconds →
-          </a>
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 9,
+              color: "rgba(255,255,255,0.45)",
+            }}>
+              More roles available
+            </span>
+            <ChevronRight size={12} style={{ color: "#C4972A", opacity: 0.8 }} />
+          </div>
         </div>
       </section>
     </>

@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback, memo } from "react";
+import { Stethoscope, Building2, Star, Phone } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS Healthcare — Stats Section (Mobile Optimized)
@@ -137,25 +138,27 @@ function useScrollParallax(speed = 0.3) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Data
+// Data — icon replaces emoji, using Lucide components
 // ─────────────────────────────────────────────────────────────────────────────
 const STATS = [
-  { value: 500, suffix: "+",  label: "Healthcare Workers Placed", icon: "👩‍⚕️", desc: "Across NHS & private sector"   },
-  { value: 150, suffix: "+",  label: "Partner Care Homes",        icon: "🏥",  desc: "UK-wide trusted network"        },
-  { value: 98,  suffix: "%",  label: "Client Satisfaction Rate",  icon: "⭐",  desc: "Verified post-placement survey" },
-  { value: 24,  suffix: "/7", label: "Support Available",         icon: "📞",  desc: "Always here when you need us"   },
+  { value: 500, suffix: "+",  label: "Healthcare Workers Placed", icon: Stethoscope, desc: "Across NHS & private sector"   },
+  { value: 150, suffix: "+",  label: "Partner Care Homes",        icon: Building2,   desc: "UK-wide trusted network"        },
+  { value: 98,  suffix: "%",  label: "Client Satisfaction Rate",  icon: Star,        desc: "Verified post-placement survey" },
+  { value: 24,  suffix: "/7", label: "Support Available",         icon: Phone,       desc: "Always here when you need us"   },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// StatCard - Mobile Optimized
+// StatCard - Mobile Optimized with Professional Styling
 // ─────────────────────────────────────────────────────────────────────────────
 function StatCard({ stat, isVisible, index }) {
   const { count, done }   = useCounter(stat.value, 2200, isVisible);
   const [hovered, setHovered] = useState(false);
   const cardRef = useRef(null);
 
+  const StatIcon = stat.icon;
+
   // Mobile size adjustments
-  const iconSize = mobile ? "clamp(22px, 4vw, 28px)" : "clamp(26px, 3.5vw, 34px)";
+  const iconSize = mobile ? 22 : 28;
   const iconBoxSize = mobile ? "clamp(44px, 8vw, 54px)" : "clamp(50px, 7vw, 64px)";
   const fontSize = mobile ? "clamp(1.5rem, 4vw, 2.2rem)" : "clamp(1.9rem, 3.5vw, 3.4rem)";
   const padding = mobile 
@@ -255,9 +258,8 @@ function StatCard({ stat, isVisible, index }) {
         }} />
       )}
 
-      {/* Icon */}
+      {/* Icon — Lucide, replaces emoji */}
       <div style={{
-        fontSize: iconSize,
         marginBottom: mobile ? "clamp(10px, 2vw, 14px)" : "clamp(14px, 2vw, 18px)",
         display: "inline-flex",
         alignItems: "center",
@@ -269,6 +271,7 @@ function StatCard({ stat, isVisible, index }) {
           ? "linear-gradient(135deg, rgba(196,151,42,0.12), rgba(196,151,42,0.06))"
           : "rgba(0,0,0,0.02)",
         border: `1px solid ${hovered && !mobile ? "rgba(196,151,42,0.2)" : "rgba(0,0,0,0.04)"}`,
+        color: "#C4972A",
         transform: iconTransform,
         transition: mobile
           ? "opacity 0.4s ease"
@@ -277,7 +280,7 @@ function StatCard({ stat, isVisible, index }) {
         position: "relative",
         zIndex: 2,
       }}>
-        {stat.icon}
+        <StatIcon size={iconSize} strokeWidth={1.6} aria-hidden="true" />
       </div>
 
       {/* Counter */}
@@ -364,7 +367,7 @@ function StatCard({ stat, isVisible, index }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Stats — Mobile Optimized Section
+// Stats — Mobile Optimized Section with Professional Styling
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Stats() {
   const [sectionRef, inView]    = useInView(0.15);
