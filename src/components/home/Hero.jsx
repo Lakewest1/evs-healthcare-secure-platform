@@ -131,7 +131,7 @@ function TestimonialCarousel({ contentVisible }) {
         <div style={{ textAlign: "left" }}>
           <div style={{ display: "flex", gap: 1, marginBottom: 2 }}>
             {[1, 2, 3, 4, 5].map((s) => (
-              <span key={s} style={{ color: "#C4972A", fontSize: 10 }}>★</span>
+              <span key={s} style={{ color: "#f0c060", fontSize: 10 }}>★</span>
             ))}
           </div>
           <div
@@ -347,6 +347,8 @@ export default function Hero() {
             transition: (!mobile && phase === "done") ? "transform 0.18s ease-out" : "none",
             opacity: panelOpen ? 1 : 0,
             willChange: "transform",
+            // ── BRIGHTNESS FIX: lifted from default (≈0.5 after overlay) to visibly brighter
+            filter: "brightness(1.18) contrast(1.05) saturate(1.1)",
           }}
         >
           <source
@@ -355,14 +357,19 @@ export default function Hero() {
           />
         </video>
 
-        {/* Dark overlay */}
+        {/* Dark overlay
+            ── CHANGE: was rgba(4,10,32,0.60/0.50/0.72) — too dark, killed the video.
+               Now  rgba(4,10,32,0.38/0.28/0.52) — lighter across all three stops,
+               video reads clearly while text contrast is maintained.
+               Bottom stop kept slightly stronger so CTAs stay legible on mobile.
+        */}
         <div
           aria-hidden="true"
           style={{
             position: "absolute",
             inset: 0,
             zIndex: 2,
-            background: "linear-gradient(170deg, rgba(4,10,32,0.60) 0%, rgba(4,10,32,0.50) 55%, rgba(4,10,32,0.72) 100%)",
+            background: "linear-gradient(170deg, rgba(4,10,32,0.38) 0%, rgba(4,10,32,0.28) 55%, rgba(4,10,32,0.52) 100%)",
             opacity: panelOpen ? 1 : 0,
             transition: "opacity 1.8s ease 0.2s",
             pointerEvents: "none",
@@ -686,6 +693,8 @@ export default function Hero() {
               lineHeight: 1.1,
               letterSpacing: "-0.01em",
               marginBottom: mobile ? 12 : 18,
+              // ── text-shadow added for legibility against brighter video ──
+              textShadow: "0 2px 20px rgba(4,10,32,0.55), 0 1px 4px rgba(4,10,32,0.4)",
               ...enter(mobile ? "0.3s" : "0.55s"),
             }}
           >
@@ -710,13 +719,15 @@ export default function Hero() {
           <p
             style={{
               fontFamily: "'Nunito Sans', sans-serif",
-              color: "rgba(255,255,255,0.78)",
+              color: "rgba(255,255,255,0.92)",
               fontSize: mobile ? "clamp(0.85rem, 3.5vw, 1rem)" : "clamp(1rem, 1.6vw, 1.16rem)",
               fontWeight: 400,
               lineHeight: 1.72,
               maxWidth: 520,
               marginBottom: mobile ? 24 : 36,
               padding: "0 16px",
+              // ── slightly stronger text shadow so sub-copy stays readable ──
+              textShadow: "0 1px 10px rgba(4,10,32,0.5)",
               ...enter(mobile ? "0.45s" : "0.7s"),
             }}
           >
