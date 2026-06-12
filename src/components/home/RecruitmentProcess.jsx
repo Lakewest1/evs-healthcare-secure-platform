@@ -1,10 +1,11 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { FileText, File, Handshake, ShieldCheck, Target } from "lucide-react";
+import { FileText, File, Handshake, ShieldCheck, Target, ChevronLeft, ChevronRight } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Modern Recruitment Process — Clean White Background, Performance Optimized
-// Features: 5 steps side by side on desktop, responsive grid on tablet, vertical on mobile
+// Features: 5 steps side by side on desktop, responsive grid on tablet, 
+//           CAROUSEL/SLIDER on mobile (click to reveal other processes)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -41,7 +42,6 @@ const steps = [
     desc: "Submit your application with basic details and your preferred role type in under 5 minutes.",
     icon: FileText,
     accent: "#C4972A",
-    bgGradient: "linear-gradient(135deg, #FFF8F0, #FFFFFF)",
   },
   {
     num: "02",
@@ -49,7 +49,6 @@ const steps = [
     desc: "Share your CV and relevant certifications securely through our encrypted portal.",
     icon: File,
     accent: "#C4972A",
-    bgGradient: "linear-gradient(135deg, #FFFFFF, #FFF8F0)",
   },
   {
     num: "03",
@@ -57,7 +56,6 @@ const steps = [
     desc: "Meet with our dedicated team for a quick and professional interview, virtual or in-person.",
     icon: Handshake,
     accent: "#C4972A",
-    bgGradient: "linear-gradient(135deg, #FFF8F0, #FFFFFF)",
   },
   {
     num: "04",
@@ -65,7 +63,6 @@ const steps = [
     desc: "We process your enhanced DBS check and verify all required documents seamlessly.",
     icon: ShieldCheck,
     accent: "#C4972A",
-    bgGradient: "linear-gradient(135deg, #FFFFFF, #FFF8F0)",
   },
   {
     num: "05",
@@ -73,14 +70,13 @@ const steps = [
     desc: "Get placed in a role that matches your skills, location, and career preferences.",
     icon: Target,
     accent: "#C4972A",
-    bgGradient: "linear-gradient(135deg, #FFF8F0, #FFFFFF)",
   },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Step Component - Clean and Performant
 // ─────────────────────────────────────────────────────────────────────────────
-function Step({ step, index, isInView, layoutType = "desktop" }) {
+function Step({ step, index, isInView, layoutType = "desktop", isActive = false }) {
   const [isHovered, setIsHovered] = useState(false);
   const isMobile = layoutType === "mobile";
 
@@ -98,31 +94,31 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
 
   // Responsive paddings and sizes
   const getPadding = () => {
-    if (layoutType === "mobile") return "24px 16px";
+    if (layoutType === "mobile") return "28px 20px";
     if (layoutType === "tablet") return "24px 16px";
     return "28px 20px";
   };
 
   const getTitleSize = () => {
-    if (layoutType === "mobile") return "17px";
+    if (layoutType === "mobile") return "18px";
     if (layoutType === "tablet") return "16px";
     return "18px";
   };
 
   const getDescSize = () => {
-    if (layoutType === "mobile") return "12.5px";
+    if (layoutType === "mobile") return "13px";
     if (layoutType === "tablet") return "12px";
     return "13px";
   };
 
   const getIconSize = () => {
-    if (layoutType === "mobile") return 24;
+    if (layoutType === "mobile") return 28;
     if (layoutType === "tablet") return 24;
     return 26;
   };
 
   const getNumberSize = () => {
-    if (layoutType === "mobile") return "clamp(44px, 7vw, 50px)";
+    if (layoutType === "mobile") return "56px";
     if (layoutType === "tablet") return "48px";
     return "clamp(52px, 7vw, 60px)";
   };
@@ -138,41 +134,44 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
       onMouseLeave={() => isInteractive && setIsHovered(false)}
       style={{
         background: "#ffffff",
-        borderRadius: "20px",
-        border: `1px solid ${isHovered && isInteractive ? "rgba(196,151,42,0.25)" : "rgba(0,0,0,0.06)"}`,
+        borderRadius: "24px",
+        border: `1px solid ${isActive ? "#C4972A" : (isHovered && isInteractive ? "rgba(196,151,42,0.25)" : "rgba(0,0,0,0.06)")}`,
         padding: getPadding(),
         transition: "all 0.3s ease",
-        boxShadow: isHovered && isInteractive
-          ? "0 12px 24px -8px rgba(15,29,61,0.12), 0 0 0 1px rgba(196,151,42,0.1)"
-          : "0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)",
-        transform: isHovered && isInteractive ? "translateY(-4px)" : "translateY(0)",
+        boxShadow: isActive 
+          ? "0 20px 40px -12px rgba(196,151,42,0.25), 0 0 0 1px rgba(196,151,42,0.15)"
+          : (isHovered && isInteractive
+            ? "0 12px 24px -8px rgba(15,29,61,0.12), 0 0 0 1px rgba(196,151,42,0.1)"
+            : "0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)"),
+        transform: (isHovered && isInteractive) || isActive ? "translateY(-4px)" : "translateY(0)",
         textAlign: "center",
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        cursor: isMobile ? "pointer" : "default",
       }}
     >
       {/* Number Circle */}
       <motion.div
         animate={{
-          scale: isHovered && isInteractive ? 1.05 : 1,
-          borderColor: isHovered && isInteractive ? step.accent : "#e2e8f0",
+          scale: (isHovered && isInteractive) || isActive ? 1.05 : 1,
+          borderColor: (isHovered && isInteractive) || isActive ? step.accent : "#e2e8f0",
         }}
         transition={{ duration: 0.3 }}
         style={{
           width: getNumberSize(),
           height: getNumberSize(),
           borderRadius: "50%",
-          background: "#ffffff",
-          border: `2px solid ${isHovered && isInteractive ? step.accent : "#e2e8f0"}`,
+          background: (isActive && isMobile) ? "linear-gradient(135deg, #C4972A, #8B6914)" : "#ffffff",
+          border: `2px solid ${(isHovered && isInteractive) || isActive ? step.accent : "#e2e8f0"}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontFamily: "'Inter', sans-serif",
           fontWeight: 800,
-          fontSize: layoutType === "mobile" ? "16px" : "18px",
-          color: step.accent,
-          boxShadow: isHovered && isInteractive ? `0 4px 12px rgba(196,151,42,0.15)` : "none",
+          fontSize: layoutType === "mobile" ? "18px" : "18px",
+          color: (isActive && isMobile) ? "#ffffff" : step.accent,
+          boxShadow: (isHovered && isInteractive) || isActive ? `0 4px 12px rgba(196,151,42,0.15)` : "none",
           margin: "0 auto 16px auto",
           transition: "all 0.3s ease",
         }}
@@ -180,10 +179,10 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
         {step.num}
       </motion.div>
 
-      {/* Icon — Lucide, replaces emoji */}
+      {/* Icon */}
       <motion.div
         animate={{
-          scale: isHovered && isInteractive ? 1.05 : 1,
+          scale: (isHovered && isInteractive) || isActive ? 1.05 : 1,
         }}
         transition={{ duration: 0.3 }}
         style={{
@@ -191,7 +190,7 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
           alignItems: "center",
           justifyContent: "center",
           marginBottom: 12,
-          color: step.accent,
+          color: (isActive && isMobile) ? "#C4972A" : step.accent,
         }}
       >
         <StepIconWrapper icon={step.icon} size={getIconSize()} />
@@ -200,7 +199,7 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
       {/* Title */}
       <motion.h3
         animate={{
-          color: isHovered && isInteractive ? step.accent : "#0f1d3d",
+          color: (isHovered && isInteractive) || isActive ? step.accent : "#0f1d3d",
         }}
         transition={{ duration: 0.3 }}
         style={{
@@ -228,12 +227,12 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
         {step.desc}
       </p>
 
-      {/* Progress Indicator on Hover */}
+      {/* Progress Indicator */}
       <motion.div
         initial={{ width: 0, opacity: 0 }}
         animate={{ 
-          width: isHovered && isInteractive ? "40px" : 0,
-          opacity: isHovered && isInteractive ? 1 : 0,
+          width: ((isHovered && isInteractive) || isActive) ? "40px" : 0,
+          opacity: ((isHovered && isInteractive) || isActive) ? 1 : 0,
         }}
         transition={{ duration: 0.3 }}
         style={{
@@ -246,6 +245,182 @@ function Step({ step, index, isInView, layoutType = "desktop" }) {
         }}
       />
     </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mobile Carousel Component - Users can click through steps
+// ─────────────────────────────────────────────────────────────────────────────
+function MobileCarousel({ steps, isInView }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+
+  const handleNext = () => {
+    setDirection(1);
+    setCurrentIndex((prev) => (prev + 1) % steps.length);
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setCurrentIndex((prev) => (prev - 1 + steps.length) % steps.length);
+  };
+
+  const goToStep = (index) => {
+    setDirection(index > currentIndex ? 1 : -1);
+    setCurrentIndex(index);
+  };
+
+  const variants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction) => ({
+      x: direction > 0 ? -300 : 300,
+      opacity: 0,
+    }),
+  };
+
+  const currentStep = steps[currentIndex];
+
+  return (
+    <div style={{ position: "relative", padding: "0 10px" }}>
+      {/* Carousel Container */}
+      <AnimatePresence mode="wait" custom={direction}>
+        <motion.div
+          key={currentIndex}
+          custom={direction}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{
+            x: { type: "spring", stiffness: 300, damping: 30 },
+            opacity: { duration: 0.2 },
+          }}
+          style={{ width: "100%" }}
+        >
+          <Step
+            step={currentStep}
+            index={currentIndex}
+            isInView={isInView}
+            layoutType="mobile"
+            isActive={true}
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Navigation Arrows */}
+      <button
+        onClick={handlePrev}
+        aria-label="Previous step"
+        style={{
+          position: "absolute",
+          left: -15,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          background: "#ffffff",
+          border: "1px solid rgba(0,0,0,0.08)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10,
+          transition: "all 0.2s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "#C4972A";
+          e.currentTarget.querySelector('svg').style.stroke = "#fff";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "#ffffff";
+          e.currentTarget.querySelector('svg').style.stroke = "#C4972A";
+        }}
+      >
+        <ChevronLeft size={20} strokeWidth={2.5} style={{ color: "#C4972A" }} />
+      </button>
+
+      <button
+        onClick={handleNext}
+        aria-label="Next step"
+        style={{
+          position: "absolute",
+          right: -15,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          background: "#ffffff",
+          border: "1px solid rgba(0,0,0,0.08)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10,
+          transition: "all 0.2s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = "#C4972A";
+          e.currentTarget.querySelector('svg').style.stroke = "#fff";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = "#ffffff";
+          e.currentTarget.querySelector('svg').style.stroke = "#C4972A";
+        }}
+      >
+        <ChevronRight size={20} strokeWidth={2.5} style={{ color: "#C4972A" }} />
+      </button>
+
+      {/* Progress Dots */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 10,
+          marginTop: 28,
+        }}
+      >
+        {steps.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => goToStep(idx)}
+            style={{
+              width: idx === currentIndex ? 32 : 8,
+              height: 8,
+              borderRadius: 4,
+              border: "none",
+              background: idx === currentIndex ? "#C4972A" : "rgba(0,0,0,0.15)",
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+            }}
+            aria-label={`Go to step ${idx + 1}`}
+          />
+        ))}
+      </div>
+
+      {/* Step Counter */}
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: 16,
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 12,
+          color: "#94a3b8",
+        }}
+      >
+        Step {currentIndex + 1} of {steps.length}
+      </div>
+    </div>
   );
 }
 
@@ -271,15 +446,8 @@ export default function RecruitmentProcess() {
   const isMobile = layoutType === "mobile";
   const isTablet = layoutType === "tablet";
 
-  // Responsive grid layout
+  // Responsive grid layout for tablet
   const getGridStyles = () => {
-    if (isMobile) {
-      return {
-        display: "flex",
-        flexDirection: "column",
-        gap: "20px",
-      };
-    }
     if (isTablet) {
       return {
         display: "grid",
@@ -311,7 +479,7 @@ export default function RecruitmentProcess() {
         overflow: "hidden",
       }}
     >
-      {/* Decorative Background Elements - subtle gold gradients */}
+      {/* Decorative Background Elements */}
       <div
         style={{
           position: "absolute",
@@ -429,7 +597,10 @@ export default function RecruitmentProcess() {
         </motion.div>
 
         {/* Steps - Responsive Layout */}
-        {isTablet ? (
+        {isMobile ? (
+          // MOBILE: Carousel/Slider with click navigation
+          <MobileCarousel steps={steps} isInView={inView} />
+        ) : isTablet ? (
           // Tablet: 2x2 grid + centered last card
           <div>
             <div style={getGridStyles()}>
@@ -449,13 +620,6 @@ export default function RecruitmentProcess() {
                 ))}
               </div>
             </div>
-          </div>
-        ) : isMobile ? (
-          // Mobile: Vertical stack
-          <div style={getGridStyles()}>
-            {steps.map((step, idx) => (
-              <Step key={idx} step={step} index={idx} isInView={inView} layoutType={layoutType} />
-            ))}
           </div>
         ) : (
           // Desktop: 5 cards side by side in one row
@@ -521,7 +685,6 @@ export default function RecruitmentProcess() {
         </motion.div>
       </div>
 
-      {/* CSS for reduced motion */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
 

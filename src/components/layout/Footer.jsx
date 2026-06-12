@@ -1,8 +1,9 @@
 import { motion, useInView, useAnimation, AnimatePresence } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import EVSLogo from "../EVSLogo";
+// Import proper social media icons from react-icons
+import { FaLinkedin, FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
 import {
-  Briefcase,
   Phone,
   Mail,
   Send,
@@ -11,18 +12,13 @@ import {
   ArrowUp,
   ChevronRight,
   Shield,
-  Heart,
-  Globe,
-  Users,
-  Building2,
-  MapPin,
-  Clock,
-  Award
+  Heart
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Modern 2026 Footer — Premium Design with Glass Morphism
 // Features: Animated borders, social links, newsletter (Formspree), back to top
+// FIXED: Proper social media icons (LinkedIn, Facebook, Twitter/X, Instagram)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Footer() {
@@ -112,12 +108,37 @@ export default function Footer() {
     },
   };
 
-  // Social links using only icons that definitely exist in lucide-react
+  // PROPER SOCIAL MEDIA ICONS using react-icons/fa
+  // Each icon is now instantly recognizable as its respective platform
   const socialLinks = [
-    { name: "LinkedIn", icon: Briefcase, url: "#", color: "#0077B5" },
-    { name: "Facebook", icon: Users, url: "#", color: "#1877F2" },
-    { name: "Twitter", icon: Globe, url: "#", color: "#1DA1F2" },
-    { name: "Instagram", icon: Building2, url: "#", color: "#E4405F" },
+    { 
+      name: "LinkedIn", 
+      icon: FaLinkedin, 
+      url: "https://www.linkedin.com/company/evs-healthcare", 
+      color: "#0077B5",
+      hoverColor: "#0077B5"
+    },
+    { 
+      name: "Facebook", 
+      icon: FaFacebook, 
+      url: "https://www.facebook.com/EVSHealthcare", 
+      color: "#1877F2",
+      hoverColor: "#1877F2"
+    },
+    { 
+      name: "Twitter", 
+      icon: FaTwitter, 
+      url: "https://twitter.com/EVS_Healthcare", 
+      color: "#1DA1F2",
+      hoverColor: "#1DA1F2"
+    },
+    { 
+      name: "Instagram", 
+      icon: FaInstagram, 
+      url: "https://www.instagram.com/evshealthcare", 
+      color: "#E4405F",
+      hoverColor: "#E4405F"
+    },
   ];
 
   const quickLinks = [
@@ -290,7 +311,7 @@ export default function Footer() {
               Your trusted partner in care excellence.
             </p>
             
-            {/* Social Links with Glass Morphism */}
+            {/* Social Links with recognisable brand icons */}
             <div style={{ display: "flex", gap: 12 }}>
               {socialLinks.map((social, idx) => {
                 const IconComponent = social.icon;
@@ -298,6 +319,9 @@ export default function Footer() {
                   <motion.a
                     key={social.name}
                     href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Follow us on ${social.name}`}
                     whileHover={{ y: -4, scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400 }}
@@ -313,7 +337,7 @@ export default function Footer() {
                       justifyContent: "center",
                       textDecoration: "none",
                       transition: "all 0.3s ease",
-                      color: "rgba(255,255,255,0.7)",
+                      color: "rgba(255,255,255,0.6)",
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = `${social.color}20`;
@@ -325,10 +349,10 @@ export default function Footer() {
                       e.currentTarget.style.background = "rgba(255,255,255,0.05)";
                       e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
                       e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.color = "rgba(255,255,255,0.7)";
+                      e.currentTarget.style.color = "rgba(255,255,255,0.6)";
                     }}
                   >
-                    <IconComponent size={18} strokeWidth={1.5} />
+                    <IconComponent size={18} />
                   </motion.a>
                 );
               })}

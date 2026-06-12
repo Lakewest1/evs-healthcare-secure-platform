@@ -18,12 +18,16 @@ import {
   Briefcase,
   Shield,
   CreditCard,
-  Compass
+  Compass,
+  Phone,
+  Mail,
+  ChevronDown
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Premium FAQ Section — Enterprise-Grade Accordion with Advanced Animations
 // Features: Smooth expand/collapse, 3D hover effects, animated icons, staggered reveal
+// FIXED: Mobile view shows only 3 FAQs with "Show More" button to reduce scrolling
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.1) {
@@ -77,10 +81,16 @@ const faqs = [
   },
 ];
 
+// Detect mobile for responsive behavior
+const isMobile = () => {
+  if (typeof window === "undefined") return false;
+  return window.innerWidth < 768;
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Premium FAQ Accordion Item Component
 // ─────────────────────────────────────────────────────────────────────────────
-function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
+function FAQItem({ faq, index, isInView, isOpen, onToggle, isMobileView }) {
   const [isHovered, setIsHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const contentRef = useRef(null);
@@ -94,6 +104,7 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
   }, [faq.a]);
 
   const handleMouseMove = (e) => {
+    if (isMobileView) return;
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePosition({
       x: ((e.clientX - rect.left) / rect.width) * 100,
@@ -122,7 +133,7 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
       variants={itemVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => !isMobileView && setIsHovered(true)}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => {
         setIsHovered(false);
@@ -135,38 +146,40 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
     >
       <motion.div
         animate={{
-          rotateX: isHovered ? 3 : 0,
-          rotateY: isHovered ? (mousePosition.x - 50) * 0.1 : 0,
+          rotateX: isHovered && !isMobileView ? 3 : 0,
+          rotateY: isHovered && !isMobileView ? (mousePosition.x - 50) * 0.1 : 0,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         style={{
           position: "relative",
           background: "white",
           borderRadius: "24px",
-          border: `1px solid ${isOpen ? "#C4972A" : isHovered ? "rgba(196,151,42,0.25)" : "rgba(0,0,0,0.06)"}`,
+          border: `1px solid ${isOpen ? "#C4972A" : isHovered && !isMobileView ? "rgba(196,151,42,0.25)" : "rgba(0,0,0,0.06)"}`,
           boxShadow: isOpen
             ? "0 12px 24px -8px rgba(196,151,42,0.15)"
-            : isHovered
+            : isHovered && !isMobileView
             ? "0 8px 20px -8px rgba(0,0,0,0.08)"
             : "0 1px 3px rgba(0,0,0,0.03)",
           overflow: "hidden",
           transition: "all 0.3s ease",
         }}
       >
-        {/* Dynamic Spotlight Effect */}
-        <motion.div
-          animate={{
-            opacity: isHovered ? 0.04 : 0,
-            background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(196,151,42,0.8), transparent 60%)`,
-          }}
-          transition={{ duration: 0.2 }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            borderRadius: "24px",
-          }}
-        />
+        {/* Dynamic Spotlight Effect - desktop only */}
+        {!isMobileView && (
+          <motion.div
+            animate={{
+              opacity: isHovered ? 0.04 : 0,
+              background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(196,151,42,0.8), transparent 60%)`,
+            }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              borderRadius: "24px",
+            }}
+          />
+        )}
 
         {/* Question Button */}
         <button
@@ -190,8 +203,8 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
             {/* Animated Icon */}
             <motion.div
               animate={{
-                scale: isHovered ? 1.08 : 1,
-                rotate: isHovered ? [0, -5, 5, 0] : 0,
+                scale: isHovered && !isMobileView ? 1.08 : 1,
+                rotate: isHovered && !isMobileView ? [0, -5, 5, 0] : 0,
               }}
               transition={{ duration: 0.4 }}
               style={{
@@ -219,7 +232,7 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
             <motion.span
               animate={{
                 color: isOpen ? "#C4972A" : "#0f1d3d",
-                x: isHovered ? 3 : 0,
+                x: isHovered && !isMobileView ? 3 : 0,
               }}
               transition={{ duration: 0.3 }}
               style={{
@@ -238,7 +251,7 @@ function FAQItem({ faq, index, isInView, isOpen, onToggle }) {
           <motion.div
             animate={{
               rotate: isOpen ? 45 : 0,
-              scale: isHovered ? 1.05 : 1,
+              scale: isHovered && !isMobileView ? 1.05 : 1,
             }}
             transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
             style={{
@@ -355,7 +368,26 @@ export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredFaqs, setFilteredFaqs] = useState(faqs);
+  const [showAll, setShowAll] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
   const headerControls = useAnimation();
+
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobile = () => setIsMobileView(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Smooth scroll helper
+  const goToSection = (sectionId) => {
+    const el = document.getElementById(sectionId.toLowerCase());
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({ top, behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     if (inView) {
@@ -372,10 +404,19 @@ export default function FAQ() {
           faq.category.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredFaqs(filtered);
+      // Reset showAll when searching
+      setShowAll(false);
     } else {
       setFilteredFaqs(faqs);
     }
   }, [searchTerm]);
+
+  // Determine which FAQs to display
+  const displayedFaqs = isMobileView && !searchTerm && !showAll
+    ? filteredFaqs.slice(0, 3)
+    : filteredFaqs;
+
+  const hasMoreFaqs = isMobileView && !searchTerm && filteredFaqs.length > 3;
 
   const headerVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -518,7 +559,7 @@ export default function FAQ() {
           </motion.p>
         </motion.div>
 
-        {/* Search Bar - Using Lucide Search Icon */}
+        {/* Search Bar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -576,8 +617,8 @@ export default function FAQ() {
 
         {/* FAQ Accordion Items */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {filteredFaqs.length > 0 ? (
-            filteredFaqs.map((faq, idx) => (
+          {displayedFaqs.length > 0 ? (
+            displayedFaqs.map((faq, idx) => (
               <FAQItem
                 key={faq.id}
                 faq={faq}
@@ -585,6 +626,7 @@ export default function FAQ() {
                 isInView={inView}
                 isOpen={openIndex === idx}
                 onToggle={() => setOpenIndex(openIndex === idx ? null : idx)}
+                isMobileView={isMobileView}
               />
             ))
           ) : (
@@ -624,64 +666,223 @@ export default function FAQ() {
           )}
         </div>
 
-        {/* Still Have Questions Box */}
+        {/* Show More / Show Less Button - Mobile Only */}
+        {hasMoreFaqs && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            style={{ textAlign: "center", marginTop: 24 }}
+          >
+            <motion.button
+              onClick={() => setShowAll(!showAll)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "transparent",
+                border: "1px solid rgba(196,151,42,0.3)",
+                color: "#C4972A",
+                padding: "12px 28px",
+                borderRadius: "40px",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {showAll ? (
+                <>
+                  Show Less <ChevronDown size={14} style={{ transform: "rotate(180deg)" }} />
+                </>
+              ) : (
+                <>
+                  Show More Questions <ChevronDown size={14} />
+                </>
+              )}
+            </motion.button>
+            
+            {/* Hint text */}
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 11,
+                color: "#94a3b8",
+                marginTop: 10,
+              }}
+            >
+              {showAll 
+                ? `${filteredFaqs.length} questions displayed` 
+                : `Showing ${Math.min(3, filteredFaqs.length)} of ${filteredFaqs.length} questions`}
+            </p>
+          </motion.div>
+        )}
+
+        {/* Still Have Questions - PROPER CTA BANNER */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.6 }}
           style={{
             marginTop: 48,
-            padding: "32px 24px",
-            background: "#f8fafc",
-            borderRadius: "24px",
+            padding: isMobileView ? "32px 20px" : "40px 32px",
+            background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+            borderRadius: "28px",
             textAlign: "center",
-            border: "1px solid rgba(196,151,42,0.1)",
+            border: "1px solid rgba(196,151,42,0.15)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
           }}
         >
+          <div
+            style={{
+              width: isMobileView ? 48 : 56,
+              height: isMobileView ? 48 : 56,
+              borderRadius: "50%",
+              background: "rgba(196,151,42,0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 16px",
+              color: "#C4972A",
+            }}
+          >
+            <MessageCircle size={isMobileView ? 24 : 28} strokeWidth={1.5} />
+          </div>
+          
           <h3
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: 18,
+              fontSize: isMobileView ? "clamp(18px, 4vw, 20px)" : "clamp(20px, 4vw, 24px)",
               fontWeight: 700,
               color: "#0f1d3d",
-              marginBottom: 12,
+              marginBottom: 8,
             }}
           >
             Still have questions?
           </h3>
+          
           <p
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: 14,
+              fontSize: isMobileView ? 13 : 14,
               color: "#64748b",
-              marginBottom: 20,
+              marginBottom: 24,
+              maxWidth: 450,
+              marginLeft: "auto",
+              marginRight: "auto",
             }}
           >
-            Can't find the answer you're looking for? Our team is here to help.
+            Our team responds within 2 hours on weekdays
           </p>
-          <motion.a
-            href="#contact"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+          
+          {/* DUAL CTA BUTTONS */}
+          <div
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              background: "linear-gradient(135deg, #C4972A, #8B6914)",
-              color: "#0f1d3d",
-              padding: "12px 32px",
-              borderRadius: "40px",
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 14,
-              fontWeight: 600,
-              textDecoration: "none",
-              boxShadow: "0 4px 12px rgba(196,151,42,0.25)",
+              display: "flex",
+              gap: isMobileView ? 12 : 16,
+              justifyContent: "center",
+              flexWrap: "wrap",
             }}
           >
-            <MessageCircle size={16} />
-            Contact Support
-            <ArrowRight size={14} />
-          </motion.a>
+            <motion.a
+              href="#contact"
+              onClick={(e) => {
+                e.preventDefault();
+                goToSection("contact");
+              }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "linear-gradient(135deg, #C4972A, #8B6914)",
+                color: "#0f1d3d",
+                padding: isMobileView ? "12px 24px" : "14px 32px",
+                borderRadius: "50px",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobileView ? 13 : 14,
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: "0 4px 14px rgba(196,151,42,0.3)",
+                transition: "all 0.2s ease",
+              }}
+            >
+              <Mail size={isMobileView ? 14 : 16} />
+              Send us a message
+              <ArrowRight size={isMobileView ? 12 : 14} />
+            </motion.a>
+            
+            <motion.a
+              href="tel:01772493994"
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "transparent",
+                color: "#0f1d3d",
+                padding: isMobileView ? "12px 24px" : "14px 32px",
+                borderRadius: "50px",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobileView ? 13 : 14,
+                fontWeight: 600,
+                textDecoration: "none",
+                border: "1.5px solid rgba(15,29,61,0.2)",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(196,151,42,0.05)";
+                e.currentTarget.style.borderColor = "#C4972A";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderColor = "rgba(15,29,61,0.2)";
+              }}
+            >
+              <Phone size={isMobileView ? 14 : 16} />
+              Call 01772 493994
+            </motion.a>
+          </div>
+          
+          {/* Response time indicator */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              marginTop: 20,
+              paddingTop: 16,
+              borderTop: "1px solid rgba(0,0,0,0.05)",
+              flexWrap: "wrap",
+            }}
+          >
+            <Clock size={12} style={{ color: "#94a3b8" }} />
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobileView ? 10 : 11,
+                color: "#94a3b8",
+              }}
+            >
+              Mon-Fri, 9am-6pm
+            </span>
+            <span style={{ color: "#cbd5e1", display: isMobileView ? "none" : "inline" }}>•</span>
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: isMobileView ? 10 : 11,
+                color: "#94a3b8",
+              }}
+            >
+              Weekend emergency support available
+            </span>
+          </div>
         </motion.div>
 
         {/* Bottom Decorative Line */}

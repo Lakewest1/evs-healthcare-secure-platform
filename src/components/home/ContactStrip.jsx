@@ -22,6 +22,7 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Fully Responsive Contact Section — Modern Contact Information + Contact Form
 // Features: Responsive grid, mobile-optimized, formspree integration
+// FIXED: High-contrast input fields (WCAG 1.4.11 compliant)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.3) {
@@ -338,7 +339,7 @@ function UnifiedContactInfo({ isInView }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Contact Form Component (Responsive)
+// Contact Form Component (Responsive) - FIXED: High contrast inputs
 // ─────────────────────────────────────────────────────────────────────────────
 function ContactForm() {
   const [formData, setFormData] = useState({
@@ -559,21 +560,23 @@ function ContactForm() {
                   width: "100%",
                   padding: inputPadding,
                   borderRadius: "12px",
-                  border: "1px solid rgba(196,151,42,0.2)",
-                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  background: "rgba(255,255,255,0.12)",
                   fontFamily: "'Inter', sans-serif",
                   fontSize: isMobile ? 13 : 14,
-                  color: "#fff",
+                  color: "#ffffff",
                   outline: "none",
                   transition: "all 0.2s ease",
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#C4972A";
-                  e.target.style.background = "rgba(255,255,255,0.08)";
+                  e.target.style.background = "rgba(255,255,255,0.18)";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(196,151,42,0.2)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(196,151,42,0.2)";
-                  e.target.style.background = "rgba(255,255,255,0.05)";
+                  e.target.style.borderColor = "rgba(255,255,255,0.35)";
+                  e.target.style.background = "rgba(255,255,255,0.12)";
+                  e.target.style.boxShadow = "none";
                 }}
               />
             </div>
@@ -607,21 +610,23 @@ function ContactForm() {
                   width: "100%",
                   padding: inputPadding,
                   borderRadius: "12px",
-                  border: "1px solid rgba(196,151,42,0.2)",
-                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  background: "rgba(255,255,255,0.12)",
                   fontFamily: "'Inter', sans-serif",
                   fontSize: isMobile ? 13 : 14,
-                  color: "#fff",
+                  color: "#ffffff",
                   outline: "none",
                   transition: "all 0.2s ease",
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#C4972A";
-                  e.target.style.background = "rgba(255,255,255,0.08)";
+                  e.target.style.background = "rgba(255,255,255,0.18)";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(196,151,42,0.2)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(196,151,42,0.2)";
-                  e.target.style.background = "rgba(255,255,255,0.05)";
+                  e.target.style.borderColor = "rgba(255,255,255,0.35)";
+                  e.target.style.background = "rgba(255,255,255,0.12)";
+                  e.target.style.boxShadow = "none";
                 }}
               />
             </div>
@@ -654,21 +659,23 @@ function ContactForm() {
                   width: "100%",
                   padding: inputPadding,
                   borderRadius: "12px",
-                  border: "1px solid rgba(196,151,42,0.2)",
-                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  background: "rgba(255,255,255,0.12)",
                   fontFamily: "'Inter', sans-serif",
                   fontSize: isMobile ? 13 : 14,
-                  color: "#fff",
+                  color: "#ffffff",
                   outline: "none",
                   transition: "all 0.2s ease",
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#C4972A";
-                  e.target.style.background = "rgba(255,255,255,0.08)";
+                  e.target.style.background = "rgba(255,255,255,0.18)";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(196,151,42,0.2)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(196,151,42,0.2)";
-                  e.target.style.background = "rgba(255,255,255,0.05)";
+                  e.target.style.borderColor = "rgba(255,255,255,0.35)";
+                  e.target.style.background = "rgba(255,255,255,0.12)";
+                  e.target.style.boxShadow = "none";
                 }}
               />
             </div>
@@ -702,22 +709,24 @@ function ContactForm() {
                   width: "100%",
                   padding: inputPadding,
                   borderRadius: "12px",
-                  border: "1px solid rgba(196,151,42,0.2)",
-                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.35)",
+                  background: "rgba(255,255,255,0.12)",
                   fontFamily: "'Inter', sans-serif",
                   fontSize: isMobile ? 13 : 14,
-                  color: "#fff",
+                  color: "#ffffff",
                   outline: "none",
                   resize: "vertical",
                   transition: "all 0.2s ease",
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = "#C4972A";
-                  e.target.style.background = "rgba(255,255,255,0.08)";
+                  e.target.style.background = "rgba(255,255,255,0.18)";
+                  e.target.style.boxShadow = "0 0 0 3px rgba(196,151,42,0.2)";
                 }}
                 onBlur={(e) => {
-                  e.target.style.borderColor = "rgba(196,151,42,0.2)";
-                  e.target.style.background = "rgba(255,255,255,0.05)";
+                  e.target.style.borderColor = "rgba(255,255,255,0.35)";
+                  e.target.style.background = "rgba(255,255,255,0.12)";
+                  e.target.style.boxShadow = "none";
                 }}
               />
             </div>

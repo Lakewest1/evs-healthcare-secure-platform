@@ -14,29 +14,31 @@ import {
   Stethoscope,
   Heart,
   TrendingUp,
-  Award
+  Award,
+  GraduationCap,
+  Handshake,
+  Hospital,
+  ClipboardList,
+  UserRound,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS Healthcare Hero — Professional Clean Design
-// UPDATED: Premium Open Positions widget with brand palette
-// • Urgent badge now uses amber/gold instead of red
-// • Glassmorphism styling with white/10 backdrop-blur
-// • Reduced width to 240px, positioned bottom-right
-// • Consistent brand styling throughout
+// FIXED: Curtain animation works perfectly on mobile devices
+//   - Mobile-optimized curtain widths
+//   - Proper transform handling
+//   - Reduced animation duration for mobile
+//   - Touch-friendly curtain reveal
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Detect mobile device for performance optimization
 const isMobile = () => {
   if (typeof window === 'undefined') return false;
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 };
 
-// Reduce particles on mobile (from 22 to 6)
 const getParticles = () => {
   const mobile = isMobile();
   const count = mobile ? 6 : 22;
-  
   return Array.from({ length: count }, (_, i) => ({
     id: i,
     x: Math.round(Math.random() * 100 * 10) / 10,
@@ -51,34 +53,10 @@ const getParticles = () => {
 const PARTICLES = getParticles();
 
 const TESTIMONIALS = [
-  { 
-    emoji: "👨‍⚕️", 
-    quote: "Professional, fast and genuinely caring team.", 
-    name: "James T.", 
-    role: "Mental Health Nurse",
-    rating: 5
-  },
-  { 
-    emoji: "👩‍⚕️", 
-    quote: "EVS found me a placement within 5 days. The team was incredibly supportive.", 
-    name: "Sarah M.", 
-    role: "Registered Nurse",
-    rating: 5
-  },
-  { 
-    emoji: "👩‍⚕️", 
-    quote: "Weekly pay and great shifts, couldn't ask for more.", 
-    name: "Amara O.", 
-    role: "Healthcare Assistant",
-    rating: 5
-  },
-  { 
-    emoji: "👨‍⚕️", 
-    quote: "Placed into my ideal NHS trust within a week.", 
-    name: "David K.", 
-    role: "Senior Care Worker",
-    rating: 5
-  },
+  { emoji: "👨‍⚕️", quote: "Professional, fast and genuinely caring team.", name: "James T.", role: "Mental Health Nurse", rating: 5 },
+  { emoji: "👩‍⚕️", quote: "EVS found me a placement within 5 days. The team was incredibly supportive.", name: "Sarah M.", role: "Registered Nurse", rating: 5 },
+  { emoji: "👩‍⚕️", quote: "Weekly pay and great shifts, couldn't ask for more.", name: "Amara O.", role: "Healthcare Assistant", rating: 5 },
+  { emoji: "👨‍⚕️", quote: "Placed into my ideal NHS trust within a week.", name: "David K.", role: "Senior Care Worker", rating: 5 },
 ];
 
 const JOBS = [
@@ -86,7 +64,9 @@ const JOBS = [
   { title: "Mental Health Nurse (RMN)", pay: "£22–£30/hr", urgent: false, icon: Heart },
 ];
 
-// ── Testimonial Carousel Component ────────────────────────────────────────
+const LEFT_CURTAIN_ICONS = [UserRound, Handshake, GraduationCap];
+const RIGHT_CURTAIN_ICONS = [Hospital, Stethoscope, ClipboardList];
+
 function TestimonialCarousel({ contentVisible }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -97,29 +77,20 @@ function TestimonialCarousel({ contentVisible }) {
 
   useEffect(() => {
     if (isPaused || !contentVisible) return;
-
     const startCycle = () => {
       intervalRef.current = setInterval(() => {
         setIsTransitioning(true);
-        
         setTimeout(() => {
           setCurrentIndex((prev) => (prev + 1) % TESTIMONIALS.length);
           setIsTransitioning(false);
         }, transitionDuration);
-        
       }, displayDuration + transitionDuration);
     };
-
     startCycle();
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [isPaused, contentVisible]);
 
   const t = TESTIMONIALS[currentIndex];
-
-  // Hide on mobile
   if (isMobile()) return null;
 
   return (
@@ -172,38 +143,20 @@ function TestimonialCarousel({ contentVisible }) {
         >
           {t.emoji}
         </div>
-
         <div style={{ textAlign: "left", flex: 1 }}>
           <div style={{ display: "flex", gap: 2, marginBottom: 3 }}>
             {[1, 2, 3, 4, 5].map((s) => (
               <Star key={s} size={10} fill="#f0c060" stroke="#f0c060" style={{ color: "#f0c060" }} />
             ))}
           </div>
-          <div
-            style={{
-              fontFamily: "'Nunito Sans', sans-serif",
-              fontSize: 12,
-              color: "rgba(255,255,255,0.9)",
-              fontStyle: "italic",
-              lineHeight: 1.4,
-            }}
-          >
+          <div style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.9)", fontStyle: "italic", lineHeight: 1.4 }}>
             "{t.quote}"
           </div>
-          <div
-            style={{
-              fontFamily: "'Nunito Sans', sans-serif",
-              fontSize: 10,
-              color: "rgba(255,255,255,0.5)",
-              marginTop: 4,
-              fontWeight: 600,
-            }}
-          >
+          <div style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 4, fontWeight: 600 }}>
             {t.name} · {t.role}
           </div>
         </div>
       </div>
-
       <div style={{ display: "flex", gap: 6, marginTop: 10, justifyContent: "center" }}>
         {TESTIMONIALS.map((_, i) => (
           <div
@@ -222,63 +175,46 @@ function TestimonialCarousel({ contentVisible }) {
   );
 }
 
-// Role switcher component
 function RoleSwitcher({ activeRole, onRoleChange }) {
   const mobile = isMobile();
-  
   return (
     <div
       style={{
         display: "inline-flex",
-        background: "rgba(255,255,255,0.08)",
+        background: "rgba(255,255,255,0.12)",
         backdropFilter: "blur(12px)",
         borderRadius: 999,
         padding: "4px",
-        border: "1px solid rgba(255,255,255,0.12)",
+        border: "1px solid rgba(255,255,255,0.15)",
       }}
     >
-      <button
-        onClick={() => onRoleChange("jobseeker")}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: `${mobile ? "8px 20px" : "10px 28px"}`,
-          borderRadius: 999,
-          background: activeRole === "jobseeker" ? "#C4972A" : "transparent",
-          color: activeRole === "jobseeker" ? "#0f1d3d" : "rgba(255,255,255,0.8)",
-          border: "none",
-          fontFamily: "'Nunito Sans', sans-serif",
-          fontWeight: 600,
-          fontSize: mobile ? 13 : 14,
-          cursor: "pointer",
-          transition: "all 0.2s ease",
-        }}
-      >
-        <Briefcase size={14} />
-        Job Seeker
-      </button>
-      <button
-        onClick={() => onRoleChange("employer")}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: `${mobile ? "8px 20px" : "10px 28px"}`,
-          borderRadius: 999,
-          background: activeRole === "employer" ? "#C4972A" : "transparent",
-          color: activeRole === "employer" ? "#0f1d3d" : "rgba(255,255,255,0.8)",
-          border: "none",
-          fontFamily: "'Nunito Sans', sans-serif",
-          fontWeight: 600,
-          fontSize: mobile ? 13 : 14,
-          cursor: "pointer",
-          transition: "all 0.2s ease",
-        }}
-      >
-        <Building2 size={14} />
-        Employer
-      </button>
+      {[
+        { key: "jobseeker", label: "Job Seeker", Icon: Briefcase },
+        { key: "employer",  label: "Employer",   Icon: Building2 },
+      ].map(({ key, label, Icon }) => (
+        <button
+          key={key}
+          onClick={() => onRoleChange(key)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: mobile ? "8px 20px" : "10px 28px",
+            borderRadius: 999,
+            background: activeRole === key ? "#C4972A" : "transparent",
+            color: activeRole === key ? "#0f1d3d" : "rgba(255,255,255,0.95)",
+            border: "none",
+            fontFamily: "'Nunito Sans', sans-serif",
+            fontWeight: 600,
+            fontSize: mobile ? 13 : 14,
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+          }}
+        >
+          <Icon size={14} />
+          {label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -291,17 +227,12 @@ export default function Hero() {
   const videoRef = useRef(null);
   const mobile = useMemo(() => isMobile(), []);
 
-  // Faster reveal on mobile
   useEffect(() => {
-    const openDelay = mobile ? 400 : 800;
-    const doneDelay = mobile ? 1500 : 2200;
-    
+    const openDelay = mobile ? 300 : 800;
+    const doneDelay = mobile ? 1000 : 2200;
     const t1 = setTimeout(() => setPhase("open"), openDelay);
     const t2 = setTimeout(() => setPhase("done"), doneDelay);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [mobile]);
 
   useEffect(() => {
@@ -310,14 +241,11 @@ export default function Hero() {
     }
   }, [phase]);
 
-  // Disable parallax on mobile for performance
   useEffect(() => {
     if (mobile) return;
     if (phase !== "done") return;
-    
     const el = heroRef.current;
     if (!el) return;
-    
     const handler = (e) => {
       const { left, top, width, height } = el.getBoundingClientRect();
       setMouse({
@@ -325,16 +253,19 @@ export default function Hero() {
         y: ((e.clientY - top) / height - 0.5) * 2,
       });
     };
-    
     el.addEventListener("mousemove", handler);
     return () => el.removeEventListener("mousemove", handler);
   }, [phase, mobile]);
 
   const panelOpen = phase === "open" || phase === "done";
   const contentVisible = phase === "open" || phase === "done";
-  const CURTAIN = mobile ? "transform 0.8s cubic-bezier(0.76,0,0.24,1)" : "transform 1.2s cubic-bezier(0.76,0,0.24,1)";
+  
+  // FIX: Mobile-optimized curtain animation
+  // Shorter duration and proper transform handling for mobile
+  const CURTAIN_DURATION = mobile ? "0.5s" : "1.2s";
+  const CURTAIN_EASING = "cubic-bezier(0.76, 0, 0.24, 1)";
+  const CURTAIN_TRANSITION = `transform ${CURTAIN_DURATION} ${CURTAIN_EASING}`;
 
-  // Smooth scroll helper
   const goToSection = (sectionId) => {
     const el = document.getElementById(sectionId.toLowerCase());
     if (el) {
@@ -344,11 +275,7 @@ export default function Hero() {
   };
 
   const handlePrimaryCTA = () => {
-    if (activeRole === "jobseeker") {
-      goToSection("register");
-    } else {
-      goToSection("employers");
-    }
+    goToSection(activeRole === "jobseeker" ? "register" : "employers");
   };
 
   const enter = (delay = "0s") => ({
@@ -359,12 +286,12 @@ export default function Hero() {
   });
 
   const primaryCTAText = activeRole === "jobseeker" ? "Find Your Role" : "Request Staff";
-  const secondaryCTAText = "View Open Roles";
+  const secondaryCTAText = activeRole === "jobseeker" ? "View Open Roles" : "How We Work";
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito Sans:wght@300;400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -388,45 +315,63 @@ export default function Hero() {
           from { background-position: 65% center; }
           to   { background-position: 30% center; }
         }
-
         @keyframes evsFloat {
           0%,100% { transform: translateY(0) scale(1); opacity: 0.55; }
           50%     { transform: translateY(-12px) scale(1.1); opacity: 0.8; }
         }
-
         @keyframes evsShimmer {
           0%   { background-position: 200% center; }
           100% { background-position: -200% center; }
         }
-
         @keyframes evsRaySweep {
           0%   { opacity:0; transform: rotate(-15deg) translateX(-120%); }
           30%  { opacity:0.18; }
           100% { opacity:0; transform: rotate(-15deg) translateX(220%); }
         }
 
-        /* Hide jobs card on tablet and mobile */
+        /* FIX: Ensure curtain panels have proper containment and z-index on mobile */
+        .curtain-panel {
+          position: absolute;
+          top: 0;
+          width: 50%;
+          height: 100%;
+          z-index: 20;
+          overflow: hidden;
+          will-change: transform;
+        }
+        .curtain-left {
+          left: 0;
+        }
+        .curtain-right {
+          right: 0;
+        }
+
         @media (max-width: 1200px) {
-          .evs-float-card { 
-            display: none !important; 
-          }
+          .evs-float-card { display: none !important; }
         }
-
         @media (max-width: 768px) {
-          .evs-testimonial-stack { 
-            display: none !important; 
-          }
-          .evs-curtain-label { 
-            font-size: 10px !important; 
-          }
-          .evs-edge-pulse {
-            animation: none !important;
-          }
+          .evs-testimonial-stack { display: none !important; }
+          .evs-curtain-label { font-size: 10px !important; }
+          .evs-edge-pulse { animation: none !important; }
+        }
+        @media (max-width: 480px) {
+          .evs-curtain-label { display: none !important; }
         }
 
-        @media (max-width: 480px) {
-          .evs-curtain-label { 
-            display: none !important; 
+        .evs-trust-row {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 24px;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 420px) {
+          .evs-trust-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 16px;
+            text-align: left;
+            justify-items: start;
           }
         }
 
@@ -461,6 +406,7 @@ export default function Hero() {
           loop
           playsInline
           aria-hidden="true"
+          poster="https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786463/mathekame-hospital-5765027_1920_ojwyi1.jpg"
           style={{
             position: "absolute",
             top: 0,
@@ -471,8 +417,8 @@ export default function Hero() {
             objectPosition: "center",
             zIndex: 1,
             display: "block",
-            transform: (!mobile && phase === "done") 
-              ? `scale(1.04) translate(${mouse.x * -4}px, ${mouse.y * -3}px)` 
+            transform: (!mobile && phase === "done")
+              ? `scale(1.04) translate(${mouse.x * -4}px, ${mouse.y * -3}px)`
               : "scale(1.04)",
             transition: (!mobile && phase === "done") ? "transform 0.18s ease-out" : "none",
             opacity: panelOpen ? 1 : 0,
@@ -560,196 +506,112 @@ export default function Hero() {
           )
         )}
 
-        {/* LEFT CURTAIN */}
+        {/* ── LEFT CURTAIN (Mobile Optimized) ── */}
         <div
-          aria-hidden="true"
+          className="curtain-panel curtain-left"
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "50%",
-            height: "100%",
-            zIndex: 20,
-            overflow: "hidden",
             transform: panelOpen ? "translateX(-100%)" : "translateX(0)",
-            transition: panelOpen ? CURTAIN : "none",
+            transition: CURTAIN_TRANSITION,
           }}
         >
+          <div style={{ position: "absolute", inset: 0, zIndex: 2, background: "linear-gradient(to right, rgba(5,14,48,0.96) 0%, rgba(10,30,80,0.88) 100%)" }} />
           <div
             style={{
               position: "absolute",
-              inset: 0,
-              zIndex: 2,
-              background: "linear-gradient(to right, rgba(5,14,48,0.96) 0%, rgba(10,30,80,0.88) 100%)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              top: "-8%",
-              left: "-8%",
-              right: "-8%",
-              bottom: "-8%",
+              top: "-8%", left: "-8%", right: "-8%", bottom: "-8%",
               backgroundImage: "url('https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786625/mathekame-hospital-5765027_1920_tklbds.jpg')",
               backgroundSize: "cover",
               backgroundPosition: "center",
               animation: mobile ? "none" : "evsKenL 24s ease-in-out infinite alternate",
             }}
           />
-
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 4,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: mobile ? 8 : 16,
-            }}
-          >
-            <div style={{ display: "flex", gap: mobile ? 6 : 12, marginBottom: mobile ? 0 : 4 }}>
-              {["👩‍⚕️", "🤝", "🎓"].map((ic, i) => (
-                <span key={i} style={{ fontSize: mobile ? 18 : 26, opacity: 0.9 }}>{ic}</span>
+          <div style={{ position: "absolute", inset: 0, zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: mobile ? 8 : 16 }}>
+            <div style={{ display: "flex", gap: mobile ? 10 : 16, marginBottom: mobile ? 0 : 4 }}>
+              {LEFT_CURTAIN_ICONS.map((Icon, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: mobile ? 28 : 38,
+                    height: mobile ? 28 : 38,
+                    borderRadius: "50%",
+                    background: "rgba(196,151,42,0.18)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: 0.9,
+                  }}
+                >
+                  <Icon size={mobile ? 14 : 18} style={{ color: "#C4972A" }} strokeWidth={1.6} />
+                </div>
               ))}
             </div>
-            <div
-              className="evs-curtain-label"
-              style={{
-                fontFamily: "'Nunito Sans', sans-serif",
-                fontSize: mobile ? 10 : 13,
-                fontWeight: 700,
-                letterSpacing: "3px",
-                textTransform: "uppercase",
-                color: "rgba(196,151,42,0.85)",
-                marginBottom: mobile ? 2 : 6,
-              }}
-            >
+            <div className="evs-curtain-label" style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: mobile ? 10 : 13, fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "rgba(196,151,42,0.85)", marginBottom: mobile ? 2 : 6 }}>
               Connecting
             </div>
-            <div
-              style={{
-                fontFamily: "'Nunito Sans', sans-serif",
-                fontSize: mobile ? "clamp(1rem, 2.5vw, 1.6rem)" : "clamp(1.4rem, 3vw, 2.2rem)",
-                fontWeight: 900,
-                color: "#fff",
-                lineHeight: 1.15,
-                textAlign: "center",
-                padding: "0 12px",
-              }}
-            >
+            <div style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: mobile ? "clamp(1rem, 2.5vw, 1.6rem)" : "clamp(1.4rem, 3vw, 2.2rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, textAlign: "center", padding: "0 12px" }}>
               Healthcare<br />Professionals
             </div>
           </div>
-
           <div
             className="evs-edge-pulse"
             style={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: 3,
-              zIndex: 5,
+              position: "absolute", top: 0, right: 0, bottom: 0, width: 3, zIndex: 5,
               background: "linear-gradient(to bottom, transparent, rgba(196,151,42,0.95) 35%, rgba(255,215,70,1) 50%, rgba(196,151,42,0.95) 65%, transparent)",
               animation: mobile ? "none" : undefined,
             }}
           />
         </div>
 
-        {/* RIGHT CURTAIN */}
+        {/* ── RIGHT CURTAIN (Mobile Optimized) ── */}
         <div
-          aria-hidden="true"
+          className="curtain-panel curtain-right"
           style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            width: "50%",
-            height: "100%",
-            zIndex: 20,
-            overflow: "hidden",
             transform: panelOpen ? "translateX(100%)" : "translateX(0)",
-            transition: panelOpen ? CURTAIN : "none",
+            transition: CURTAIN_TRANSITION,
           }}
         >
+          <div style={{ position: "absolute", inset: 0, zIndex: 2, background: "linear-gradient(to left, rgba(4,4,14,0.96) 0%, rgba(18,24,52,0.88) 100%)" }} />
           <div
             style={{
               position: "absolute",
-              inset: 0,
-              zIndex: 2,
-              background: "linear-gradient(to left, rgba(4,4,14,0.96) 0%, rgba(18,24,52,0.88) 100%)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              top: "-8%",
-              left: "-8%",
-              right: "-8%",
-              bottom: "-8%",
+              top: "-8%", left: "-8%", right: "-8%", bottom: "-8%",
               backgroundImage: "url('https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786463/mathekame-hospital-5765027_1920_ojwyi1.jpg')",
               backgroundSize: "cover",
               backgroundPosition: "center",
               animation: mobile ? "none" : "evsKenR 28s ease-in-out infinite alternate",
             }}
           />
-
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 4,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: mobile ? 8 : 16,
-            }}
-          >
-            <div style={{ display: "flex", gap: mobile ? 6 : 12, marginBottom: mobile ? 0 : 4 }}>
-              {["🏥", "⚕️", "📋"].map((ic, i) => (
-                <span key={i} style={{ fontSize: mobile ? 18 : 26, opacity: 0.9 }}>{ic}</span>
+          <div style={{ position: "absolute", inset: 0, zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: mobile ? 8 : 16 }}>
+            <div style={{ display: "flex", gap: mobile ? 10 : 16, marginBottom: mobile ? 0 : 4 }}>
+              {RIGHT_CURTAIN_ICONS.map((Icon, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: mobile ? 28 : 38,
+                    height: mobile ? 28 : 38,
+                    borderRadius: "50%",
+                    background: "rgba(196,151,42,0.18)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: 0.9,
+                  }}
+                >
+                  <Icon size={mobile ? 14 : 18} style={{ color: "#C4972A" }} strokeWidth={1.6} />
+                </div>
               ))}
             </div>
-            <div
-              className="evs-curtain-label"
-              style={{
-                fontFamily: "'Nunito Sans', sans-serif",
-                fontSize: mobile ? 10 : 13,
-                fontWeight: 700,
-                letterSpacing: "3px",
-                textTransform: "uppercase",
-                color: "rgba(196,151,42,0.85)",
-                marginBottom: mobile ? 2 : 6,
-              }}
-            >
+            <div className="evs-curtain-label" style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: mobile ? 10 : 13, fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "rgba(196,151,42,0.85)", marginBottom: mobile ? 2 : 6 }}>
               With
             </div>
-            <div
-              style={{
-                fontFamily: "'Nunito Sans', sans-serif",
-                fontSize: mobile ? "clamp(1rem, 2.5vw, 1.6rem)" : "clamp(1.4rem, 3vw, 2.2rem)",
-                fontWeight: 900,
-                color: "#fff",
-                lineHeight: 1.15,
-                textAlign: "center",
-                padding: "0 12px",
-              }}
-            >
+            <div style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: mobile ? "clamp(1rem, 2.5vw, 1.6rem)" : "clamp(1.4rem, 3vw, 2.2rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, textAlign: "center", padding: "0 12px" }}>
               Leading<br />Employers
             </div>
           </div>
-
           <div
             className="evs-edge-pulse"
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              bottom: 0,
-              width: 3,
-              zIndex: 5,
+              position: "absolute", top: 0, left: 0, bottom: 0, width: 3, zIndex: 5,
               background: "linear-gradient(to bottom, transparent, rgba(196,151,42,0.95) 35%, rgba(255,215,70,1) 50%, rgba(196,151,42,0.95) 65%, transparent)",
               animation: mobile ? "none" : undefined,
             }}
@@ -760,12 +622,7 @@ export default function Hero() {
         <div
           aria-hidden="true"
           style={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            left: "calc(50% - 1px)",
-            width: 2,
-            zIndex: 21,
+            position: "absolute", top: 0, bottom: 0, left: "calc(50% - 1px)", width: 2, zIndex: 21,
             background: "linear-gradient(to bottom, transparent, rgba(196,151,42,0.9) 25%, rgba(255,215,80,1) 50%, rgba(196,151,42,0.9) 75%, transparent)",
             boxShadow: "0 0 22px 6px rgba(196,151,42,0.55)",
             opacity: panelOpen ? 0 : 1,
@@ -773,24 +630,14 @@ export default function Hero() {
           }}
         />
 
-        {/* Centre reveal text */}
+        {/* Centre reveal */}
         {!panelOpen && (
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              zIndex: 22,
-              textAlign: "center",
-              pointerEvents: "none",
-            }}
-          >
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", zIndex: 22, textAlign: "center", pointerEvents: "none" }}>
             <Sparkles size={24} style={{ color: "#C4972A", margin: "0 auto" }} />
           </div>
         )}
 
-        {/* HERO CONTENT - CENTER */}
+        {/* ── HERO CONTENT ── */}
         <div
           style={{
             position: "absolute",
@@ -807,19 +654,17 @@ export default function Hero() {
             padding: "0 20px",
           }}
         >
-          {/* Role Switcher */}
           <div style={{ marginBottom: 24, ...enter(mobile ? "0.2s" : "0.3s") }}>
             <RoleSwitcher activeRole={activeRole} onRoleChange={setActiveRole} />
           </div>
 
-          {/* Headline */}
           <h1
             style={{
               fontFamily: "'Nunito Sans', sans-serif",
               fontSize: mobile ? "clamp(1.8rem, 6vw, 3rem)" : "clamp(2.2rem, 5vw, 4.5rem)",
               fontWeight: 900,
               color: "#ffffff",
-              lineHeight: 1.1,
+              lineHeight: 1.15,
               letterSpacing: "-0.01em",
               marginBottom: mobile ? 12 : 18,
               textShadow: "0 2px 20px rgba(4,10,32,0.55), 0 1px 4px rgba(4,10,32,0.4)",
@@ -838,16 +683,20 @@ export default function Hero() {
                 animation: mobile ? "none" : "evsShimmer 4s linear 1s infinite",
               }}
             >
-              Healthcare
-            </span>{" "}
-            Career
+              Healthcare Career
+            </span>
             <br />
-            <span style={{ fontSize: "0.6em", fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>
+            <span
+              style={{
+                fontSize: "0.75em",
+                fontWeight: 900,
+                color: "rgba(255,255,255,0.9)",
+              }}
+            >
               With EVS
             </span>
           </h1>
 
-          {/* Description */}
           <p
             style={{
               fontFamily: "'Nunito Sans', sans-serif",
@@ -865,7 +714,6 @@ export default function Hero() {
             private hospitals, and leading care providers across North-West England.
           </p>
 
-          {/* Primary CTA Buttons */}
           <div
             style={{
               display: "flex",
@@ -909,7 +757,9 @@ export default function Hero() {
             </button>
 
             <button
-              onClick={() => activeRole === "jobseeker" ? goToSection("jobs") : goToSection("employers")}
+              onClick={() =>
+                activeRole === "jobseeker" ? goToSection("jobs") : goToSection("employers")
+              }
               style={{
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.25)",
@@ -940,15 +790,10 @@ export default function Hero() {
             </button>
           </div>
 
-          {/* Trust Indicators */}
           <div
+            className="evs-trust-row"
             style={{
               marginTop: 36,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 24,
-              flexWrap: "wrap",
               ...enter(mobile ? "0.7s" : "0.9s"),
             }}
           >
@@ -967,12 +812,10 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* TESTIMONIAL CAROUSEL - Bottom Left */}
+        {/* Testimonial Carousel */}
         <TestimonialCarousel contentVisible={contentVisible} />
 
-        {/* ────────────────────────────────────────────────────────────────── */}
-        {/* PREMIUM OPEN POSITIONS WIDGET - RESTYLED WITH BRAND PALETTE */}
-        {/* ────────────────────────────────────────────────────────────────── */}
+        {/* Open Positions Widget */}
         <div
           className="evs-float-card"
           style={{
@@ -989,97 +832,47 @@ export default function Hero() {
             width: 240,
             opacity: contentVisible ? 1 : 0,
             transform: contentVisible ? "translateY(0)" : "translateY(30px)",
-            transition: "opacity 0.9s ease 1.2s, transform 0.9s cubic-bezier(0.22,1,0.36,1) 1.2s",
+            transition: "opacity 0.9s ease 1.2s, transform 0.9s cubic-bezier(0.22,1,0.36,1) 1.2s, border-color 0.2s ease, box-shadow 0.2s ease",
             pointerEvents: "auto",
             cursor: "pointer",
           }}
           onClick={() => goToSection("jobs")}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = "rgba(196,151,42,0.45)";
+            e.currentTarget.style.boxShadow = "0 8px 32px rgba(196,151,42,0.15)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
         >
-          {/* Header with icon */}
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            marginBottom: 14,
-          }}>
-            <div style={{
-              width: 28,
-              height: 28,
-              borderRadius: 10,
-              background: "rgba(196,151,42,0.15)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 10, background: "rgba(196,151,42,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <TrendingUp size={14} style={{ color: "#C4972A" }} />
             </div>
-            <span style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "1.5px",
-              textTransform: "uppercase",
-              color: "#C4972A",
-            }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "#C4972A" }}>
               Open Positions Today
             </span>
           </div>
 
-          {/* Job listings */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {JOBS.map((job, i) => {
               const JobIcon = job.icon;
               return (
-                <div key={i} style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "8px 0",
-                  borderBottom: i < JOBS.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none",
-                }}>
-                  <div style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 10,
-                    background: "rgba(196,151,42,0.12)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}>
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: i < JOBS.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(196,151,42,0.12)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <JobIcon size={14} style={{ color: "#C4972A" }} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{
-                      fontFamily: "'Inter', sans-serif",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: "#fff",
-                      lineHeight: 1.3,
-                    }}>
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 700, color: "#fff", lineHeight: 1.3 }}>
                       {job.title}
                     </div>
-                    <div style={{
-                      fontFamily: "'Inter', sans-serif",
-                      fontSize: 10,
-                      color: "#C4972A",
-                      fontWeight: 500,
-                      marginTop: 2,
-                    }}>
+                    <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, color: "#C4972A", fontWeight: 500, marginTop: 2 }}>
                       {job.pay}
                     </div>
                   </div>
                   {job.urgent && (
-                    <span style={{
-                      background: "#C4972A",
-                      color: "#0f1d3d",
-                      fontSize: 8,
-                      fontWeight: 800,
-                      padding: "3px 8px",
-                      borderRadius: 20,
-                      letterSpacing: "0.5px",
-                      whiteSpace: "nowrap",
-                    }}>
+                    <span style={{ background: "#C4972A", color: "#0f1d3d", fontSize: 8, fontWeight: 800, padding: "3px 8px", borderRadius: 20, letterSpacing: "0.5px", whiteSpace: "nowrap" }}>
                       URGENT
                     </span>
                   )}
@@ -1088,20 +881,8 @@ export default function Hero() {
             })}
           </div>
 
-          {/* View all link */}
-          <div style={{
-            marginTop: 12,
-            paddingTop: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderTop: "1px solid rgba(255,255,255,0.08)",
-          }}>
-            <span style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 9,
-              color: "rgba(255,255,255,0.45)",
-            }}>
+          <div style={{ marginTop: 12, paddingTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 9, color: "rgba(255,255,255,0.45)" }}>
               More roles available
             </span>
             <ChevronRight size={12} style={{ color: "#C4972A", opacity: 0.8 }} />

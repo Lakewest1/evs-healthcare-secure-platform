@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import EVSLogo from "../EVSLogo";
+import { Menu, X } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS HEALTHCARE SOLUTIONS LTD — Professional Enterprise Navbar
@@ -11,7 +12,9 @@ import EVSLogo from "../EVSLogo";
 //   • Transparent on hero → white/glass on scroll
 //   • Text white on hero → navy on scroll
 //   • Hairline bottom border on scroll
-//   • Enhanced brand visibility - larger, bolder company name
+//   • MOBILE: White background, navy text, gold logo accent only
+//   • FIXED: Hamburger menu icon visible on mobile
+//   • FIXED: Proper z-index layering to prevent overlay conflicts
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Streamlined navigation links
@@ -149,31 +152,25 @@ const CSS = `
     border-color: #C4972A;
   }
 
-  /* ─── HAMBURGER BARS ───────────────────────────────────────────────── */
-  .evs-bar {
-    display: block;
-    width: 20px;
-    height: 2px;
-    border-radius: 2px;
-    transition: transform 0.28s cubic-bezier(0.22,1,0.36,1),
-                opacity   0.18s ease,
-                width     0.22s ease;
-    pointer-events: none;
+  /* ─── MOBILE NAVBAR - FIXED ─────────────────────────────────────────── */
+  @media (max-width: 767px) {
+    /* Hide desktop elements */
+    .evs-dsk { display: none !important; }
+    
+    /* Show mobile elements */
+    .evs-mob { display: flex !important; }
+    
+    /* Mobile navbar styles */
+    .navbar-mobile {
+      background: #ffffff !important;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+      backdrop-filter: none !important;
+    }
   }
   
-  /* Hero state - white bars */
-  .navbar-transparent .evs-bar {
-    background: #ffffff;
+  @media (min-width: 768px) { 
+    .evs-mob { display: none !important; } 
   }
-  
-  /* Scrolled state - navy bars */
-  .navbar-scrolled .evs-bar {
-    background: #0f1d3d;
-  }
-  
-  .evs-burger[data-open="true"] .evs-bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
-  .evs-burger[data-open="true"] .evs-bar:nth-child(2) { opacity: 0; width: 0; }
-  .evs-burger[data-open="true"] .evs-bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
 
   /* ─── MOBILE DRAWER LINKS ──────────────────────────────────────────── */
   .evs-dlk {
@@ -239,15 +236,34 @@ const CSS = `
     background: rgba(5,10,22,0.6);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    z-index: 1008;
+    z-index: 999;
+    pointer-events: auto;
   }
 
-  /* ─── RESPONSIVE SHOW/HIDE ─────────────────────────────────────────── */
-  @media (max-width: 767px) { 
-    .evs-dsk { display: none !important; } 
+  /* ─── MOBILE DRAWER Z-INDEX FIX ────────────────────────────────────── */
+  .evs-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(88vw, 340px);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: rgba(10,22,40,0.98);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-left: 1px solid rgba(196,151,42,0.15);
+    box-shadow: -8px 0 32px rgba(0,0,0,0.3);
+    pointer-events: auto;
   }
-  @media (min-width: 768px) { 
-    .evs-mob { display: none !important; } 
+
+  /* Ensure navbar is above content but below drawer when closed */
+  .navbar-mobile,
+  .navbar-transparent,
+  .navbar-scrolled {
+    z-index: 1001 !important;
   }
 
   /* ─── ACCESSIBILITY ─────────────────────────────────────────────────── */
@@ -290,9 +306,18 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
   const closeRef = useRef(null);
 
-  // Scroll detection - full width navbar, no border-radius
+  // Detect mobile for navbar styling
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Scroll detection
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
     handler();
@@ -333,15 +358,38 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScrollHighlight);
   }, []);
 
-  // Body scroll lock
+  // Body scroll lock when drawer is open
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.width = "100%";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+    };
   }, [menuOpen]);
 
   // Focus trap
   useEffect(() => {
     if (menuOpen) setTimeout(() => closeRef.current?.focus(), 80);
+  }, [menuOpen]);
+
+  // Close drawer on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape" && menuOpen) {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
   }, [menuOpen]);
 
   // Smooth scroll to section
@@ -394,7 +442,37 @@ export default function Navbar() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const navbarClass = scrolled ? "navbar-scrolled" : "navbar-transparent";
+  // Determine navbar class for styling
+  const navbarClass = isMobile 
+    ? "navbar-mobile" 
+    : (scrolled ? "navbar-scrolled" : "navbar-transparent");
+
+  // On mobile, always use white background with navy text
+  const navBackground = isMobile
+    ? "#ffffff"
+    : (scrolled ? "rgba(255, 255, 255, 0.96)" : "transparent");
+  
+  const navBorderBottom = isMobile
+    ? "1px solid rgba(0, 0, 0, 0.08)"
+    : (scrolled ? "1px solid rgba(0, 0, 0, 0.06)" : "none");
+  
+  const navBackdropFilter = isMobile ? "none" : (scrolled ? "blur(16px)" : "none");
+
+  // Text colors
+  const getTextColor = () => {
+    if (isMobile) return "#0f1d3d";
+    return scrolled ? "#0f1d3d" : "#ffffff";
+  };
+
+  const getSecondaryTextColor = () => {
+    if (isMobile) return "#0f1d3d";
+    return scrolled ? "#0f1d3d" : "rgba(255,255,255,0.95)";
+  };
+
+  const getLtdColor = () => {
+    if (isMobile) return "rgba(15,29,61,0.5)";
+    return scrolled ? "rgba(15,29,61,0.5)" : "rgba(255,255,255,0.65)";
+  };
 
   return (
     <>
@@ -409,16 +487,12 @@ export default function Navbar() {
           top: 0,
           left: 0,
           right: 0,
-          zIndex: 1010,
+          zIndex: 1001,
           width: "100%",
-          background: scrolled
-            ? "rgba(255, 255, 255, 0.96)"
-            : "transparent",
-          backdropFilter: scrolled ? "blur(16px)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(16px)" : "none",
-          borderBottom: scrolled
-            ? "1px solid rgba(0, 0, 0, 0.06)"
-            : "none",
+          background: navBackground,
+          backdropFilter: navBackdropFilter,
+          WebkitBackdropFilter: navBackdropFilter,
+          borderBottom: navBorderBottom,
           transition: "background 0.3s ease, backdrop-filter 0.3s ease, border-bottom 0.3s ease",
         }}
       >
@@ -426,7 +500,7 @@ export default function Navbar() {
           style={{
             maxWidth: 1400,
             margin: "0 auto",
-            padding: scrolled ? "12px 24px" : "16px 24px",
+            padding: isMobile ? "12px 20px" : (scrolled ? "12px 24px" : "16px 24px"),
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -434,7 +508,7 @@ export default function Navbar() {
             transition: "padding 0.3s ease",
           }}
         >
-          {/* ── LOGOTYPE - ENHANCED BOLDER, LARGER ── */}
+          {/* ── LOGOTYPE ── */}
           <button
             onClick={goHome}
             aria-label="EVS Healthcare Solutions — return to home"
@@ -449,15 +523,14 @@ export default function Navbar() {
               flexShrink: 0,
             }}
           >
-            <EVSLogo size={scrolled ? 42 : 48} />
+            <EVSLogo size={isMobile ? 38 : (scrolled ? 42 : 48)} />
             <div style={{ display: "flex", flexDirection: "column" }}>
-              {/* Main company name - LARGER & BOLDER */}
               <div style={{ display: "flex", alignItems: "baseline", gap: "clamp(4px, 0.6vw, 6px)", lineHeight: 1.1, flexWrap: "nowrap" }}>
                 <span style={{
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 900,
-                  fontSize: "clamp(16px, 1.6vw, 20px)",
-                  color: scrolled ? "#0f1d3d" : "#ffffff",
+                  fontSize: isMobile ? "16px" : "clamp(16px, 1.6vw, 20px)",
+                  color: getTextColor(),
                   letterSpacing: "0.03em",
                   transition: "color 0.3s ease",
                   whiteSpace: "nowrap",
@@ -467,8 +540,8 @@ export default function Navbar() {
                 <span style={{
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 800,
-                  fontSize: "clamp(12px, 1.2vw, 16px)",
-                  color: scrolled ? "#0f1d3d" : "rgba(255,255,255,0.95)",
+                  fontSize: isMobile ? "11px" : "clamp(12px, 1.2vw, 16px)",
+                  color: getSecondaryTextColor(),
                   letterSpacing: "0.06em",
                   transition: "color 0.3s ease",
                   whiteSpace: "nowrap",
@@ -477,13 +550,12 @@ export default function Navbar() {
                 </span>
               </div>
               
-              {/* LTD & Tagline - slightly larger for visibility */}
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
                 <span style={{
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 800,
-                  fontSize: "clamp(8px, 0.8vw, 10px)",
-                  color: scrolled ? "rgba(15,29,61,0.5)" : "rgba(255,255,255,0.65)",
+                  fontSize: isMobile ? "7px" : "clamp(8px, 0.8vw, 10px)",
+                  color: getLtdColor(),
                   letterSpacing: "0.18em",
                   textTransform: "uppercase",
                   transition: "color 0.3s ease",
@@ -501,7 +573,7 @@ export default function Navbar() {
                 <span style={{
                   fontFamily: "'Inter', sans-serif",
                   fontStyle: "italic",
-                  fontSize: "clamp(8px, 0.7vw, 10px)",
+                  fontSize: isMobile ? "7px" : "clamp(8px, 0.7vw, 10px)",
                   color: "#C4972A",
                   fontWeight: 500,
                   letterSpacing: "0.01em",
@@ -563,19 +635,16 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* ── HAMBURGER (< 768px) ── */}
+          {/* ── MOBILE HAMBURGER MENU BUTTON ── */}
           <button
-            className="evs-mob evs-burger"
-            data-open={menuOpen}
+            className="evs-mob"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label={menuOpen ? "Close navigation" : "Open navigation"}
             aria-expanded={menuOpen}
             style={{
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              gap: 6,
               width: 44,
               height: 44,
               background: "transparent",
@@ -583,16 +652,20 @@ export default function Navbar() {
               cursor: "pointer",
               padding: 0,
               flexShrink: 0,
+              color: "#0f1d3d",
+              zIndex: 1002,
             }}
           >
-            <span className="evs-bar" />
-            <span className="evs-bar" />
-            <span className="evs-bar" />
+            {menuOpen ? (
+              <X size={24} strokeWidth={2} />
+            ) : (
+              <Menu size={24} strokeWidth={2} />
+            )}
           </button>
         </div>
       </nav>
 
-      {/* ── MOBILE DRAWER ── */}
+      {/* ── MOBILE DRAWER with proper z-index layering ── */}
       <AnimatePresence mode="wait">
         {menuOpen && (
           <>
@@ -615,20 +688,7 @@ export default function Navbar() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              style={{
-                position: "fixed",
-                top: 0, right: 0, bottom: 0,
-                width: "min(88vw, 340px)",
-                zIndex: 1010,
-                display: "flex",
-                flexDirection: "column",
-                overflowY: "auto",
-                background: "rgba(10,22,40,0.98)",
-                backdropFilter: "blur(24px)",
-                WebkitBackdropFilter: "blur(24px)",
-                borderLeft: "1px solid rgba(196,151,42,0.15)",
-                boxShadow: "-8px 0 32px rgba(0,0,0,0.3)",
-              }}
+              className="evs-drawer"
             >
               <motion.div
                 variants={itemV}

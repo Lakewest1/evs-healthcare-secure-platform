@@ -8,11 +8,13 @@ import {
   Heart,
   Star,
   Flame,
+  ChevronDown,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Modern Featured Jobs Section — Premium Job Cards with Advanced Interactions
 // Features: Staggered animations, hover effects, salary indicators, job badges
+// FIXED: Mobile view shows only 3 jobs initially with "Show More" button
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.1) {
@@ -20,6 +22,12 @@ function useReveal(threshold = 0.1) {
   const isInView = useInView(ref, { once: true, amount: threshold });
   return [ref, isInView];
 }
+
+// Detect mobile for responsive behavior
+const isMobile = () => {
+  if (typeof window === "undefined") return false;
+  return window.innerWidth < 768;
+};
 
 const jobs = [
   {
@@ -103,26 +111,32 @@ function JobCard({ job, index, isInView }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [mobile, setMobile] = useState(false);
+
+  useEffect(() => {
+    setMobile(isMobile());
+  }, []);
 
   const JobIcon = job.icon;
 
   const cardVariants = {
     hidden: { opacity: 0, y: 50, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       scale: 1,
-      transition: { 
-        duration: 0.5, 
+      transition: {
+        duration: 0.5,
         delay: index * 0.08,
         type: "spring",
         stiffness: 100,
-        damping: 20
-      }
-    }
+        damping: 20,
+      },
+    },
   };
 
   const handleMouseMove = (e) => {
+    if (mobile) return;
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePosition({
       x: ((e.clientX - rect.left) / rect.width) * 100,
@@ -140,55 +154,52 @@ function JobCard({ job, index, isInView }) {
       variants={cardVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => !mobile && setIsHovered(true)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{
-        position: "relative",
-        perspective: "1000px",
-      }}
+      style={{ position: "relative", perspective: "1000px", height: "100%" }}
     >
       <motion.div
         animate={{
-          rotateX: isHovered ? (mousePosition.y - 50) * 0.1 : 0,
-          rotateY: isHovered ? (mousePosition.x - 50) * 0.1 : 0,
+          rotateX: isHovered && !mobile ? (mousePosition.y - 50) * 0.1 : 0,
+          rotateY: isHovered && !mobile ? (mousePosition.x - 50) * 0.1 : 0,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         style={{
           position: "relative",
           background: "#ffffff",
           borderRadius: "24px",
-          padding: "28px",
+          padding: mobile ? "20px" : "28px",
           height: "100%",
-          boxShadow: isHovered
+          boxShadow: isHovered && !mobile
             ? "0 20px 40px -12px rgba(15,29,61,0.15), 0 0 0 1px rgba(196,151,42,0.2)"
             : "0 4px 12px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)",
-          border: `1px solid ${isHovered ? "rgba(196,151,42,0.25)" : "rgba(0,0,0,0.06)"}`,
+          border: `1px solid ${isHovered && !mobile ? "rgba(196,151,42,0.25)" : "rgba(0,0,0,0.06)"}`,
           cursor: "pointer",
           overflow: "hidden",
           transition: "box-shadow 0.3s ease, border-color 0.3s ease",
         }}
       >
-        {/* Animated Background Gradient */}
-        <motion.div
-          animate={{
-            opacity: isHovered ? 0.06 : 0,
-            background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(196,151,42,0.8), transparent 50%)`,
-          }}
-          transition={{ duration: 0.2 }}
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            borderRadius: "24px",
-          }}
-        />
+        {/* Animated Background Gradient - desktop only */}
+        {!mobile && (
+          <motion.div
+            animate={{
+              opacity: isHovered ? 0.06 : 0,
+              background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(196,151,42,0.8), transparent 50%)`,
+            }}
+            transition={{ duration: 0.2 }}
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              borderRadius: "24px",
+            }}
+          />
+        )}
 
         {/* Top Accent Bar */}
         <motion.div
-          animate={{
-            scaleX: isHovered ? 1 : 0,
-          }}
+          animate={{ scaleX: isHovered && !mobile ? 1 : 0 }}
           transition={{ duration: 0.4 }}
           style={{
             position: "absolute",
@@ -214,8 +225,8 @@ function JobCard({ job, index, isInView }) {
           aria-pressed={isSaved}
           style={{
             position: "absolute",
-            top: 20,
-            right: 20,
+            top: mobile ? 12 : 20,
+            right: mobile ? 12 : 20,
             width: 32,
             height: 32,
             borderRadius: "50%",
@@ -241,7 +252,7 @@ function JobCard({ job, index, isInView }) {
           </svg>
         </motion.button>
 
-        {/* Urgent Badge — Flame icon replaces 🔥 */}
+        {/* Urgent Badge */}
         <AnimatePresence>
           {job.urgent && (
             <motion.div
@@ -250,63 +261,63 @@ function JobCard({ job, index, isInView }) {
               exit={{ opacity: 0, x: 20 }}
               style={{
                 position: "absolute",
-                top: 20,
-                left: 20,
+                top: mobile ? 12 : 20,
+                left: mobile ? 12 : 20,
                 background: "linear-gradient(135deg, #ef4444, #dc2626)",
                 color: "#fff",
-                fontSize: 10,
+                fontSize: mobile ? 9 : 10,
                 fontFamily: "'Inter', sans-serif",
                 fontWeight: 700,
                 letterSpacing: 1,
-                padding: "4px 10px 4px 8px",
+                padding: "3px 8px",
                 borderRadius: "20px",
                 boxShadow: "0 2px 8px rgba(239,68,68,0.3)",
                 zIndex: 2,
                 display: "flex",
                 alignItems: "center",
-                gap: 5,
+                gap: 4,
               }}
             >
-              <Flame size={11} strokeWidth={2} aria-hidden="true" />
+              <Flame size={mobile ? 9 : 11} strokeWidth={2} aria-hidden="true" />
               URGENT
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Job Icon — Lucide, replaces emoji */}
-        <div style={{ marginBottom: 20, marginTop: job.urgent ? 20 : 0 }}>
+        {/* Job Icon */}
+        <div style={{ marginBottom: 16, marginTop: job.urgent ? (mobile ? 16 : 20) : 0 }}>
           <motion.div
             animate={{
-              scale: isHovered ? 1.05 : 1,
-              rotate: isHovered ? 5 : 0,
+              scale: isHovered && !mobile ? 1.05 : 1,
+              rotate: isHovered && !mobile ? 5 : 0,
             }}
             transition={{ type: "spring", stiffness: 400, damping: 15 }}
             style={{
-              width: 56,
-              height: 56,
+              width: mobile ? 48 : 56,
+              height: mobile ? 48 : 56,
               borderRadius: "16px",
               background: "linear-gradient(135deg, rgba(196,151,42,0.12), rgba(196,151,42,0.04))",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              marginBottom: 16,
+              marginBottom: mobile ? 12 : 16,
               color: "#C4972A",
             }}
           >
-            <JobIcon size={26} strokeWidth={1.6} aria-hidden="true" />
+            <JobIcon size={mobile ? 22 : 26} strokeWidth={1.6} aria-hidden="true" />
           </motion.div>
 
           <motion.h3
             animate={{
-              color: isHovered ? "#C4972A" : "#0f1d3d",
-              x: isHovered ? 3 : 0,
+              color: isHovered && !mobile ? "#C4972A" : "#0f1d3d",
+              x: isHovered && !mobile ? 3 : 0,
             }}
             transition={{ duration: 0.3 }}
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: 18,
+              fontSize: mobile ? 16 : 18,
               fontWeight: 700,
-              marginBottom: 6,
+              marginBottom: 4,
               letterSpacing: "-0.01em",
             }}
           >
@@ -316,7 +327,7 @@ function JobCard({ job, index, isInView }) {
           <span
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: 12,
+              fontSize: mobile ? 10 : 12,
               color: "#64748b",
               fontWeight: 500,
             }}
@@ -326,92 +337,65 @@ function JobCard({ job, index, isInView }) {
         </div>
 
         {/* Job Details */}
-        <div style={{ marginBottom: 24 }}>
-          {/* Location */}
+        <div style={{ marginBottom: mobile ? 16 : 24 }}>
           <motion.div
-            animate={{ x: isHovered ? 3 : 0 }}
+            animate={{ x: isHovered && !mobile ? 3 : 0 }}
             transition={{ duration: 0.3 }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 10,
-            }}
+            style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
-            <span
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 13,
-                color: "#4a5568",
-              }}
-            >
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: mobile ? 12 : 13, color: "#4a5568" }}>
               {job.location}
             </span>
           </motion.div>
 
-          {/* Pay Rate with Animated Indicator */}
           <motion.div
-            animate={{ x: isHovered ? 3 : 0 }}
+            animate={{ x: isHovered && !mobile ? 3 : 0 }}
             transition={{ duration: 0.3, delay: 0.05 }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 10,
-            }}
+            style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
               <line x1="12" y1="1" x2="12" y2="23" />
               <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             </svg>
             <span
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 13,
+                fontSize: mobile ? 12 : 13,
                 color: "#0f1d3d",
                 fontWeight: 700,
               }}
             >
               {job.pay}
             </span>
-            <motion.div
-              animate={{ width: isHovered ? `${(job.payValue / 30) * 100}%` : "0%" }}
-              transition={{ duration: 0.5 }}
-              style={{
-                height: 4,
-                background: "linear-gradient(90deg, #C4972A, #f0c060)",
-                borderRadius: 2,
-                flex: 1,
-                maxWidth: 80,
-              }}
-            />
+            {!mobile && (
+              <motion.div
+                animate={{ width: isHovered ? `${(job.payValue / 30) * 100}%` : "0%" }}
+                transition={{ duration: 0.5 }}
+                style={{
+                  height: 3,
+                  background: "linear-gradient(90deg, #C4972A, #f0c060)",
+                  borderRadius: 2,
+                  flex: 1,
+                  maxWidth: 70,
+                }}
+              />
+            )}
           </motion.div>
 
-          {/* Shift */}
           <motion.div
-            animate={{ x: isHovered ? 3 : 0 }}
+            animate={{ x: isHovered && !mobile ? 3 : 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-            }}
+            style={{ display: "flex", alignItems: "center", gap: 6 }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <span
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 12,
-                color: "#64748b",
-              }}
-            >
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: mobile ? 10 : 12, color: "#64748b" }}>
               {job.shift}
             </span>
           </motion.div>
@@ -420,22 +404,22 @@ function JobCard({ job, index, isInView }) {
         {/* Experience Tag */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: isHovered ? 1 : 0 }}
+          animate={{ opacity: (isHovered && !mobile) || mobile ? 1 : 0 }}
           transition={{ duration: 0.3 }}
           style={{
             background: "rgba(196,151,42,0.08)",
-            padding: "4px 10px",
-            borderRadius: "12px",
-            marginBottom: 16,
+            padding: "3px 8px",
+            borderRadius: "10px",
+            marginBottom: mobile ? 12 : 16,
             display: "inline-flex",
             alignItems: "center",
-            gap: 5,
+            gap: 4,
           }}
         >
           <span
             style={{
               fontFamily: "'Inter', sans-serif",
-              fontSize: 11,
+              fontSize: mobile ? 9 : 11,
               color: "#C4972A",
               fontWeight: 500,
             }}
@@ -454,11 +438,11 @@ function JobCard({ job, index, isInView }) {
             textAlign: "center",
             background: "#0f1d3d",
             color: "#ffffff",
-            padding: "12px 20px",
+            padding: mobile ? "10px 16px" : "12px 20px",
             borderRadius: "14px",
             fontFamily: "'Inter', sans-serif",
             fontWeight: 600,
-            fontSize: 13,
+            fontSize: mobile ? 12 : 13,
             textDecoration: "none",
             transition: "all 0.3s ease",
             position: "relative",
@@ -474,37 +458,37 @@ function JobCard({ job, index, isInView }) {
           }}
         >
           <span style={{ position: "relative", zIndex: 2 }}>Apply for This Role →</span>
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: isHovered ? "0%" : "-100%" }}
-            transition={{ duration: 0.4 }}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              background: "linear-gradient(135deg, #C4972A, #8B6914)",
-              zIndex: 1,
-            }}
-          />
+          {!mobile && (
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: isHovered ? "0%" : "-100%" }}
+              transition={{ duration: 0.4 }}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                background: "linear-gradient(135deg, #C4972A, #8B6914)",
+                zIndex: 1,
+              }}
+            />
+          )}
         </motion.a>
 
         {/* Decorative Corner */}
         <motion.div
-          animate={{
-            opacity: isHovered ? 0.3 : 0,
-          }}
+          animate={{ opacity: isHovered && !mobile ? 0.3 : 0 }}
           transition={{ duration: 0.3 }}
           style={{
             position: "absolute",
-            bottom: 16,
-            right: 16,
-            width: 40,
-            height: 40,
+            bottom: mobile ? 8 : 16,
+            right: mobile ? 8 : 16,
+            width: mobile ? 24 : 40,
+            height: mobile ? 24 : 40,
             borderRight: "2px solid #C4972A",
             borderBottom: "2px solid #C4972A",
-            borderRadius: "0 0 16px 0",
+            borderRadius: "0 0 12px 0",
             pointerEvents: "none",
           }}
         />
@@ -520,25 +504,64 @@ export default function FeaturedJobs() {
   const [ref, inView] = useReveal(0.1);
   const [filter, setFilter] = useState("all");
   const [visibleJobs, setVisibleJobs] = useState(jobs);
+  const [showAllJobs, setShowAllJobs] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
+
+  // Detect mobile view
+  useEffect(() => {
+    const checkMobile = () => setIsMobileView(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const filters = [
-    { key: "all", label: "All Jobs", count: jobs.length },
-    { key: "urgent", label: "Urgent", count: jobs.filter(j => j.urgent).length },
-    { key: "nursing", label: "Nursing", count: jobs.filter(j => j.title.includes("Nurse")).length },
-    { key: "care", label: "Care", count: jobs.filter(j => j.title.includes("Care") || j.title.includes("Support")).length },
+    { key: "all", label: "All Jobs", isUrgent: false },
+    { key: "urgent", label: "Urgent", isUrgent: true },
+    { key: "nursing", label: "Nursing", isUrgent: false },
+    { key: "care", label: "Care", isUrgent: false },
   ];
 
   useEffect(() => {
+    let filtered;
     if (filter === "all") {
-      setVisibleJobs(jobs);
+      filtered = jobs;
     } else if (filter === "urgent") {
-      setVisibleJobs(jobs.filter(j => j.urgent));
+      filtered = jobs.filter((j) => j.urgent);
     } else if (filter === "nursing") {
-      setVisibleJobs(jobs.filter(j => j.title.includes("Nurse")));
-    } else if (filter === "care") {
-      setVisibleJobs(jobs.filter(j => j.title.includes("Care") || j.title.includes("Support")));
+      filtered = jobs.filter((j) => j.title.includes("Nurse"));
+    } else {
+      filtered = jobs.filter((j) => j.title.includes("Care") || j.title.includes("Support"));
     }
+    setVisibleJobs(filtered);
+    // Reset showAll when filter changes
+    setShowAllJobs(false);
   }, [filter]);
+
+  // Determine which jobs to display
+  const displayedJobs = isMobileView && !showAllJobs && visibleJobs.length > 3
+    ? visibleJobs.slice(0, 3)
+    : visibleJobs;
+
+  const hasMoreJobs = isMobileView && visibleJobs.length > 3;
+
+  // Responsive grid columns
+  const getGridColumns = () => {
+    if (typeof window === "undefined") return "repeat(3, 1fr)";
+    const width = window.innerWidth;
+    if (width < 640) return "repeat(1, 1fr)";
+    if (width < 1024) return "repeat(2, 1fr)";
+    return "repeat(3, 1fr)";
+  };
+
+  const [gridColumns, setGridColumns] = useState(getGridColumns());
+
+  useEffect(() => {
+    const handleResize = () => setGridColumns(getGridColumns());
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <section
@@ -599,14 +622,7 @@ export default function FeaturedJobs() {
                 marginBottom: 12,
               }}
             >
-              <div
-                style={{
-                  width: 30,
-                  height: 2,
-                  background: "#C4972A",
-                  borderRadius: 999,
-                }}
-              />
+              <div style={{ width: 30, height: 2, background: "#C4972A", borderRadius: 999 }} />
               <span
                 style={{
                   fontFamily: "'Inter', sans-serif",
@@ -619,15 +635,9 @@ export default function FeaturedJobs() {
               >
                 Open Positions
               </span>
-              <div
-                style={{
-                  width: 30,
-                  height: 2,
-                  background: "#C4972A",
-                  borderRadius: 999,
-                }}
-              />
+              <div style={{ width: 30, height: 2, background: "#C4972A", borderRadius: 999 }} />
             </div>
+
             <h2
               style={{
                 fontFamily: "'Inter', sans-serif",
@@ -641,16 +651,32 @@ export default function FeaturedJobs() {
             >
               Featured Healthcare Jobs
             </h2>
+
             <p
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 14,
-                color: "#4a5568",
-                marginTop: 12,
-                maxWidth: 400,
+                color: "#64748b",
+                marginTop: 10,
+                maxWidth: 440,
+                lineHeight: 1.6,
               }}
             >
-              Discover rewarding opportunities in healthcare across North-West England
+              Discover rewarding opportunities in healthcare across North-West
+              England.{" "}
+              <motion.a
+                href="#register"
+                whileHover={{ color: "#8B6914" }}
+                style={{
+                  color: "#C4972A",
+                  fontWeight: 600,
+                  textDecoration: "none",
+                  borderBottom: "1px solid rgba(196,151,42,0.35)",
+                  paddingBottom: 1,
+                }}
+              >
+                Register for weekly job alerts →
+              </motion.a>
             </p>
           </div>
 
@@ -696,9 +722,11 @@ export default function FeaturedJobs() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setFilter(f.key)}
               style={{
-                background: filter === f.key ? "linear-gradient(135deg, #C4972A, #8B6914)" : "transparent",
+                background: filter === f.key
+                  ? "linear-gradient(135deg, #C4972A, #8B6914)"
+                  : "transparent",
                 border: filter === f.key ? "none" : "1px solid rgba(0,0,0,0.08)",
-                padding: "8px 20px",
+                padding: "8px 18px",
                 borderRadius: "40px",
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 13,
@@ -706,18 +734,30 @@ export default function FeaturedJobs() {
                 color: filter === f.key ? "#0f1d3d" : "#64748b",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
               }}
             >
               {f.label}
-              <span
-                style={{
-                  marginLeft: 8,
-                  opacity: 0.7,
-                  fontSize: 11,
-                }}
-              >
-                ({f.count})
-              </span>
+              {f.isUrgent && (
+                <span
+                  style={{
+                    background: filter === "urgent"
+                      ? "rgba(15,29,61,0.25)"
+                      : "linear-gradient(135deg, #C4972A, #8B6914)",
+                    color: filter === "urgent" ? "#0f1d3d" : "#ffffff",
+                    fontSize: 9,
+                    fontWeight: 800,
+                    letterSpacing: "0.08em",
+                    padding: "2px 6px",
+                    borderRadius: "6px",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  NEW
+                </span>
+              )}
             </motion.button>
           ))}
         </motion.div>
@@ -732,11 +772,11 @@ export default function FeaturedJobs() {
             transition={{ duration: 0.4 }}
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-              gap: 28,
+              gridTemplateColumns: gridColumns,
+              gap: 24,
             }}
           >
-            {visibleJobs.map((job, idx) => (
+            {displayedJobs.map((job, idx) => (
               <JobCard
                 key={`${job.id}-${filter}`}
                 job={job}
@@ -746,6 +786,61 @@ export default function FeaturedJobs() {
             ))}
           </motion.div>
         </AnimatePresence>
+
+        {/* Show More / Show Less Button - Mobile Only */}
+        {hasMoreJobs && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            style={{ textAlign: "center", marginTop: 32 }}
+          >
+            <motion.button
+              onClick={() => setShowAllJobs(!showAllJobs)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "transparent",
+                border: "1px solid rgba(196,151,42,0.3)",
+                color: "#C4972A",
+                padding: "12px 28px",
+                borderRadius: "40px",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {showAllJobs ? (
+                <>
+                  Show Less Jobs <ChevronDown size={14} style={{ transform: "rotate(180deg)" }} />
+                </>
+              ) : (
+                <>
+                  Show More Jobs <ChevronDown size={14} />
+                </>
+              )}
+            </motion.button>
+            
+            {/* Hint text */}
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 11,
+                color: "#94a3b8",
+                marginTop: 10,
+              }}
+            >
+              {showAllJobs 
+                ? `${displayedJobs.length} jobs displayed` 
+                : `Showing ${Math.min(3, visibleJobs.length)} of ${visibleJobs.length} jobs`}
+            </p>
+          </motion.div>
+        )}
 
         {/* Empty State */}
         {visibleJobs.length === 0 && (
@@ -759,8 +854,16 @@ export default function FeaturedJobs() {
               borderRadius: "24px",
             }}
           >
-            {/* Search icon replaces 🔍 */}
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" style={{ opacity: 0.5, margin: "0 auto", display: "block" }} aria-hidden="true">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#94a3b8"
+              strokeWidth="1.5"
+              style={{ opacity: 0.5, margin: "0 auto", display: "block" }}
+              aria-hidden="true"
+            >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
@@ -800,12 +903,16 @@ export default function FeaturedJobs() {
             gap: 12,
           }}
         >
-          <div style={{ width: 60, height: 1, background: "rgba(196,151,42,0.3)", borderRadius: 999 }} />
-          <motion.div
-            animate={{
-              scale: [1, 1.3, 1],
-              opacity: [0.4, 1, 0.4],
+          <div
+            style={{
+              width: 60,
+              height: 1,
+              background: "rgba(196,151,42,0.3)",
+              borderRadius: 999,
             }}
+          />
+          <motion.div
+            animate={{ scale: [1, 1.3, 1], opacity: [0.4, 1, 0.4] }}
             transition={{ duration: 2, repeat: Infinity }}
             style={{
               width: 6,
@@ -814,7 +921,14 @@ export default function FeaturedJobs() {
               background: "#C4972A",
             }}
           />
-          <div style={{ width: 60, height: 1, background: "rgba(196,151,42,0.3)", borderRadius: 999 }} />
+          <div
+            style={{
+              width: 60,
+              height: 1,
+              background: "rgba(196,151,42,0.3)",
+              borderRadius: 999,
+            }}
+          />
         </motion.div>
       </div>
     </section>

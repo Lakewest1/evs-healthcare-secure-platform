@@ -33,6 +33,21 @@ const barVariant = {
   },
 };
 
+// ─── FIX #9-A: Uniform icon token constants ────────────────────────────────
+// All cards now share identical icon container styling regardless of
+// feature.accent. Previously NHS Opportunities used a blue accent which
+// caused that icon background to deviate from the rest.
+const ICON_BG     = "#FDF6E3";          // uniform cream
+const ICON_BORDER = "rgba(196,151,42,0.18)"; // uniform gold ring
+const ICON_COLOR  = "#8B6914";          // uniform dark gold (≥4.6:1 on cream)
+const ICON_SIZE   = 52;                 // px — all containers identical
+const ICON_RADIUS = 14;                 // px
+// ──────────────────────────────────────────────────────────────────────────
+
+// ─── FIX #9-B: accentRgb removed from NHS card — all accents unified ──────
+// Previously feature id=4 (NHS Opportunities) had accent "#005EB8" / "0,94,184"
+// which produced a blue icon background, blue bar, and blue stat text.
+// Now every card uses the gold accent so the grid reads as one cohesive set.
 const FEATURES = [
   {
     id: 1,
@@ -93,8 +108,11 @@ const FEATURES = [
     desc: "Roles in NHS trusts and leading private healthcare providers across North-West England.",
     stat: "150+",
     statLabel: "NHS partner sites",
-    accent: "#005EB8",
-    accentRgb: "0,94,184",
+    // ── FIX: was "#005EB8" / "0,94,184" — changed to gold so this card
+    //    matches the other five. The NHS blue was breaking icon bg, bar
+    //    colour, and stat text colour uniformity across the grid.
+    accent: "#C4972A",
+    accentRgb: "196,151,42",
     img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=900&q=80",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -160,6 +178,10 @@ function FeatureCard({ feature, index }) {
   const variants = cardVariant(index * 0.08);
 
   return (
+    // ─── FIX #9-C: Cards fill their grid cell height via alignItems:"stretch"
+    //    on the parent grid. height:"100%" here + flex-column layout ensures
+    //    every card in a row reaches the same bottom edge, eliminating the
+    //    jagged-bottom-edge problem caused by varying description lengths.
     <motion.article
       ref={ref}
       variants={variants}
@@ -185,11 +207,13 @@ function FeatureCard({ feature, index }) {
         cursor: "pointer",
         display: "flex",
         flexDirection: "column",
+        // ── FIX: height:100% lets the grid's alignItems:"stretch" drive
+        //    all cards in a row to the same height automatically.
         height: "100%",
         transform: hovered ? "translateY(-4px)" : "translateY(0)",
       }}
     >
-      {/* Image overlay on hover */}
+      {/* Image overlay on hover — unchanged */}
       <motion.div
         aria-hidden="true"
         animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 10 }}
@@ -234,11 +258,12 @@ function FeatureCard({ feature, index }) {
             color: "#fff",
           }}
         >
+          {/* Hover overlay icon — also uses uniform sizing for consistency */}
           <div
             style={{
-              width: 48,
-              height: 48,
-              borderRadius: 12,
+              width: ICON_SIZE,
+              height: ICON_SIZE,
+              borderRadius: ICON_RADIUS,
               background: "rgba(255,255,255,0.18)",
               backdropFilter: "blur(8px)",
               display: "flex",
@@ -275,53 +300,130 @@ function FeatureCard({ feature, index }) {
         </motion.div>
       </motion.div>
 
-      {/* Default card face */}
-      <div style={{ padding: "24px 24px 20px", display: "flex", flexDirection: "column", flex: 1, position: "relative", zIndex: 2 }}>
+      {/* ── Default card face ─────────────────────────────────────────── */}
+      <div style={{
+        padding: "24px 24px 20px",
+        display: "flex",
+        flexDirection: "column",
+        // ── FIX #9-D: flex:1 here makes the card body expand to fill the
+        //    full height of the article element. The description paragraph
+        //    at the bottom then uses flex:1 to push any remaining space
+        //    downward, keeping the stat + bar always at the same vertical
+        //    position across every card in a row.
+        flex: 1,
+        position: "relative",
+        zIndex: 2,
+      }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 18 }}>
+
+          {/* ── FIX #9-E: Uniform icon container ─────────────────────────
+              Previously used feature.accent / feature.accentRgb for the
+              icon background and border, which caused the NHS card (#4) to
+              render a blue icon background while all others were cream/gold.
+              Now ALL six cards share: ICON_BG cream, ICON_BORDER gold ring,
+              ICON_COLOR dark gold, ICON_SIZE 52px, ICON_RADIUS 14px.
+          ─────────────────────────────────────────────────────────────── */}
           <div
             style={{
-              width: 52,
-              height: 52,
-              borderRadius: 14,
-              background: `rgba(${feature.accentRgb},0.08)`,
-              border: `1px solid rgba(${feature.accentRgb},0.16)`,
+              width: ICON_SIZE,
+              height: ICON_SIZE,
+              borderRadius: ICON_RADIUS,
+              background: ICON_BG,
+              border: `1px solid ${ICON_BORDER}`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: feature.accent,
+              // ── All icons render in dark gold — uniform colour
+              color: ICON_COLOR,
               flexShrink: 0,
             }}
           >
             {feature.icon}
           </div>
-          <span aria-hidden="true" style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(15,29,61,0.15)" }}>
+
+          <span
+            aria-hidden="true"
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              color: "rgba(15,29,61,0.15)",
+            }}
+          >
             {feature.number}
           </span>
         </div>
 
-        <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: 18, fontWeight: 700, color: "#0f1d3d", marginBottom: 6, lineHeight: 1.3, letterSpacing: "-0.01em" }}>
+        <h3 style={{
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 18,
+          fontWeight: 700,
+          color: "#0f1d3d",
+          marginBottom: 6,
+          lineHeight: 1.3,
+          letterSpacing: "-0.01em",
+        }}>
           {feature.title}
         </h3>
 
+        {/* Stat — uses feature.accent for the number so cards with different
+            accent values can still have contextual colour here if desired.
+            Since we've unified all accents to gold this is now always gold,
+            but the pattern is kept so a future brand change only needs the
+            FEATURES array updated, not the JSX. */}
         <div style={{ display: "flex", alignItems: "baseline", gap: 7, margin: "10px 0 6px" }}>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: feature.accent, lineHeight: 1 }}>
+          <span style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 26,
+            fontWeight: 700,
+            letterSpacing: "-0.03em",
+            // ── Uses feature.accent — now uniformly gold for all 6 cards.
+            color: feature.accent,
+            lineHeight: 1,
+          }}>
             {feature.stat}
           </span>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 500, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          <span style={{
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 11,
+            fontWeight: 500,
+            color: "#64748b",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+          }}>
             {feature.statLabel}
           </span>
         </div>
 
+        {/* Accent bar — also driven by feature.accent, so uniformly gold */}
         <motion.div
           variants={barVariant}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          style={{ height: 2, width: 52, background: `linear-gradient(90deg, ${feature.accent}, rgba(${feature.accentRgb},0.15))`, borderRadius: 999, marginBottom: 14 }}
+          style={{
+            height: 2,
+            width: 52,
+            background: `linear-gradient(90deg, ${feature.accent}, rgba(${feature.accentRgb},0.15))`,
+            borderRadius: 999,
+            marginBottom: 14,
+          }}
         />
 
         <div style={{ height: 1, background: "rgba(15,29,61,0.06)", marginBottom: 14 }} />
 
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13.5, fontWeight: 400, color: "#4a5568", lineHeight: 1.65, flex: 1 }}>
+        {/* ── FIX #9-F: Description paragraph uses flex:1 so it grows to
+            fill remaining card height. Cards with shorter descriptions
+            naturally have more whitespace here rather than being shorter
+            overall — all cards in a row stay bottom-aligned. */}
+        <p style={{
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 13.5,
+          fontWeight: 400,
+          color: "#4a5568",
+          lineHeight: 1.65,
+          flex: 1,
+        }}>
           {feature.desc}
         </p>
 
@@ -329,10 +431,29 @@ function FeatureCard({ feature, index }) {
           onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
           aria-expanded={expanded}
           className="evs-expand-btn"
-          style={{ display: "none", alignItems: "center", gap: 5, marginTop: 14, background: "none", border: "none", padding: 0, cursor: "pointer", color: feature.accent, fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 600 }}
+          style={{
+            display: "none",
+            alignItems: "center",
+            gap: 5,
+            marginTop: 14,
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            color: feature.accent,
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 12,
+            fontWeight: 600,
+          }}
         >
           <span>{expanded ? "Show less" : "Read more"}</span>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s ease" }} aria-hidden="true">
+          <svg
+            width="13" height="13" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="2.5"
+            strokeLinecap="round"
+            style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s ease" }}
+            aria-hidden="true"
+          >
             <path d="M6 9l6 6 6-6"/>
           </svg>
         </button>
@@ -351,13 +472,28 @@ function HeroBanner() {
       variants={fadeUp(0)}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
-      style={{ position: "relative", width: "100%", borderRadius: 24, overflow: "hidden", marginBottom: 64, boxShadow: "0 20px 40px -12px rgba(15,29,61,0.15)", aspectRatio: "21 / 7", minHeight: 220 }}
+      style={{
+        position: "relative",
+        width: "100%",
+        borderRadius: 24,
+        overflow: "hidden",
+        marginBottom: 64,
+        boxShadow: "0 20px 40px -12px rgba(15,29,61,0.15)",
+        aspectRatio: "21 / 7",
+        minHeight: 220,
+      }}
     >
       <motion.div
         initial={{ scale: 1.06 }}
         animate={inView ? { scale: 1 } : {}}
         transition={{ duration: 1.2, ease: EASE.smooth }}
-        style={{ position: "absolute", inset: 0, backgroundImage: "url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1600&q=80')", backgroundSize: "cover", backgroundPosition: "center" }}
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1600&q=80')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
       />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,29,61,0.88) 0%, rgba(15,29,61,0.60) 100%)" }} />
       <div aria-hidden="true" style={{ position: "absolute", left: 0, top: "15%", bottom: "15%", width: 4, background: "linear-gradient(180deg, transparent, #C4972A, transparent)", borderRadius: "0 4px 4px 0" }} />
@@ -465,7 +601,10 @@ function CtaStrip() {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </motion.a>
         <motion.a href="tel:+441772379989" whileHover={{ scale: 1.03, background: "rgba(255,255,255,0.13)" }} whileTap={{ scale: 0.97 }} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.08)", color: "#ffffff", padding: "13px 26px", borderRadius: 50, fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 14, textDecoration: "none", letterSpacing: "0.02em", border: "1px solid rgba(255,255,255,0.15)", whiteSpace: "nowrap" }}>
-          <span style={{ marginRight: 4 }}>📞</span> 01772 379989
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .12h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+          01772 379989
         </motion.a>
       </div>
     </motion.div>
@@ -562,10 +701,15 @@ export default function WhyChooseUs() {
           background: #ffffff;
         }
 
+        /* ── FIX #9-G: Grid gets alignItems:"stretch" so every card in a
+           row grows to the height of the tallest card in that row.
+           Previously this was absent, causing shorter-text cards to render
+           at a smaller height and break the visual rhythm of the grid. */
         .evs-why-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 22px;
+          align-items: stretch; /* ← the key fix */
         }
 
         .why-choose-card {
