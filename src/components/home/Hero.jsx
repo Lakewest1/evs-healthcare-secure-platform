@@ -24,11 +24,13 @@ import {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS Healthcare Hero — Professional Clean Design
-// FIXED: Curtain animation works perfectly on mobile devices
+// FIXES:
+//   - Curtain animation works perfectly on mobile devices
 //   - Mobile-optimized curtain widths
 //   - Proper transform handling
 //   - Reduced animation duration for mobile
 //   - Touch-friendly curtain reveal
+//   - Video background on desktop ONLY, static image on mobile for performance
 // ─────────────────────────────────────────────────────────────────────────────
 
 const isMobile = () => {
@@ -235,11 +237,12 @@ export default function Hero() {
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [mobile]);
 
+  // Only attempt to play video on desktop (non-mobile)
   useEffect(() => {
-    if (phase !== "split" && videoRef.current) {
+    if (!mobile && phase !== "split" && videoRef.current) {
       videoRef.current.play().catch(() => {});
     }
-  }, [phase]);
+  }, [phase, mobile]);
 
   useEffect(() => {
     if (mobile) return;
@@ -260,8 +263,6 @@ export default function Hero() {
   const panelOpen = phase === "open" || phase === "done";
   const contentVisible = phase === "open" || phase === "done";
   
-  // FIX: Mobile-optimized curtain animation
-  // Shorter duration and proper transform handling for mobile
   const CURTAIN_DURATION = mobile ? "0.5s" : "1.2s";
   const CURTAIN_EASING = "cubic-bezier(0.76, 0, 0.24, 1)";
   const CURTAIN_TRANSITION = `transform ${CURTAIN_DURATION} ${CURTAIN_EASING}`;
@@ -329,7 +330,6 @@ export default function Hero() {
           100% { opacity:0; transform: rotate(-15deg) translateX(220%); }
         }
 
-        /* FIX: Ensure curtain panels have proper containment and z-index on mobile */
         .curtain-panel {
           position: absolute;
           top: 0;
@@ -344,6 +344,19 @@ export default function Hero() {
         }
         .curtain-right {
           right: 0;
+        }
+
+        /* Mobile static background image (replaces video on phones) */
+        .mobile-bg-image {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-image: url('https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786625/mathekame-hospital-5765027_1920_tklbds.jpg');
+          background-size: cover;
+          background-position: center;
+          z-index: 1;
         }
 
         @media (max-width: 1200px) {
@@ -399,54 +412,61 @@ export default function Hero() {
           textAlign: "center",
         }}
       >
-        {/* Video Background */}
-        <video
-          ref={videoRef}
-          muted
-          loop
-          playsInline
-          aria-hidden="true"
-          poster="https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786463/mathekame-hospital-5765027_1920_ojwyi1.jpg"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center",
-            zIndex: 1,
-            display: "block",
-            transform: (!mobile && phase === "done")
-              ? `scale(1.04) translate(${mouse.x * -4}px, ${mouse.y * -3}px)`
-              : "scale(1.04)",
-            transition: (!mobile && phase === "done") ? "transform 0.18s ease-out" : "none",
-            opacity: panelOpen ? 1 : 0,
-            willChange: "transform",
-            filter: "brightness(1.1) contrast(1.05) saturate(1.1)",
-          }}
-        >
-          <source
-            src="https://res.cloudinary.com/dbqdgvvgq/video/upload/v1780785467/148756-794599376_medium_hpciyw.mp4"
-            type="video/mp4"
-          />
-        </video>
+        {/* Mobile: Static image background instead of video */}
+        {mobile ? (
+          <div className="mobile-bg-image" />
+        ) : (
+          /* Desktop: Video background */
+          <video
+            ref={videoRef}
+            muted
+            loop
+            playsInline
+            aria-hidden="true"
+            poster="https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786463/mathekame-hospital-5765027_1920_ojwyi1.jpg"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+              zIndex: 1,
+              display: "block",
+              transform: (phase === "done")
+                ? `scale(1.04) translate(${mouse.x * -4}px, ${mouse.y * -3}px)`
+                : "scale(1.04)",
+              transition: (phase === "done") ? "transform 0.18s ease-out" : "none",
+              opacity: panelOpen ? 1 : 0,
+              willChange: "transform",
+              filter: "brightness(1.1) contrast(1.05) saturate(1.1)",
+            }}
+          >
+            <source
+              src="https://res.cloudinary.com/dbqdgvvgq/video/upload/v1780785467/148756-794599376_medium_hpciyw.mp4"
+              type="video/mp4"
+            />
+          </video>
+        )}
 
-        {/* Dark overlay */}
+        {/* Dark overlay - slightly lighter on mobile for better visibility */}
         <div
           aria-hidden="true"
           style={{
             position: "absolute",
             inset: 0,
             zIndex: 2,
-            background: "linear-gradient(170deg, rgba(15,29,61,0.5) 0%, rgba(15,29,61,0.3) 55%, rgba(15,29,61,0.55) 100%)",
+            background: mobile
+              ? "linear-gradient(170deg, rgba(15,29,61,0.65) 0%, rgba(15,29,61,0.45) 55%, rgba(15,29,61,0.6) 100%)"
+              : "linear-gradient(170deg, rgba(15,29,61,0.5) 0%, rgba(15,29,61,0.3) 55%, rgba(15,29,61,0.55) 100%)",
             opacity: panelOpen ? 1 : 0,
             transition: "opacity 1.8s ease 0.2s",
             pointerEvents: "none",
           }}
         />
 
-        {/* Light ray sweep */}
+        {/* Light ray sweep - desktop only */}
         {contentVisible && !mobile && (
           <div
             aria-hidden="true"
@@ -464,7 +484,7 @@ export default function Hero() {
           />
         )}
 
-        {/* Floating particles */}
+        {/* Floating particles - reduced on mobile */}
         {contentVisible && PARTICLES.map((p) =>
           p.type === "cross" ? (
             <div
@@ -476,13 +496,13 @@ export default function Hero() {
                 top: `${p.y}%`,
                 zIndex: 5,
                 pointerEvents: "none",
-                opacity: mobile ? 0.3 : 0,
+                opacity: mobile ? 0.2 : 0,
                 animation: mobile ? "none" : `evsFloat ${p.dur}s ease-in-out ${p.delay}s infinite`,
               }}
             >
-              <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
-                <rect x="4" y="0" width="2" height="10" rx="1" fill="rgba(196,151,42,0.45)" />
-                <rect x="0" y="4" width="10" height="2" rx="1" fill="rgba(196,151,42,0.45)" />
+              <svg width="6" height="6" viewBox="0 0 10 10" fill="none">
+                <rect x="4" y="0" width="2" height="10" rx="1" fill="rgba(196,151,42,0.35)" />
+                <rect x="0" y="4" width="10" height="2" rx="1" fill="rgba(196,151,42,0.35)" />
               </svg>
             </div>
           ) : (
@@ -496,17 +516,17 @@ export default function Hero() {
                 width: p.size,
                 height: p.size,
                 borderRadius: "50%",
-                background: "rgba(196,151,42,0.50)",
+                background: "rgba(196,151,42,0.35)",
                 zIndex: 5,
                 pointerEvents: "none",
-                opacity: mobile ? 0.2 : 0,
+                opacity: mobile ? 0.15 : 0,
                 animation: mobile ? "none" : `evsFloat ${p.dur}s ease-in-out ${p.delay}s infinite`,
               }}
             />
           )
         )}
 
-        {/* ── LEFT CURTAIN (Mobile Optimized) ── */}
+        {/* LEFT CURTAIN */}
         <div
           className="curtain-panel curtain-left"
           style={{
@@ -562,7 +582,7 @@ export default function Hero() {
           />
         </div>
 
-        {/* ── RIGHT CURTAIN (Mobile Optimized) ── */}
+        {/* RIGHT CURTAIN */}
         <div
           className="curtain-panel curtain-right"
           style={{
@@ -637,7 +657,7 @@ export default function Hero() {
           </div>
         )}
 
-        {/* ── HERO CONTENT ── */}
+        {/* HERO CONTENT */}
         <div
           style={{
             position: "absolute",
