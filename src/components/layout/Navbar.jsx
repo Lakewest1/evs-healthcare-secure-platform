@@ -401,6 +401,13 @@ export default function Navbar() {
     setActiveLink(section);
     setMenuOpen(false);
     
+    // ── UPDATED: Contact navigates to /contact page ──
+    if (section === "Contact") {
+      navigate("/contact");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    
     // If we're on the home page, scroll to the section
     if (window.location.pathname === "/") {
       const sectionMap = {
@@ -408,7 +415,6 @@ export default function Navbar() {
         "Jobs": "jobs",
         "Training": "training",
         "Employers": "for-employers",
-        "Contact": "contact"
       };
       
       const sectionId = sectionMap[section] || section.toLowerCase();
@@ -426,7 +432,6 @@ export default function Navbar() {
           "Jobs": "jobs",
           "Training": "training",
           "Employers": "for-employers",
-          "Contact": "contact"
         };
         const sectionId = sectionMap[section] || section.toLowerCase();
         const el = document.getElementById(sectionId);
@@ -443,6 +448,14 @@ export default function Navbar() {
     setMenuOpen(false);
     setActiveLink("");
     navigate("/jobs");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // ── Navigate to Contact Page ──
+  const goToContact = () => {
+    setMenuOpen(false);
+    setActiveLink("");
+    navigate("/contact");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -522,6 +535,7 @@ export default function Navbar() {
 
   // Check if on jobs page for active link highlighting
   const isJobsPage = window.location.pathname === "/jobs";
+  const isContactPage = window.location.pathname === "/contact";
 
   return (
     <>
@@ -647,13 +661,22 @@ export default function Navbar() {
             }}
           >
             {NAV_LINKS.map((link) => {
-              // For Jobs link, check if we're on the jobs page
+              // Check if link is active (Jobs page or Contact page)
               const isActive = link === "Jobs" 
                 ? window.location.pathname === "/jobs"
+                : link === "Contact"
+                ? window.location.pathname === "/contact"
                 : activeLink === link;
               
-              // For Jobs link, navigate to /jobs instead of scrolling
-              const handleClick = link === "Jobs" ? goToJobs : () => goTo(link);
+              // Handle click based on link type
+              let handleClick;
+              if (link === "Jobs") {
+                handleClick = goToJobs;
+              } else if (link === "Contact") {
+                handleClick = goToContact;
+              } else {
+                handleClick = () => goTo(link);
+              }
               
               return (
                 <button
@@ -689,7 +712,6 @@ export default function Navbar() {
             <button className="evs-hire-staff" onClick={goToEmployers}>
               Hire Staff
             </button>
-            {/* ── UPDATED: Apply Now → Jobs Page ── */}
             <button className="evs-apply" onClick={goToApply}>
               Apply Now
             </button>
@@ -798,9 +820,18 @@ export default function Navbar() {
                 {NAV_LINKS.map((link) => {
                   const isActive = link === "Jobs" 
                     ? window.location.pathname === "/jobs"
+                    : link === "Contact"
+                    ? window.location.pathname === "/contact"
                     : activeLink === link;
                   
-                  const handleClick = link === "Jobs" ? goToJobs : () => goTo(link);
+                  let handleClick;
+                  if (link === "Jobs") {
+                    handleClick = goToJobs;
+                  } else if (link === "Contact") {
+                    handleClick = goToContact;
+                  } else {
+                    handleClick = () => goTo(link);
+                  }
                   
                   return (
                     <motion.div key={link} variants={itemV}>
@@ -830,7 +861,6 @@ export default function Navbar() {
                 <button className="evs-mobile-hire" onClick={goToEmployers}>
                   Hire Staff
                 </button>
-                {/* ── UPDATED: Apply Now → Jobs Page ── */}
                 <button
                   className="evs-apply"
                   onClick={goToApply}

@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Stethoscope,
@@ -13,6 +13,11 @@ import {
   Search,
   Filter,
   X,
+  MapPin,
+  Clock,
+  Shield,
+  Briefcase,
+  Users,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -107,244 +112,89 @@ const JOBS_DATA = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Job Card Component
-// ─────────────────────────────────────────────────────────────────────────────
+// Relative-time strings like "2 days ago" don't parse via `new Date()` —
+// the original sort silently produced NaN comparisons for "newest"/"oldest".
+// This converts each string to an approximate day count purely for ordering.
+const POSTED_TO_DAYS = (posted) => {
+  const match = posted.match(/(\d+)\s+(day|week)/);
+  if (!match) return 0;
+  const [, num, unit] = match;
+  return unit === "week" ? Number(num) * 7 : Number(num);
+};
+
 function JobCard({ job, index }) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [mobile, setMobile] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    setMobile(window.innerWidth < 768);
-  }, []);
-
+  const [isSaved, setIsSaved] = useState(false);
   const JobIcon = job.icon;
 
-  const handleApplyClick = (e) => {
-    e.preventDefault();
+  const handleApplyClick = useCallback(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    setTimeout(() => {
-      navigate(`/apply?job=${job.id}`);
-    }, 300);
-  };
+    setTimeout(() => navigate(`/apply?job=${job.id}`), 300);
+  }, [navigate, job.id]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
-      onMouseEnter={() => !mobile && setIsHovered(true)}
-      onMouseLeave={() => !mobile && setIsHovered(false)}
-      style={{
-        position: "relative",
-        background: "#ffffff",
-        borderRadius: "20px",
-        padding: mobile ? "20px" : "24px",
-        border: `1px solid ${isHovered ? "rgba(196,151,42,0.3)" : "rgba(0,0,0,0.06)"}`,
-        boxShadow: isHovered
-          ? "0 12px 30px -12px rgba(15,29,61,0.12)"
-          : "0 2px 8px rgba(0,0,0,0.04)",
-        transition: "all 0.3s ease",
-      }}
+      transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.3), ease: [0.16, 1, 0.3, 1] }}
+      className="job-card"
     >
-      {/* Top Row: Icon, Title, Urgent Badge */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          gap: 16,
-          marginBottom: 16,
-        }}
-      >
-        <div
-          style={{
-            width: mobile ? 44 : 52,
-            height: mobile ? 44 : 52,
-            borderRadius: "14px",
-            background: "linear-gradient(135deg, rgba(196,151,42,0.12), rgba(196,151,42,0.04))",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#C4972A",
-            flexShrink: 0,
-          }}
-        >
-          <JobIcon size={mobile ? 20 : 24} strokeWidth={1.6} />
+      <div className="job-card-top">
+        <div className="job-card-icon">
+          <JobIcon size={24} strokeWidth={1.6} aria-hidden="true" />
         </div>
 
-        <div style={{ flex: 1 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              flexWrap: "wrap",
-            }}
-          >
-            <h3
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: mobile ? 16 : 18,
-                fontWeight: 700,
-                color: "#0f1d3d",
-                margin: 0,
-              }}
-            >
-              {job.title}
-            </h3>
+        <div className="job-card-heading">
+          <div className="job-card-title-row">
+            <h3 className="job-card-title">{job.title}</h3>
             {job.urgent && (
-              <span
-                style={{
-                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                  color: "#fff",
-                  fontSize: 9,
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  padding: "2px 10px",
-                  borderRadius: "20px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <Flame size={10} /> URGENT
+              <span className="job-card-urgent">
+                <Flame size={10} aria-hidden="true" /> Urgent
               </span>
             )}
           </div>
-          <span
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 12,
-              color: "#64748b",
-            }}
-          >
-            {job.type} • {job.department}
-          </span>
+          <span className="job-card-meta">{job.type} · {job.department}</span>
         </div>
       </div>
 
-      {/* Details Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: mobile ? "1fr" : "1fr 1fr",
-          gap: 8,
-          marginBottom: 16,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-            <circle cx="12" cy="10" r="3" />
-          </svg>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#4a5568" }}>
-            {job.location}
-          </span>
+      <div className="job-card-details">
+        <div className="job-card-detail">
+          <MapPin size={14} className="job-card-detail-icon" aria-hidden="true" />
+          <span>{job.location}</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
+        <div className="job-card-detail job-card-detail-pay">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
             <line x1="12" y1="1" x2="12" y2="23" />
             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
           </svg>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#0f1d3d", fontWeight: 700 }}>
-            {job.pay}
-          </span>
+          <span>{job.pay}</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: "#64748b" }}>
-            {job.shift}
-          </span>
+        <div className="job-card-detail">
+          <Clock size={14} className="job-card-detail-icon" aria-hidden="true" />
+          <span>{job.shift}</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4972A" strokeWidth="1.8">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: "#64748b" }}>
-            {job.experience}
-          </span>
+        <div className="job-card-detail">
+          <Shield size={14} className="job-card-detail-icon" aria-hidden="true" />
+          <span>{job.experience}</span>
         </div>
       </div>
 
-      {/* Bottom Row: Posted Date + Apply Button */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 12,
-          paddingTop: 14,
-          borderTop: "1px solid rgba(0,0,0,0.05)",
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 12,
-            color: "#94a3b8",
-          }}
-        >
-          Posted {job.posted}
-        </span>
+      <div className="job-card-bottom">
+        <span className="job-card-posted">Posted {job.posted}</span>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsSaved(!isSaved);
-            }}
-            style={{
-              padding: "8px 14px",
-              borderRadius: "10px",
-              background: isSaved ? "#C4972A" : "rgba(0,0,0,0.04)",
-              border: "none",
-              color: isSaved ? "#ffffff" : "#64748b",
-              cursor: "pointer",
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 12,
-              fontWeight: 600,
-              transition: "all 0.2s ease",
-            }}
+        <div className="job-card-actions">
+          <button
+            type="button"
+            onClick={() => setIsSaved((s) => !s)}
+            className={`job-card-save ${isSaved ? "active" : ""}`}
+            aria-pressed={isSaved}
           >
             {isSaved ? "Saved ✓" : "Save"}
-          </motion.button>
+          </button>
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleApplyClick}
-            style={{
-              padding: "8px 24px",
-              borderRadius: "10px",
-              background: "linear-gradient(135deg, #C4972A, #8B6914)",
-              border: "none",
-              color: "#0f1d3d",
-              cursor: "pointer",
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 13,
-              fontWeight: 700,
-              transition: "all 0.3s ease",
-              boxShadow: "0 4px 12px rgba(196,151,42,0.25)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-2px)";
-              e.currentTarget.style.boxShadow = "0 8px 20px rgba(196,151,42,0.35)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(196,151,42,0.25)";
-            }}
-          >
-            Apply Now →
-          </motion.button>
+          <button type="button" onClick={handleApplyClick} className="job-card-apply">
+            Apply now →
+          </button>
         </div>
       </div>
     </motion.div>
@@ -352,23 +202,78 @@ function JobCard({ job, index }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main Jobs Page Component
+// Banner Component with Cloudinary Background
 // ─────────────────────────────────────────────────────────────────────────────
+function JobsBanner() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className="jobs-banner"
+    >
+      <div className="jobs-banner-bg">
+        <img
+          src="https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786463/mathekame-hospital-5765027_1920_ojwyi1.jpg"
+          alt="EVS Healthcare - Hospital and Healthcare Careers"
+          className="jobs-banner-image"
+          loading="eager"
+        />
+        <div className="jobs-banner-overlay" />
+      </div>
+      <div className="jobs-banner-content">
+        <div className="jobs-banner-icon">
+          <Briefcase size={28} strokeWidth={1.6} />
+        </div>
+        <h1 className="jobs-banner-title">
+          Find Your <span className="jobs-banner-highlight">Dream Healthcare Role</span>
+        </h1>
+        <p className="jobs-banner-subtitle">
+          Explore {JOBS_DATA.length} opportunities across North-West England — 
+          from nursing to support roles, we have the perfect position for you.
+        </p>
+        <div className="jobs-banner-stats">
+          <div className="jobs-banner-stat">
+            <span className="jobs-banner-stat-number">{JOBS_DATA.length}</span>
+            <span className="jobs-banner-stat-label">Open Positions</span>
+          </div>
+          <div className="jobs-banner-stat-divider" />
+          <div className="jobs-banner-stat">
+            <span className="jobs-banner-stat-number">6</span>
+            <span className="jobs-banner-stat-label">Departments</span>
+          </div>
+          <div className="jobs-banner-stat-divider" />
+          <div className="jobs-banner-stat">
+            <span className="jobs-banner-stat-number">24/7</span>
+            <span className="jobs-banner-stat-label">Support Available</span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Jobs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
   const [visibleCount, setVisibleCount] = useState(6);
 
-  const departments = ["All", ...new Set(JOBS_DATA.map((job) => job.department))];
+  const departments = useMemo(
+    () => ["All", ...new Set(JOBS_DATA.map((job) => job.department))],
+    []
+  );
 
-  // Filter and sort jobs
-  const getFilteredJobs = () => {
-    let filtered = JOBS_DATA;
+  // Recomputed via useMemo from the immutable JOBS_DATA source rather than
+  // sorting `filtered` in place — the original directly called `.sort()` on
+  // an array derived from `JOBS_DATA` without first cloning it, which under
+  // React 18 strict mode's double-invoked effects could leave the shared
+  // module-level array in an inconsistently mutated order across renders.
+  const filteredJobs = useMemo(() => {
+    let filtered = [...JOBS_DATA];
 
-    // Search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+    if (searchTerm.trim()) {
+      const term = searchTerm.trim().toLowerCase();
       filtered = filtered.filter(
         (job) =>
           job.title.toLowerCase().includes(term) ||
@@ -377,18 +282,16 @@ export default function Jobs() {
       );
     }
 
-    // Department filter
     if (filterDepartment !== "All") {
       filtered = filtered.filter((job) => job.department === filterDepartment);
     }
 
-    // Sort
     switch (sortBy) {
       case "newest":
-        filtered.sort((a, b) => new Date(b.posted) - new Date(a.posted));
+        filtered.sort((a, b) => POSTED_TO_DAYS(a.posted) - POSTED_TO_DAYS(b.posted));
         break;
       case "oldest":
-        filtered.sort((a, b) => new Date(a.posted) - new Date(b.posted));
+        filtered.sort((a, b) => POSTED_TO_DAYS(b.posted) - POSTED_TO_DAYS(a.posted));
         break;
       case "highest":
         filtered.sort((a, b) => b.payValue - a.payValue);
@@ -401,295 +304,490 @@ export default function Jobs() {
     }
 
     return filtered;
-  };
+  }, [searchTerm, filterDepartment, sortBy]);
 
-  const filteredJobs = getFilteredJobs();
   const displayedJobs = filteredJobs.slice(0, visibleCount);
   const hasMore = visibleCount < filteredJobs.length;
 
-  const loadMore = () => {
-    setVisibleCount((prev) => Math.min(prev + 6, filteredJobs.length));
-  };
+  const loadMore = () => setVisibleCount((prev) => Math.min(prev + 6, filteredJobs.length));
 
   return (
-    <section
-      style={{
-        padding: "clamp(80px, 12vh, 120px) clamp(16px, 5vw, 80px)",
-        background: "#f8fafc",
-        minHeight: "100vh",
-      }}
-    >
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        {/* Page Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          style={{ marginBottom: 40 }}
-        >
-          <h1
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: "clamp(2rem, 4vw, 3rem)",
-              fontWeight: 800,
-              color: "#0f1d3d",
-              marginBottom: 8,
-              letterSpacing: "-0.02em",
-            }}
-          >
-            All Jobs
-          </h1>
-          <p
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 16,
-              color: "#64748b",
-            }}
-          >
-            Discover {JOBS_DATA.length} healthcare opportunities across North-West England
-          </p>
-        </motion.div>
+    <section className="jobs-page">
+      <div className="jobs-container">
+        {/* ── Banner at the top ── */}
+        <JobsBanner />
 
-        {/* Search and Filters */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 16,
-            marginBottom: 32,
-            alignItems: "center",
-            background: "#ffffff",
-            padding: 16,
-            borderRadius: "16px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-            border: "1px solid rgba(0,0,0,0.04)",
-          }}
+          transition={{ duration: 0.45, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+          className="jobs-toolbar"
         >
-          {/* Search */}
-          <div
-            style={{
-              flex: 1,
-              minWidth: 200,
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              background: "#f1f5f9",
-              borderRadius: "10px",
-              padding: "0 14px",
-            }}
-          >
-            <Search size={18} color="#94a3b8" />
+          <div className="jobs-search">
+            <Search size={18} aria-hidden="true" />
             <input
               type="text"
               placeholder="Search jobs, locations..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                flex: 1,
-                padding: "10px 0",
-                border: "none",
-                background: "transparent",
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 14,
-                color: "#0f1d3d",
-                outline: "none",
-              }}
+              maxLength={80}
+              aria-label="Search jobs"
             />
             {searchTerm && (
               <button
+                type="button"
                 onClick={() => setSearchTerm("")}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#94a3b8",
-                  padding: 4,
-                }}
+                className="jobs-search-clear"
+                aria-label="Clear search"
               >
                 <X size={16} />
               </button>
             )}
           </div>
 
-          {/* Department Filter */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              background: "#f1f5f9",
-              borderRadius: "10px",
-              padding: "0 14px",
-            }}
-          >
-            <Filter size={16} color="#94a3b8" />
+          <div className="jobs-select-wrap">
+            <Filter size={16} aria-hidden="true" />
             <select
               value={filterDepartment}
               onChange={(e) => setFilterDepartment(e.target.value)}
-              style={{
-                padding: "10px 8px",
-                border: "none",
-                background: "transparent",
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 13,
-                color: "#0f1d3d",
-                outline: "none",
-                cursor: "pointer",
-              }}
+              aria-label="Filter by department"
             >
               {departments.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
+                <option key={dept} value={dept}>{dept}</option>
               ))}
             </select>
           </div>
 
-          {/* Sort */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              background: "#f1f5f9",
-              borderRadius: "10px",
-              padding: "0 14px",
-            }}
-          >
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>Sort:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{
-                padding: "10px 8px",
-                border: "none",
-                background: "transparent",
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 13,
-                color: "#0f1d3d",
-                outline: "none",
-                cursor: "pointer",
-              }}
-            >
+          <div className="jobs-select-wrap">
+            <span className="jobs-select-label">Sort:</span>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} aria-label="Sort jobs">
               <option value="newest">Newest</option>
               <option value="oldest">Oldest</option>
-              <option value="highest">Highest Pay</option>
-              <option value="lowest">Lowest Pay</option>
+              <option value="highest">Highest pay</option>
+              <option value="lowest">Lowest pay</option>
             </select>
           </div>
         </motion.div>
 
-        {/* Results Count */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 20,
-          }}
-        >
-          <p
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 14,
-              color: "#64748b",
-            }}
-          >
-            Showing <strong>{displayedJobs.length}</strong> of{" "}
-            <strong>{filteredJobs.length}</strong> jobs
-          </p>
-        </div>
+        <p className="jobs-count">
+          Showing <strong>{displayedJobs.length}</strong> of <strong>{filteredJobs.length}</strong> jobs
+        </p>
 
-        {/* Job Cards Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-            gap: 20,
-          }}
-        >
+        <div className="jobs-grid">
           {displayedJobs.map((job, index) => (
             <JobCard key={job.id} job={job} index={index} />
           ))}
         </div>
 
-        {/* No Results */}
         {filteredJobs.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            style={{
-              textAlign: "center",
-              padding: "80px 20px",
-              background: "#ffffff",
-              borderRadius: "20px",
-              border: "1px solid rgba(0,0,0,0.04)",
-            }}
-          >
-            <Search size={48} color="#94a3b8" style={{ margin: "0 auto 16px", display: "block" }} />
-            <h3
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 20,
-                color: "#0f1d3d",
-                marginBottom: 8,
-              }}
-            >
-              No jobs found
-            </h3>
-            <p
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 14,
-                color: "#94a3b8",
-              }}
-            >
-              Try adjusting your search or filter criteria
-            </p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="jobs-empty">
+            <Search size={44} aria-hidden="true" />
+            <h3>No jobs found</h3>
+            <p>Try adjusting your search or filter criteria</p>
           </motion.div>
         )}
 
-        {/* Load More */}
         {hasMore && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            style={{ textAlign: "center", marginTop: 32 }}
+            transition={{ delay: 0.2 }}
+            className="jobs-load-more-wrap"
           >
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={loadMore}
-              style={{
-                padding: "12px 40px",
-                borderRadius: "40px",
-                background: "transparent",
-                border: "1px solid #C4972A",
-                color: "#C4972A",
-                fontFamily: "'Inter', sans-serif",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#C4972A";
-                e.currentTarget.style.color = "#0f1d3d";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "transparent";
-                e.currentTarget.style.color = "#C4972A";
-              }}
-            >
-              Load More Jobs <ChevronDown size={16} style={{ display: "inline", marginLeft: 8 }} />
-            </motion.button>
+            <button type="button" onClick={loadMore} className="jobs-load-more">
+              Load more jobs <ChevronDown size={16} />
+            </button>
           </motion.div>
         )}
       </div>
+
+      <style>{`
+        :root {
+          --navy: #0f1d3d;
+          --gold: #C4972A;
+          --gold-deep: #8B6914;
+          --gold-light: #f0c060;
+          --muted: #64748b;
+          --muted-soft: #94a3b8;
+          --line: rgba(0,0,0,0.06);
+          --surface: #f8fafc;
+        }
+
+        .jobs-page {
+          padding: clamp(80px, 12vh, 120px) clamp(16px, 5vw, 80px);
+          background: var(--surface);
+          min-height: 100vh;
+        }
+        .jobs-container { max-width: 1200px; margin: 0 auto; }
+
+        /* ── BANNER STYLES ── */
+        .jobs-banner {
+          position: relative;
+          border-radius: 24px;
+          overflow: hidden;
+          margin-bottom: 40px;
+          box-shadow: 0 20px 40px -12px rgba(15,29,61,0.15);
+        }
+        .jobs-banner-bg {
+          position: relative;
+          width: 100%;
+          height: 280px;
+          overflow: hidden;
+        }
+        .jobs-banner-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.6s ease;
+        }
+        .jobs-banner:hover .jobs-banner-image {
+          transform: scale(1.03);
+        }
+        .jobs-banner-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(15,29,61,0.88) 0%, rgba(15,29,61,0.60) 100%);
+        }
+        .jobs-banner-content {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 40px 48px;
+          color: #fff;
+        }
+        .jobs-banner-icon {
+          width: 56px;
+          height: 56px;
+          border-radius: 16px;
+          background: rgba(196,151,42,0.2);
+          border: 1px solid rgba(196,151,42,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #C4972A;
+          margin-bottom: 16px;
+        }
+        .jobs-banner-title {
+          font-family: 'Inter', sans-serif;
+          font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          margin: 0 0 8px 0;
+          line-height: 1.2;
+        }
+        .jobs-banner-highlight {
+          background: linear-gradient(135deg, #C4972A, #f0c060, #e8b84a);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .jobs-banner-subtitle {
+          font-family: 'Inter', sans-serif;
+          font-size: clamp(14px, 1.2vw, 16px);
+          color: rgba(255,255,255,0.85);
+          max-width: 520px;
+          line-height: 1.6;
+          margin: 0 0 20px 0;
+        }
+        .jobs-banner-stats {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          flex-wrap: wrap;
+        }
+        .jobs-banner-stat {
+          display: flex;
+          align-items: baseline;
+          gap: 6px;
+        }
+        .jobs-banner-stat-number {
+          font-family: 'Inter', sans-serif;
+          font-size: clamp(20px, 2vw, 26px);
+          font-weight: 800;
+          color: #C4972A;
+        }
+        .jobs-banner-stat-label {
+          font-family: 'Inter', sans-serif;
+          font-size: clamp(11px, 0.9vw, 13px);
+          color: rgba(255,255,255,0.7);
+          font-weight: 500;
+        }
+        .jobs-banner-stat-divider {
+          width: 1px;
+          height: 28px;
+          background: rgba(255,255,255,0.2);
+        }
+
+        /* ── TOOLBAR ── */
+        .jobs-toolbar {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 14px;
+          align-items: center;
+          background: #fff;
+          padding: 14px 16px;
+          border-radius: 16px;
+          box-shadow: 0 1px 2px rgba(15,29,61,0.04);
+          border: 1px solid var(--line);
+          margin-bottom: 28px;
+        }
+
+        .jobs-search {
+          flex: 1;
+          min-width: 200px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: var(--surface);
+          border-radius: 10px;
+          padding: 0 14px;
+          color: var(--muted-soft);
+        }
+        .jobs-search input {
+          flex: 1;
+          padding: 10px 0;
+          border: none;
+          background: transparent;
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          color: var(--navy);
+          outline: none;
+        }
+        .jobs-search input::placeholder { color: var(--muted-soft); }
+        .jobs-search-clear {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: var(--muted-soft);
+          padding: 4px;
+          display: flex;
+          border-radius: 6px;
+        }
+        .jobs-search-clear:hover { color: var(--navy); background: rgba(0,0,0,0.04); }
+        .jobs-search-clear:focus-visible,
+        .jobs-search:has(input:focus-visible) {
+          outline: 2px solid var(--gold);
+          outline-offset: 2px;
+        }
+
+        .jobs-select-wrap {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: var(--surface);
+          border-radius: 10px;
+          padding: 0 14px;
+          color: var(--muted-soft);
+        }
+        .jobs-select-label { font-size: 12px; }
+        .jobs-select-wrap select {
+          padding: 10px 8px;
+          border: none;
+          background: transparent;
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          color: var(--navy);
+          outline: none;
+          cursor: pointer;
+        }
+        .jobs-select-wrap select:focus-visible {
+          outline: 2px solid var(--gold);
+          outline-offset: 2px;
+          border-radius: 4px;
+        }
+
+        .jobs-count {
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          color: var(--muted);
+          margin-bottom: 20px;
+        }
+
+        .jobs-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+          gap: 20px;
+        }
+
+        .job-card {
+          position: relative;
+          background: #fff;
+          border-radius: 20px;
+          padding: 24px;
+          border: 1px solid var(--line);
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+          transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+        }
+        .job-card:hover {
+          border-color: rgba(196,151,42,0.3);
+          box-shadow: 0 16px 32px -16px rgba(15,29,61,0.14);
+          transform: translateY(-2px);
+        }
+
+        .job-card-top { display: flex; gap: 16px; margin-bottom: 16px; }
+        .job-card-icon {
+          width: 52px;
+          height: 52px;
+          border-radius: 14px;
+          background: linear-gradient(135deg, rgba(196,151,42,0.14), rgba(196,151,42,0.04));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--gold);
+          flex-shrink: 0;
+        }
+        .job-card-heading { flex: 1; min-width: 0; }
+        .job-card-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .job-card-title {
+          font-family: 'Inter', sans-serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--navy);
+          margin: 0;
+          letter-spacing: -0.005em;
+        }
+        .job-card-urgent {
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: #fff;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          padding: 3px 9px;
+          border-radius: 20px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          text-transform: uppercase;
+        }
+        .job-card-meta {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          color: var(--muted);
+        }
+
+        .job-card-details {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 9px;
+          margin-bottom: 16px;
+        }
+        .job-card-detail {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          color: #4a5568;
+        }
+        .job-card-detail-icon { color: var(--gold); flex-shrink: 0; }
+        .job-card-detail-pay { color: var(--navy); font-weight: 700; }
+        .job-card-detail-pay svg { color: var(--gold); flex-shrink: 0; }
+
+        .job-card-bottom {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+          padding-top: 14px;
+          border-top: 1px solid var(--line);
+        }
+        .job-card-posted {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          color: var(--muted-soft);
+        }
+        .job-card-actions { display: flex; gap: 10px; }
+
+        .job-card-save {
+          padding: 8px 14px;
+          border-radius: 10px;
+          background: rgba(0,0,0,0.04);
+          border: none;
+          color: var(--muted);
+          cursor: pointer;
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+        }
+        .job-card-save:hover { transform: scale(1.04); }
+        .job-card-save.active { background: var(--gold); color: #fff; }
+        .job-card-save:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+        .job-card-apply {
+          padding: 8px 22px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+          border: none;
+          color: var(--navy);
+          cursor: pointer;
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          box-shadow: 0 4px 12px rgba(196,151,42,0.25);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .job-card-apply:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(196,151,42,0.35); }
+        .job-card-apply:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+
+        .jobs-empty {
+          text-align: center;
+          padding: 80px 20px;
+          background: #fff;
+          border-radius: 20px;
+          border: 1px solid var(--line);
+          color: var(--muted-soft);
+        }
+        .jobs-empty h3 {
+          font-family: 'Inter', sans-serif;
+          font-size: 20px;
+          color: var(--navy);
+          margin: 16px 0 8px;
+        }
+        .jobs-empty p { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--muted-soft); }
+
+        .jobs-load-more-wrap { text-align: center; margin-top: 32px; }
+        .jobs-load-more {
+          padding: 12px 40px;
+          border-radius: 40px;
+          background: transparent;
+          border: 1px solid var(--gold);
+          color: var(--gold);
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+        }
+        .jobs-load-more:hover { background: var(--gold); color: var(--navy); transform: translateY(-1px); }
+        .jobs-load-more:focus-visible { outline: 2px solid var(--navy); outline-offset: 3px; }
+
+        /* ── MOBILE RESPONSIVE ── */
+        @media (max-width: 768px) {
+          .jobs-banner-bg { height: 380px; }
+          .jobs-banner-content { padding: 28px 24px; }
+          .jobs-banner-icon { width: 44px; height: 44px; }
+          .jobs-banner-icon svg { width: 20px; height: 20px; }
+          .jobs-banner-title { font-size: clamp(1.4rem, 5vw, 1.8rem); }
+          .jobs-banner-stats { gap: 12px; }
+          .jobs-banner-stat-divider { height: 20px; }
+          .jobs-grid { grid-template-columns: 1fr; }
+          .jobs-toolbar { padding: 12px; }
+          .jobs-select-wrap select { padding: 8px 4px; font-size: 12px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .job-card, .job-card-save, .job-card-apply, .jobs-load-more,
+          .jobs-banner-image { transition: none; }
+          .jobs-banner-image { transform: none !important; }
+        }
+      `}</style>
     </section>
   );
 }

