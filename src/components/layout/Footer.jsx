@@ -2,7 +2,14 @@ import { motion, useInView, useAnimation, AnimatePresence } from "framer-motion"
 import { useRef, useEffect, useState } from "react";
 import EVSLogo from "../EVSLogo";
 // Import proper social media icons from react-icons
-import { FaLinkedin, FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
+import { 
+  FaLinkedin, 
+  FaInstagram, 
+  FaSnapchat, 
+  FaTiktok, 
+  FaTwitter, 
+  FaTelegram 
+} from "react-icons/fa";
 import {
   Phone,
   Mail,
@@ -18,7 +25,7 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Modern 2026 Footer — Premium Design with Glass Morphism
 // Features: Animated borders, social links, newsletter (Formspree), back to top
-// FIXED: Proper social media icons (LinkedIn, Facebook, Twitter/X, Instagram)
+// UPDATED: All social media links with proper icons
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Footer() {
@@ -108,36 +115,43 @@ export default function Footer() {
     },
   };
 
-  // PROPER SOCIAL MEDIA ICONS using react-icons/fa
-  // Each icon is now instantly recognizable as its respective platform
+  // ── UPDATED: Social Media Links with correct URLs and icons ──
   const socialLinks = [
     { 
       name: "LinkedIn", 
       icon: FaLinkedin, 
-      url: "https://www.linkedin.com/company/evs-healthcare", 
-      color: "#0077B5",
-      hoverColor: "#0077B5"
-    },
-    { 
-      name: "Facebook", 
-      icon: FaFacebook, 
-      url: "https://www.facebook.com/EVSHealthcare", 
-      color: "#1877F2",
-      hoverColor: "#1877F2"
-    },
-    { 
-      name: "Twitter", 
-      icon: FaTwitter, 
-      url: "https://twitter.com/EVS_Healthcare", 
-      color: "#1DA1F2",
-      hoverColor: "#1DA1F2"
+      url: "https://www.linkedin.com/in/evs-healthcare-solutions-limited-b9100121a?utm_source=share_via&utm_content=profile&utm_medium=member_android", 
+      color: "#0077B5"
     },
     { 
       name: "Instagram", 
       icon: FaInstagram, 
-      url: "https://www.instagram.com/evshealthcare", 
-      color: "#E4405F",
-      hoverColor: "#E4405F"
+      url: "https://www.instagram.com/evsrecruitment?utm_source=qr&igsh=eWJmZHUyZ3B6cms2", 
+      color: "#E4405F"
+    },
+    { 
+      name: "Snapchat", 
+      icon: FaSnapchat, 
+      url: "https://www.snapchat.com/add/evsrecruitment?share_id=K7sZjmh406w&locale=en-GB", 
+      color: "#FFFC00"
+    },
+    { 
+      name: "TikTok", 
+      icon: FaTiktok, 
+      url: "https://www.tiktok.com/@evs.recruitment?_r=1&_t=ZN-97HokvF2OAA", 
+      color: "#000000"
+    },
+    { 
+      name: "X (Twitter)", 
+      icon: FaTwitter, 
+      url: "https://x.com/EvsSoulutions", 
+      color: "#1DA1F2"
+    },
+    { 
+      name: "Telegram", 
+      icon: FaTelegram, 
+      url: "https://t.me/+447466999218", 
+      color: "#26A5E4"
     },
   ];
 
@@ -311,9 +325,9 @@ export default function Footer() {
               Your trusted partner in care excellence.
             </p>
             
-            {/* Social Links with recognisable brand icons */}
-            <div style={{ display: "flex", gap: 12 }}>
-              {socialLinks.map((social, idx) => {
+            {/* ── UPDATED: Social Links with all 6 platforms ── */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              {socialLinks.map((social) => {
                 const IconComponent = social.icon;
                 return (
                   <motion.a
@@ -690,7 +704,7 @@ export default function Footer() {
                       color: "#C4972A",
                     }}
                   >
-                    01772 493994
+                    07466999218
                   </div>
                 </div>
               </div>

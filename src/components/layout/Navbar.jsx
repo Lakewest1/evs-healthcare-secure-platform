@@ -1,20 +1,12 @@
 // components/Navbar.jsx
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
 import EVSLogo from "../EVSLogo";
 import { Menu, X } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS HEALTHCARE SOLUTIONS LTD — Professional Enterprise Navbar
-//
-// ENTERPRISE-GRADE DESIGN:
-//   • Full-width sticky navbar (no floating pill)
-//   • Transparent on hero → white/glass on scroll
-//   • Text white on hero → navy on scroll
-//   • Hairline bottom border on scroll
-//   • MOBILE: White background, navy text, gold logo accent only
-//   • FIXED: Hamburger menu icon visible on mobile
-//   • FIXED: Proper z-index layering to prevent overlay conflicts
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Streamlined navigation links
@@ -308,6 +300,7 @@ export default function Navbar() {
   const [activeLink, setActiveLink] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const closeRef = useRef(null);
+  const navigate = useNavigate();
 
   // Detect mobile for navbar styling
   useEffect(() => {
@@ -325,9 +318,15 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  // Update active link based on scroll position
+  // Update active link based on scroll position (only on home page)
   useEffect(() => {
     const handleScrollHighlight = () => {
+      // Only highlight if we're on the home page
+      if (window.location.pathname !== "/") {
+        setActiveLink("");
+        return;
+      }
+      
       const scrollPosition = window.scrollY + 100;
       
       const sections = ["about", "jobs", "training", "for-employers", "contact"];
@@ -339,6 +338,7 @@ export default function Navbar() {
         "contact": "Contact"
       };
       
+      let found = false;
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
@@ -347,10 +347,12 @@ export default function Navbar() {
           
           if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
             setActiveLink(sectionMap[section] || "");
+            found = true;
             break;
           }
         }
       }
+      if (!found) setActiveLink("");
     };
     
     window.addEventListener("scroll", handleScrollHighlight);
@@ -392,46 +394,86 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [menuOpen]);
 
-  // Smooth scroll to section
+  // ── Navigation Handlers ──
+
+  // Smooth scroll to section (only on home page)
   const goTo = (section) => {
     setActiveLink(section);
     setMenuOpen(false);
     
-    const sectionMap = {
-      "About": "about",
-      "Jobs": "jobs",
-      "Training": "training",
-      "Employers": "for-employers",
-      "Contact": "contact"
-    };
-    
-    const sectionId = sectionMap[section] || section.toLowerCase();
-    const el = document.getElementById(sectionId);
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
-      window.scrollTo({ top, behavior: "smooth" });
+    // If we're on the home page, scroll to the section
+    if (window.location.pathname === "/") {
+      const sectionMap = {
+        "About": "about",
+        "Jobs": "jobs",
+        "Training": "training",
+        "Employers": "for-employers",
+        "Contact": "contact"
+      };
+      
+      const sectionId = sectionMap[section] || section.toLowerCase();
+      const el = document.getElementById(sectionId);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    } else {
+      // If on another page, navigate to home and scroll after load
+      navigate("/");
+      setTimeout(() => {
+        const sectionMap = {
+          "About": "about",
+          "Jobs": "jobs",
+          "Training": "training",
+          "Employers": "for-employers",
+          "Contact": "contact"
+        };
+        const sectionId = sectionMap[section] || section.toLowerCase();
+        const el = document.getElementById(sectionId);
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
+      }, 300);
     }
   };
 
-  // Apply Now goes to application section
-  const goToApplication = () => {
+  // ── Navigate to Jobs Page ──
+  const goToJobs = () => {
+    setMenuOpen(false);
+    setActiveLink("");
+    navigate("/jobs");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // ── UPDATED: Apply Now → Jobs Page ──
+  const goToApply = () => {
     setActiveLink("");
     setMenuOpen(false);
-    const el = document.getElementById("register");
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
-      window.scrollTo({ top, behavior: "smooth" });
-    }
+    navigate("/jobs");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Hire Staff goes to employers section
   const goToEmployers = () => {
     setActiveLink("");
     setMenuOpen(false);
-    const el = document.getElementById("for-employers");
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
-      window.scrollTo({ top, behavior: "smooth" });
+    
+    if (window.location.pathname === "/") {
+      const el = document.getElementById("for-employers");
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.getElementById("for-employers");
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
+      }, 300);
     }
   };
 
@@ -439,7 +481,11 @@ export default function Navbar() {
   const goHome = () => {
     setActiveLink("");
     setMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (window.location.pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      navigate("/");
+    }
   };
 
   // Determine navbar class for styling
@@ -473,6 +519,9 @@ export default function Navbar() {
     if (isMobile) return "rgba(15,29,61,0.5)";
     return scrolled ? "rgba(15,29,61,0.5)" : "rgba(255,255,255,0.65)";
   };
+
+  // Check if on jobs page for active link highlighting
+  const isJobsPage = window.location.pathname === "/jobs";
 
   return (
     <>
@@ -546,7 +595,7 @@ export default function Navbar() {
                   transition: "color 0.3s ease",
                   whiteSpace: "nowrap",
                 }}>
-                  HEALTHCARE SOLUTIONS
+                  HEALTHCARE SOLUTION
                 </span>
               </div>
               
@@ -597,32 +646,42 @@ export default function Navbar() {
               justifyContent: "center",
             }}
           >
-            {NAV_LINKS.map((link) => (
-              <button
-                key={link}
-                className="evs-link"
-                data-active={activeLink === link}
-                onClick={() => goTo(link)}
-              >
-                {link}
-                {activeLink === link && (
-                  <motion.span
-                    layoutId="evs-pill"
-                    style={{
-                      position: "absolute",
-                      bottom: -4,
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: "calc(100% + 8px)",
-                      height: 2,
-                      background: "linear-gradient(90deg, #C4972A, #e8b84a)",
-                      borderRadius: 999,
-                    }}
-                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                  />
-                )}
-              </button>
-            ))}
+            {NAV_LINKS.map((link) => {
+              // For Jobs link, check if we're on the jobs page
+              const isActive = link === "Jobs" 
+                ? window.location.pathname === "/jobs"
+                : activeLink === link;
+              
+              // For Jobs link, navigate to /jobs instead of scrolling
+              const handleClick = link === "Jobs" ? goToJobs : () => goTo(link);
+              
+              return (
+                <button
+                  key={link}
+                  className="evs-link"
+                  data-active={isActive}
+                  onClick={handleClick}
+                >
+                  {link}
+                  {isActive && (
+                    <motion.span
+                      layoutId="evs-pill"
+                      style={{
+                        position: "absolute",
+                        bottom: -4,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: "calc(100% + 8px)",
+                        height: 2,
+                        background: "linear-gradient(90deg, #C4972A, #e8b84a)",
+                        borderRadius: 999,
+                      }}
+                      transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           {/* ── DESKTOP DUAL CTA ── */}
@@ -630,7 +689,8 @@ export default function Navbar() {
             <button className="evs-hire-staff" onClick={goToEmployers}>
               Hire Staff
             </button>
-            <button className="evs-apply" onClick={goToApplication}>
+            {/* ── UPDATED: Apply Now → Jobs Page ── */}
+            <button className="evs-apply" onClick={goToApply}>
               Apply Now
             </button>
           </div>
@@ -735,18 +795,26 @@ export default function Navbar() {
               </motion.div>
 
               <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 4 }}>
-                {NAV_LINKS.map((link) => (
-                  <motion.div key={link} variants={itemV}>
-                    <button
-                      className="evs-dlk"
-                      data-active={activeLink === link}
-                      onClick={() => goTo(link)}
-                    >
-                      {link}
-                      <span className="evs-dlk-arrow">›</span>
-                    </button>
-                  </motion.div>
-                ))}
+                {NAV_LINKS.map((link) => {
+                  const isActive = link === "Jobs" 
+                    ? window.location.pathname === "/jobs"
+                    : activeLink === link;
+                  
+                  const handleClick = link === "Jobs" ? goToJobs : () => goTo(link);
+                  
+                  return (
+                    <motion.div key={link} variants={itemV}>
+                      <button
+                        className="evs-dlk"
+                        data-active={isActive}
+                        onClick={handleClick}
+                      >
+                        {link}
+                        <span className="evs-dlk-arrow">›</span>
+                      </button>
+                    </motion.div>
+                  );
+                })}
               </nav>
 
               <motion.div
@@ -762,9 +830,10 @@ export default function Navbar() {
                 <button className="evs-mobile-hire" onClick={goToEmployers}>
                   Hire Staff
                 </button>
+                {/* ── UPDATED: Apply Now → Jobs Page ── */}
                 <button
                   className="evs-apply"
-                  onClick={goToApplication}
+                  onClick={goToApply}
                   style={{
                     width: "100%",
                     padding: "14px 24px",

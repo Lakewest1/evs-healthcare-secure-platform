@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom"; // ← Added useNavigate
 import {
   Stethoscope,
   Building2,
@@ -15,6 +16,7 @@ import {
 // Modern Featured Jobs Section — Premium Job Cards with Advanced Interactions
 // Features: Staggered animations, hover effects, salary indicators, job badges
 // FIXED: Mobile view shows only 3 jobs initially with "Show More" button
+// UPDATED: Apply button now links to /apply?job={id} with scroll to top
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.1) {
@@ -35,7 +37,7 @@ const jobs = [
     title: "Registered Nurse (RGN)",
     type: "Temporary / Permanent",
     location: "Preston, Lancashire",
-    pay: "£18–£24/hr",
+    pay: "£26–£38/hr",
     payValue: 21,
     urgent: true,
     icon: Stethoscope,
@@ -47,7 +49,7 @@ const jobs = [
     title: "Healthcare Care Assistant",
     type: "Flexible Shifts Available",
     location: "North-West England",
-    pay: "£12–£15/hr",
+    pay: "£13–£23/hr",
     payValue: 13.5,
     urgent: false,
     icon: Building2,
@@ -59,7 +61,7 @@ const jobs = [
     title: "Support Worker",
     type: "Temporary / Permanent",
     location: "Preston & Surrounding",
-    pay: "£11–£14/hr",
+    pay: "£13–£23/hr",
     payValue: 12.5,
     urgent: true,
     icon: HeartHandshake,
@@ -71,7 +73,7 @@ const jobs = [
     title: "RMN Mental Health Nurse",
     type: "Full Time / Part Time",
     location: "Lancashire Area",
-    pay: "£22–£30/hr",
+    pay: "£30–£40/hr",
     payValue: 26,
     urgent: false,
     icon: Brain,
@@ -83,7 +85,7 @@ const jobs = [
     title: "Senior Carer",
     type: "Immediate Start",
     location: "North-West England",
-    pay: "£14–£17/hr",
+    pay: "£18–£25/hr",
     payValue: 15.5,
     urgent: false,
     icon: Heart,
@@ -95,7 +97,7 @@ const jobs = [
     title: "Domestic Worker",
     type: "Flexible Hours",
     location: "Preston, Lancashire",
-    pay: "£10.50–£12/hr",
+    pay: "£14.50–£12/hr",
     payValue: 11.25,
     urgent: false,
     icon: Star,
@@ -112,6 +114,7 @@ function JobCard({ job, index, isInView }) {
   const [isSaved, setIsSaved] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [mobile, setMobile] = useState(false);
+  const navigate = useNavigate(); // ← Added for scroll to top
 
   useEffect(() => {
     setMobile(isMobile());
@@ -147,6 +150,17 @@ function JobCard({ job, index, isInView }) {
   const handleMouseLeave = () => {
     setIsHovered(false);
     setMousePosition({ x: 0, y: 0 });
+  };
+
+  // ── Scroll to top function ──
+  const handleApplyClick = (e) => {
+    e.preventDefault();
+    // Scroll to top of the page
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Navigate to apply page after a small delay
+    setTimeout(() => {
+      navigate(`/apply?job=${job.id}`);
+    }, 300);
   };
 
   return (
@@ -219,6 +233,7 @@ function JobCard({ job, index, isInView }) {
           whileTap={{ scale: 0.9 }}
           onClick={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             setIsSaved(!isSaved);
           }}
           aria-label={isSaved ? "Remove from saved" : "Save job"}
@@ -428,53 +443,63 @@ function JobCard({ job, index, isInView }) {
           </span>
         </motion.div>
 
-        {/* Apply Button */}
-        <motion.a
-          href="#register"
+        {/* ── UPDATED: Apply Button with Scroll to Top ── */}
+        <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           style={{
             display: "block",
-            textAlign: "center",
-            background: "#0f1d3d",
-            color: "#ffffff",
-            padding: mobile ? "10px 16px" : "12px 20px",
-            borderRadius: "14px",
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 600,
-            fontSize: mobile ? 12 : 13,
-            textDecoration: "none",
-            transition: "all 0.3s ease",
-            position: "relative",
-            overflow: "hidden",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "linear-gradient(135deg, #C4972A, #8B6914)";
-            e.currentTarget.style.color = "#0f1d3d";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "#0f1d3d";
-            e.currentTarget.style.color = "#ffffff";
+            width: "100%",
           }}
         >
-          <span style={{ position: "relative", zIndex: 2 }}>Apply for This Role →</span>
-          {!mobile && (
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: isHovered ? "0%" : "-100%" }}
-              transition={{ duration: 0.4 }}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                background: "linear-gradient(135deg, #C4972A, #8B6914)",
-                zIndex: 1,
-              }}
-            />
-          )}
-        </motion.a>
+          <button
+            onClick={handleApplyClick}
+            style={{
+              display: "block",
+              width: "100%",
+              textAlign: "center",
+              background: "#0f1d3d",
+              color: "#ffffff",
+              padding: mobile ? "10px 16px" : "12px 20px",
+              borderRadius: "14px",
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 600,
+              fontSize: mobile ? 12 : 13,
+              textDecoration: "none",
+              border: "none",
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+              position: "relative",
+              overflow: "hidden",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "linear-gradient(135deg, #C4972A, #8B6914)";
+              e.currentTarget.style.color = "#0f1d3d";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "#0f1d3d";
+              e.currentTarget.style.color = "#ffffff";
+            }}
+          >
+            <span style={{ position: "relative", zIndex: 2 }}>Apply for This Role →</span>
+            {!mobile && (
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: isHovered ? "0%" : "-100%" }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  background: "linear-gradient(135deg, #C4972A, #8B6914)",
+                  zIndex: 1,
+                }}
+              />
+            )}
+          </button>
+        </motion.div>
 
         {/* Decorative Corner */}
         <motion.div

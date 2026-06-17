@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView, useAnimation, useScroll, useTransform, AnimatePresence } from "framer-motion";
+// ✅ NO Router imports at all
 import { 
   Phone, 
   Mail, 
@@ -19,8 +20,6 @@ import {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Premium CTA Section — Enterprise-Grade Call to Action
-// Features: 3D parallax, animated particles, floating elements, magnetic buttons
-// FIXED: NHS-compliant trust indicators (no unauthorised "NHS Approved" claims)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.3) {
@@ -30,7 +29,7 @@ function useReveal(threshold = 0.3) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Magnetic Button Component with Advanced Haptics
+// Magnetic Button Component — uses <a> tags only
 // ─────────────────────────────────────────────────────────────────────────────
 function MagneticButton({ children, href, variant = "primary", icon: IconComponent, onClick }) {
   const buttonRef = useRef(null);
@@ -128,7 +127,6 @@ function MagneticButton({ children, href, variant = "primary", icon: IconCompone
       {IconComponent && <IconComponent size={18} strokeWidth={1.8} />}
       <span>{children}</span>
       
-      {/* Arrow Animation on Hover */}
       <motion.span
         animate={{ x: isHovered ? 5 : 0 }}
         transition={{ duration: 0.3 }}
@@ -140,7 +138,7 @@ function MagneticButton({ children, href, variant = "primary", icon: IconCompone
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main CTA Component with Premium Effects
+// Main CTA Component
 // ─────────────────────────────────────────────────────────────────────────────
 export default function CTA() {
   const [ref, inView] = useReveal(0.2);
@@ -176,6 +174,15 @@ export default function CTA() {
       x: (e.clientX - rect.left) / rect.width,
       y: (e.clientY - rect.top) / rect.height,
     });
+  };
+
+  // ── Navigate to Jobs Page using window.location ──
+  const goToJobs = (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => {
+      window.location.href = "/jobs";
+    }, 300);
   };
 
   const containerVariants = {
@@ -216,9 +223,6 @@ export default function CTA() {
     },
   };
 
-  // FIXED: NHS-compliant trust indicators
-  // Replaced "NHS Approved" (which could imply unauthorised endorsement)
-  // with accurate, defensible claims
   const trustIndicators = [
     { 
       icon: Users, 
@@ -240,15 +244,8 @@ export default function CTA() {
     },
   ];
 
-  // Alternative if actually registered as NHS framework supplier:
-  // const trustIndicators = [
-  //   { icon: Users, text: "500+ Workers Placed", color: "#C4972A" },
-  //   { icon: Building2, text: "NHS Framework Supplier", color: "#005EB8" },
-  //   { icon: Heart, text: "Free DBS Support", color: "#10b981" },
-  // ];
-
   const handleCopyPhone = () => {
-    navigator.clipboard.writeText("01772 493994");
+    navigator.clipboard.writeText("01772288307");
   };
 
   const handleCopyEmail = () => {
@@ -412,7 +409,7 @@ export default function CTA() {
             <Sparkles size={50} strokeWidth={1} style={{ color: "#C4972A" }} />
           </motion.div>
 
-          {/* Main Heading with Animated Gradient */}
+          {/* Main Heading */}
           <motion.h2
             variants={itemVariants}
             style={{
@@ -472,7 +469,7 @@ export default function CTA() {
             professionals today.
           </motion.p>
 
-          {/* Trust Indicators - NHS COMPLIANT (No unauthorised NHS claims) */}
+          {/* Trust Indicators */}
           <motion.div
             variants={itemVariants}
             style={{
@@ -515,7 +512,7 @@ export default function CTA() {
             ))}
           </motion.div>
 
-          {/* CTA Buttons */}
+          {/* ── CTA Buttons ── */}
           <motion.div
             variants={itemVariants}
             style={{
@@ -526,9 +523,10 @@ export default function CTA() {
             }}
           >
             <MagneticButton
-              href="#register"
+              href="/jobs"
               variant="primary"
               icon={ClipboardCheck}
+              onClick={goToJobs}
             >
               Apply Today
             </MagneticButton>
@@ -542,7 +540,7 @@ export default function CTA() {
             </MagneticButton>
           </motion.div>
 
-          {/* Contact Info Note */}
+          {/* Contact Info */}
           <motion.div
             variants={itemVariants}
             style={{
@@ -578,7 +576,7 @@ export default function CTA() {
                   color: "rgba(255,255,255,0.8)",
                 }}
               >
-                01772 493994
+                01772288307
               </span>
             </motion.div>
             <motion.div
@@ -608,7 +606,7 @@ export default function CTA() {
             </motion.div>
           </motion.div>
 
-          {/* Bottom Decorative Element */}
+          {/* Bottom Decorative */}
           <motion.div
             initial={{ opacity: 0, scaleX: 0 }}
             animate={inView ? { opacity: 1, scaleX: 1 } : {}}

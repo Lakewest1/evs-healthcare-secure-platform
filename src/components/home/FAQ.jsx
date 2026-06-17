@@ -845,7 +845,7 @@ export default function FAQ() {
               }}
             >
               <Phone size={isMobileView ? 14 : 16} />
-              Call 01772 493994
+              Call 07466999218
             </motion.a>
           </div>
           

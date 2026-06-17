@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom"; // ← Added
 import { FileText, File, Handshake, ShieldCheck, Target, ChevronLeft, ChevronRight } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -430,6 +431,7 @@ function MobileCarousel({ steps, isInView }) {
 export default function RecruitmentProcess() {
   const [ref, inView] = useReveal(0.2);
   const [layoutType, setLayoutType] = useState("desktop");
+  const navigate = useNavigate(); // ← Added for navigation
 
   useEffect(() => {
     const handleResize = () => {
@@ -442,6 +444,12 @@ export default function RecruitmentProcess() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // ── Navigate to Jobs Page ──
+  const goToJobs = () => {
+    navigate("/jobs");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const isMobile = layoutType === "mobile";
   const isTablet = layoutType === "tablet";
@@ -630,7 +638,7 @@ export default function RecruitmentProcess() {
           </div>
         )}
 
-        {/* Call to Action Button */}
+        {/* ── UPDATED: Call to Action Button ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -640,6 +648,7 @@ export default function RecruitmentProcess() {
           <motion.button
             whileHover={{ scale: isMobile ? 1 : 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={goToJobs} // ← Added navigation
             style={{
               background: "linear-gradient(135deg, #C4972A, #8B6914)",
               border: "none",

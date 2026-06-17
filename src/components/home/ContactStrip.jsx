@@ -23,6 +23,7 @@ import {
 // Fully Responsive Contact Section — Modern Contact Information + Contact Form
 // Features: Responsive grid, mobile-optimized, formspree integration
 // FIXED: High-contrast input fields (WCAG 1.4.11 compliant)
+// UPDATED: Added Out of Hours phone and additional emails to contact info
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.3) {
@@ -65,6 +66,7 @@ function UnifiedContactInfo({ isInView }) {
   const [copiedItem, setCopiedItem] = useState(null);
   const { isMobile } = useScreenSize();
 
+  // ── UPDATED: Contact items with all new details added ──
   const contactItems = [
     { 
       icon: MapPin, 
@@ -77,16 +79,38 @@ function UnifiedContactInfo({ isInView }) {
     { 
       icon: Phone, 
       label: "Phone", 
-      value: "01772 493994",
+      value: "07466999218",
       secondary: "07466 999218",
       action: "Call Now",
-      link: "tel:01772493994",
+      link: "tel:07466999218",
+      isLink: true,
+    },
+    { 
+      icon: Phone, 
+      label: "Out of Hours", 
+      value: "07308 863868",
+      action: "Call Now",
+      link: "tel:07308863868",
       isLink: true,
     },
     { 
       icon: Mail, 
       label: "Email", 
       value: "admin_1@evshealthcare.co.uk",
+      action: "Copy Email",
+      isLink: false,
+    },
+    { 
+      icon: Mail, 
+      label: "Enquiries", 
+      value: "hentrintta@evshealthcare.co.uk",
+      action: "Copy Email",
+      isLink: false,
+    },
+    { 
+      icon: Mail, 
+      label: "HealthCara", 
+      value: "EVS4961@HEALTHCARA@GMAIL.COM",
       action: "Copy Email",
       isLink: false,
     },
@@ -124,7 +148,7 @@ function UnifiedContactInfo({ isInView }) {
   const cardPadding = isMobile ? "20px" : "24px";
   const headerIconSize = isMobile ? 40 : 44;
   const headerFontSize = isMobile ? 15 : 16;
-  const contactItemGap = isMobile ? 14 : 16;
+  const contactItemGap = isMobile ? 12 : 14;
   const iconBoxSize = isMobile ? 32 : 36;
 
   return (
@@ -199,7 +223,7 @@ function UnifiedContactInfo({ isInView }) {
           </div>
         </div>
 
-        {/* Contact Items */}
+        {/* Contact Items - UPDATED with all new details */}
         <div style={{ display: "flex", flexDirection: "column", gap: contactItemGap }}>
           {contactItems.map((item, idx) => {
             const IconComponent = item.icon;
@@ -339,7 +363,7 @@ function UnifiedContactInfo({ isInView }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Contact Form Component (Responsive) - FIXED: High contrast inputs
+// Contact Form Component - UPDATED with correct Formspree endpoint
 // ─────────────────────────────────────────────────────────────────────────────
 function ContactForm() {
   const [formData, setFormData] = useState({
@@ -354,7 +378,8 @@ function ContactForm() {
   const [isHovered, setIsHovered] = useState(false);
   const { isMobile } = useScreenSize();
 
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xqapvgwk";
+  // ── UPDATED: Correct Formspree endpoint ──
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xpqeeloy";
 
   const handleChange = (e) => {
     setFormData({
