@@ -22,7 +22,8 @@ import { Menu, X, Phone, Mail } from "lucide-react";
 //     budget Android; translateX only, no extra transforms.
 //   • Drawer backdrop-filter: none on mobile (reduced to simple rgba bg).
 //   • Drawer slide: CSS transform, not Framer spring, for buttery 60fps.
-//   • Mobile text color: forced to white for better visibility on dark backgrounds
+//   • Mobile text color: dynamically set based on page (white on home/about, dark on others)
+//   • Z-index fix: drawer now sits above navbar (z-index: 500)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const NAV_LINKS = ["About", "Jobs", "Training", "Employers", "Contact"];
@@ -32,8 +33,8 @@ const NAV_LINKS = ["About", "Jobs", "Training", "Employers", "Contact"];
 // ─────────────────────────────────────────────────────────────────────────────
 const Z = {
   navbar:  400,
-  drawer:  300,
   overlay: 200,
+  drawer:  500, // ← INCREASED: drawer now sits ABOVE navbar
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -132,10 +133,14 @@ const CSS = `
   .navbar-dark-text .evs-link:hover,
   .navbar-dark-text .evs-link[data-active="true"] { color: #C4972A; font-weight: 600; }
 
-  /* ── MOBILE: Force white text on mobile for visibility ── */
-  .navbar-mobile .evs-link              { color: rgba(255,255,255,0.85) !important; }
-  .navbar-mobile .evs-link:hover,
-  .navbar-mobile .evs-link[data-active="true"] { color: #C4972A !important; font-weight: 600; }
+  /* ── MOBILE: Dynamic text color based on page ── */
+  .navbar-mobile-white .evs-link        { color: rgba(255,255,255,0.85) !important; }
+  .navbar-mobile-white .evs-link:hover,
+  .navbar-mobile-white .evs-link[data-active="true"] { color: #C4972A !important; font-weight: 600; }
+
+  .navbar-mobile-dark .evs-link         { color: rgba(15,29,61,0.85) !important; }
+  .navbar-mobile-dark .evs-link:hover,
+  .navbar-mobile-dark .evs-link[data-active="true"] { color: #C4972A !important; font-weight: 600; }
 
   @media (max-width: 1100px) { .evs-link { font-size: 13px; } }
   @media (max-width: 900px)  { .evs-link { font-size: 12px; } }
@@ -158,9 +163,11 @@ const CSS = `
   .navbar-dark-text .evs-hire-staff     { color: #0f1d3d; border: 1px solid rgba(15,29,61,0.2); }
   .navbar-dark-text .evs-hire-staff:hover { background: rgba(196,151,42,0.06); border-color: #C4972A; transform: translateY(-2px); }
 
-  /* ── MOBILE: Force white text on mobile for Hire Staff button ── */
-  .navbar-mobile .evs-hire-staff        { color: #ffffff !important; border: 1px solid rgba(255,255,255,0.3) !important; }
-  .navbar-mobile .evs-hire-staff:hover  { background: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.5) !important; }
+  /* ── MOBILE: Dynamic Hire Staff button colors ── */
+  .navbar-mobile-white .evs-hire-staff  { color: #ffffff !important; border: 1px solid rgba(255,255,255,0.3) !important; }
+  .navbar-mobile-white .evs-hire-staff:hover { background: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.5) !important; }
+  .navbar-mobile-dark .evs-hire-staff   { color: #0f1d3d !important; border: 1px solid rgba(15,29,61,0.2) !important; }
+  .navbar-mobile-dark .evs-hire-staff:hover { background: rgba(196,151,42,0.06) !important; border-color: #C4972A !important; }
 
   /* ── 3D Apply Now — desktop pointer-only ── */
   .evs-apply-wrap { perspective: 600px; display: inline-flex; }
@@ -270,13 +277,15 @@ const CSS = `
   .navbar-transparent .evs-mob:hover,
   .navbar-white-text  .evs-mob:hover { background: rgba(255,255,255,0.1); }
   .navbar-dark-text  .evs-mob,
-  .navbar-mobile     .evs-mob { color: #ffffff !important; }
-  .navbar-mobile .evs-mob:hover { background: rgba(255,255,255,0.1) !important; }
+  .navbar-mobile-white .evs-mob { color: #ffffff !important; }
+  .navbar-mobile-white .evs-mob:hover { background: rgba(255,255,255,0.1) !important; }
+  .navbar-mobile-dark .evs-mob { color: #0f1d3d !important; }
+  .navbar-mobile-dark .evs-mob:hover { background: rgba(196,151,42,0.08) !important; }
 
   /* ── Overlay
      z-index: ${Z.overlay} — sits ABOVE page content, BELOW drawer.
      The navbar (z:${Z.navbar}) is above the overlay so the logo stays
-     visible, but the drawer (z:${Z.drawer}) is also above overlay. ── */
+     visible, but the drawer (z:${Z.drawer}) is also above navbar. ── */
   .evs-overlay {
     position: fixed; inset: 0;
     background: rgba(5,10,22,0.55);
@@ -287,7 +296,7 @@ const CSS = `
   }
 
   /* ── Mobile drawer
-     Sits at z:${Z.drawer} — above overlay, below navbar.
+     Sits at z:${Z.drawer} — above overlay AND above navbar.
      Uses translateX for hardware-composited slide (GPU only, no layout).
      NO backdrop-filter on mobile — replaced with solid rgba background.
   ── */
@@ -663,16 +672,23 @@ export default function Navbar() {
   const isWhiteText    = isHome || isAbout;
   const isTransparent  = isHome && !scrolled && !isMobile;
 
-  const navbarClass = isMobile
-    ? "navbar-mobile"
-    : isTransparent
-      ? "navbar-transparent"
-      : isWhiteText
-        ? "navbar-white-text"
-        : "navbar-dark-text";
+  // ── MOBILE: Two separate classes for white vs dark text ──
+  let navbarClass = "navbar-dark-text"; // desktop default
+  if (isMobile) {
+    navbarClass = isWhiteText ? "navbar-mobile-white" : "navbar-mobile-dark";
+  } else if (isTransparent) {
+    navbarClass = "navbar-transparent";
+  } else if (isWhiteText) {
+    navbarClass = "navbar-white-text";
+  } else {
+    navbarClass = "navbar-dark-text";
+  }
 
+  // ── MOBILE: Background color based on page ──
   const navBg = isMobile
-    ? "rgba(10,22,40,0.95)" // ← Darker background on mobile for contrast
+    ? isWhiteText 
+      ? "rgba(10,22,40,0.95)"  // Dark background for white text pages (Home, About)
+      : "rgba(255,255,255,0.96)" // Light background for dark text pages
     : isTransparent
       ? "transparent"
       : isWhiteText
@@ -680,7 +696,9 @@ export default function Navbar() {
         : "rgba(255,255,255,0.96)";
 
   const navBorder = isMobile
-    ? "1px solid rgba(196,151,42,0.15)" // ← Gold border on mobile
+    ? isWhiteText
+      ? "1px solid rgba(196,151,42,0.15)"  // Gold border for dark background
+      : "1px solid rgba(0,0,0,0.07)"        // Light border for light background
     : isTransparent
       ? "none"
       : isWhiteText
@@ -689,12 +707,19 @@ export default function Navbar() {
 
   const navBlur   = (!isMobile && !isTransparent) ? "blur(18px)" : "none";
   const navShadow = isTransparent ? "none" : isMobile
-    ? "0 2px 12px rgba(0,0,0,0.3)"
+    ? isWhiteText
+      ? "0 2px 12px rgba(0,0,0,0.3)"     // Darker shadow for dark background
+      : "0 2px 12px rgba(0,0,0,0.06)"     // Lighter shadow for light background
     : "0 4px 24px rgba(0,0,0,0.09)";
 
-  // ── FORCE WHITE TEXT ON MOBILE ──
-  const textColor = isMobile ? "#ffffff" : isWhiteText ? "#ffffff" : "#0f1d3d";
-  const ltdColor  = isMobile ? "rgba(255,255,255,0.5)" : isWhiteText ? "rgba(255,255,255,0.6)" : "rgba(15,29,61,0.5)";
+  // ── DYNAMIC TEXT COLOR ON MOBILE ──
+  const textColor = isMobile
+    ? (isWhiteText ? "#ffffff" : "#0f1d3d")
+    : (isWhiteText ? "#ffffff" : "#0f1d3d");
+
+  const ltdColor = isMobile
+    ? (isWhiteText ? "rgba(255,255,255,0.5)" : "rgba(15,29,61,0.5)")
+    : (isWhiteText ? "rgba(255,255,255,0.6)" : "rgba(15,29,61,0.5)");
 
   const isLinkActive = (link) => {
     const routeMap = { About: "/about", Jobs: "/jobs", Training: "/training", Employers: "/employers", Contact: "/contact" };
@@ -827,7 +852,7 @@ export default function Navbar() {
               aria-expanded={menuOpen}
               aria-controls="evs-drawer"
               aria-haspopup="dialog"
-              style={{ color: "#ffffff" }} // ← Force white on mobile
+              style={{ color: isMobile ? (isWhiteText ? "#ffffff" : "#0f1d3d") : textColor }}
             >
               <motion.div
                 animate={{ rotate: menuOpen ? 90 : 0 }}
@@ -847,6 +872,7 @@ export default function Navbar() {
           MOBILE DRAWER + OVERLAY
           Both rendered in a portal-like div at body level, outside the
           navbar wrapper, so their z-index stack is clean and independent.
+          Drawer now sits at z-index: ${Z.drawer} (500) which is ABOVE navbar.
       ───────────────────────────────────────────────────────────────────── */}
       <AnimatePresence mode="wait">
         {menuOpen && (
@@ -863,7 +889,7 @@ export default function Navbar() {
               style={{ zIndex: Z.overlay }}
             />
 
-            {/* Drawer */}
+            {/* Drawer — now sits above navbar with z-index: 500 */}
             <motion.aside
               id="evs-drawer"
               role="dialog"
@@ -876,7 +902,7 @@ export default function Navbar() {
               className="evs-drawer"
               style={{ zIndex: Z.drawer }}
             >
-              {/* Drawer header */}
+              {/* Drawer header with close button */}
               <motion.div
                 variants={itemV}
                 style={{

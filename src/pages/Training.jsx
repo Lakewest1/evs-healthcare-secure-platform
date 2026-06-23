@@ -1297,30 +1297,43 @@ export default function Training() {
 
         /* Left info panel */
         .tf-left {
-          padding: clamp(40px,5vw,64px) clamp(28px,4vw,52px);
+          padding: clamp(32px,5vw,64px) clamp(20px,4vw,52px);
           background: linear-gradient(160deg,#0a1628 0%,#0f1d3d 60%,#162344 100%);
           border-radius: 28px 0 0 28px;
           display: flex; flex-direction: column;
           color: #fff;
         }
         .tf-heading {
-          font-family: 'Inter',sans-serif; font-size: clamp(1.6rem,3vw,2.2rem);
+          font-family: 'Inter',sans-serif; font-size: clamp(1.4rem,3vw,2.2rem);
           font-weight: 800; letter-spacing: -0.02em; line-height: 1.22;
           color: #fff; margin-bottom: 14px;
         }
         .tf-sub {
-          font-family: 'Inter',sans-serif; font-size: 14px;
-          color: rgba(255,255,255,0.76); line-height: 1.68; margin-bottom: 32px;
+          font-family: 'Inter',sans-serif; font-size: clamp(13px, 1.2vw, 14px);
+          color: rgba(255,255,255,0.76); line-height: 1.68; margin-bottom: clamp(20px, 3vw, 32px);
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          max-width: 100%;
         }
-        .tf-info-list { display: flex; flex-direction: column; gap: 20px; margin-bottom: 36px; }
-        .tf-info-item { display: flex; align-items: flex-start; gap: 12px; }
+        .tf-info-list { 
+          display: flex; flex-direction: column; gap: clamp(14px, 2vw, 20px); 
+          margin-bottom: clamp(24px, 3vw, 36px); 
+          width: 100%;
+        }
+        .tf-info-item { 
+          display: flex; align-items: flex-start; gap: clamp(10px, 1.5vw, 12px); 
+          width: 100%;
+        }
         .tf-info-heading {
-          font-family: 'Inter',sans-serif; font-size: 13.5px; font-weight: 700;
+          font-family: 'Inter',sans-serif; font-size: clamp(13px, 1.2vw, 13.5px); 
+          font-weight: 700;
           color: #fff; margin-bottom: 3px;
         }
         .tf-info-body {
-          font-family: 'Inter',sans-serif; font-size: 12.5px;
+          font-family: 'Inter',sans-serif; font-size: clamp(11.5px, 1.1vw, 12.5px);
           color: rgba(255,255,255,0.62); line-height: 1.58;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
         }
         .tf-direct {
           margin-top: auto; padding-top: 24px;
@@ -1328,12 +1341,13 @@ export default function Training() {
           display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
         }
         .tf-direct-label {
-          font-family: 'Inter',sans-serif; font-size: 12px;
+          font-family: 'Inter',sans-serif; font-size: clamp(11px, 1vw, 12px);
           color: rgba(255,255,255,0.5);
         }
         .tf-direct-link {
           display: inline-flex; align-items: center; gap: 6px;
-          font-family: 'Inter',sans-serif; font-size: 13.5px; font-weight: 600;
+          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.2vw, 13.5px); 
+          font-weight: 600;
           color: #C4972A; text-decoration: none;
           transition: color 0.2s;
         }
@@ -1342,53 +1356,101 @@ export default function Training() {
 
         /* Right form panel */
         .tf-right {
-          padding: clamp(40px,5vw,56px) clamp(28px,4vw,52px);
+          padding: clamp(24px,5vw,56px) clamp(16px,4vw,52px);
           display: flex; flex-direction: column;
         }
-        .tf-form { display: flex; flex-direction: column; gap: 20px; }
+        .tf-form { display: flex; flex-direction: column; gap: clamp(14px, 2vw, 20px); }
         .tf-form-intro {
-          font-family: 'Inter',sans-serif; font-size: 13px; color: #64748b;
-          line-height: 1.6; padding: 12px 14px;
+          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.1vw, 13px); 
+          color: #64748b;
+          line-height: 1.6; padding: clamp(10px, 1.5vw, 12px) clamp(12px, 1.5vw, 14px);
           background: rgba(196,151,42,0.06); border-left: 3px solid #C4972A;
           border-radius: 0 8px 8px 0;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
         }
         .tf-error-banner {
           background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
-          border-radius: 10px; padding: 12px 16px;
-          font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 500;
+          border-radius: 10px; padding: clamp(10px, 1.5vw, 12px) clamp(12px, 1.5vw, 16px);
+          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.1vw, 13px); 
+          font-weight: 500;
         }
-        .tf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .tf-field { display: flex; flex-direction: column; gap: 6px; }
+        .tf-row { 
+          display: grid; 
+          grid-template-columns: 1fr 1fr; 
+          gap: clamp(12px, 2vw, 16px); 
+        }
+        .tf-field { 
+          display: flex; 
+          flex-direction: column; 
+          gap: 6px; 
+          min-width: 0;
+        }
         .tf-label {
-          font-family: 'Inter',sans-serif; font-size: 12.5px; font-weight: 600;
-          color: #0f1d3d; display: flex; align-items: center; gap: 6px;
+          font-family: 'Inter',sans-serif; 
+          font-size: clamp(11.5px, 1.1vw, 12.5px); 
+          font-weight: 600;
+          color: #0f1d3d; 
+          display: flex; 
+          align-items: center; 
+          gap: 6px;
+          flex-wrap: wrap;
+          word-break: break-word;
         }
         .tf-optional {
-          font-family: 'Inter',sans-serif; font-size: 10px; font-weight: 400;
+          font-family: 'Inter',sans-serif; font-size: clamp(9px, 0.9vw, 10px); 
+          font-weight: 400;
           color: #94a3b8; background: rgba(0,0,0,0.04);
           padding: 1px 7px; border-radius: 20px;
+          white-space: nowrap;
         }
         .tf-input-wrap {
-          display: flex; align-items: center; gap: 10px;
-          background: #f8fafc; border-radius: 12px; padding: 0 14px;
+          display: flex; align-items: center; gap: clamp(8px, 1vw, 10px);
+          background: #f8fafc; border-radius: clamp(10px, 1.2vw, 12px); 
+          padding: 0 clamp(10px, 1.2vw, 14px);
           transition: border 0.2s, box-shadow 0.2s;
-        }
-        .tf-input-icon { color: #94a3b8; flex-shrink: 0; }
-        .tf-input {
-          flex: 1; padding: 11px 0; border: none; background: transparent;
-          font-family: 'Inter',sans-serif; font-size: 14px; color: #0f1d3d; outline: none;
           min-width: 0;
+          width: 100%;
+        }
+        .tf-input-icon { 
+          color: #94a3b8; 
+          flex-shrink: 0; 
+          min-width: 15px;
+        }
+        .tf-input {
+          flex: 1; 
+          padding: clamp(10px, 1.2vw, 11px) 0; 
+          border: none; 
+          background: transparent;
+          font-family: 'Inter',sans-serif; 
+          font-size: clamp(13px, 1.1vw, 14px); 
+          color: #0f1d3d; 
+          outline: none;
+          min-width: 0;
+          width: 100%;
         }
         .tf-input::placeholder { color: #94a3b8; }
         .tf-input:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* Select inside input wrap */
-        .tf-select-wrap { cursor: pointer; }
+        .tf-select-wrap { 
+          cursor: pointer; 
+          width: 100%;
+        }
         .tf-select {
-          flex: 1; padding: 11px 0; border: none; background: transparent;
-          font-family: 'Inter',sans-serif; font-size: 14px; color: #0f1d3d; outline: none;
-          cursor: pointer; min-width: 0;
-          appearance: none; -webkit-appearance: none;
+          flex: 1; 
+          padding: clamp(10px, 1.2vw, 11px) 0; 
+          border: none; 
+          background: transparent;
+          font-family: 'Inter',sans-serif; 
+          font-size: clamp(13px, 1.1vw, 14px); 
+          color: #0f1d3d; 
+          outline: none;
+          cursor: pointer; 
+          min-width: 0;
+          width: 100%;
+          appearance: none; 
+          -webkit-appearance: none;
         }
         .tf-select:disabled { opacity: 0.6; cursor: not-allowed; }
         .tf-select:invalid, .tf-select option[value=""] { color: #94a3b8; }
@@ -1396,38 +1458,74 @@ export default function Training() {
 
         /* Textarea */
         .tf-textarea-wrap {
-          display: flex; align-items: flex-start; gap: 10px;
-          background: #f8fafc; border-radius: 12px; padding: 12px 14px;
+          display: flex; align-items: flex-start; gap: clamp(8px, 1vw, 10px);
+          background: #f8fafc; border-radius: clamp(10px, 1.2vw, 12px); 
+          padding: clamp(10px, 1.2vw, 12px) clamp(10px, 1.2vw, 14px);
           transition: border 0.2s, box-shadow 0.2s;
+          width: 100%;
         }
-        .tf-textarea-icon { margin-top: 2px; }
+        .tf-textarea-icon { 
+          margin-top: 2px; 
+          flex-shrink: 0;
+          min-width: 15px;
+        }
         .tf-textarea {
-          flex: 1; border: none; background: transparent; resize: vertical;
-          font-family: 'Inter',sans-serif; font-size: 14px; color: #0f1d3d;
-          outline: none; line-height: 1.6; min-height: 100px;
+          flex: 1; 
+          border: none; 
+          background: transparent; 
+          resize: vertical;
+          font-family: 'Inter',sans-serif; 
+          font-size: clamp(13px, 1.1vw, 14px); 
+          color: #0f1d3d;
+          outline: none; 
+          line-height: 1.6; 
+          min-height: clamp(80px, 10vh, 100px);
+          width: 100%;
         }
         .tf-textarea::placeholder { color: #94a3b8; }
         .tf-textarea:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .tf-field-err {
-          font-family: 'Inter',sans-serif; font-size: 11.5px; font-weight: 500;
-          color: #ef4444; display: flex; align-items: center; gap: 4px;
+          font-family: 'Inter',sans-serif; 
+          font-size: clamp(10.5px, 1vw, 11.5px); 
+          font-weight: 500;
+          color: #ef4444; 
+          display: flex; 
+          align-items: center; 
+          gap: 4px;
+          word-wrap: break-word;
         }
         .tf-privacy {
-          font-family: 'Inter',sans-serif; font-size: 11.5px; color: #94a3b8;
-          line-height: 1.55; text-align: center;
+          font-family: 'Inter',sans-serif; 
+          font-size: clamp(10.5px, 1vw, 11.5px); 
+          color: #94a3b8;
+          line-height: 1.55; 
+          text-align: center;
+          word-wrap: break-word;
+          padding: 0 4px;
         }
 
         /* Submit button */
         .tf-submit {
-          display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-          padding: 14px 36px; border-radius: 50px; border: none; cursor: pointer;
+          display: inline-flex; 
+          align-items: center; 
+          justify-content: center; 
+          gap: 8px;
+          padding: clamp(13px, 1.5vw, 14px) clamp(28px, 4vw, 36px); 
+          border-radius: 50px; 
+          border: none; 
+          cursor: pointer;
           background: linear-gradient(135deg,#C4972A,#8B6914);
-          color: #0f1d3d; font-family: 'Inter',sans-serif; font-weight: 700; font-size: 15px;
+          color: #0f1d3d; 
+          font-family: 'Inter',sans-serif; 
+          font-weight: 700; 
+          font-size: clamp(13px, 1.2vw, 15px);
           letter-spacing: 0.02em;
           box-shadow: 0 4px 16px rgba(196,151,42,0.3);
           transition: box-shadow 0.2s, opacity 0.2s;
           align-self: stretch;
+          min-height: clamp(48px, 6vh, 54px);
+          width: 100%;
         }
         .tf-submit:disabled { opacity: 0.65; cursor: not-allowed; }
         .tf-submit:focus-visible { outline: 2px solid #0f1d3d; outline-offset: 2px; }
@@ -1437,26 +1535,32 @@ export default function Training() {
         /* Success state */
         .tf-success {
           display: flex; flex-direction: column; align-items: center; text-align: center;
-          justify-content: center; padding: 40px 24px; flex: 1;
+          justify-content: center; padding: clamp(32px, 5vw, 40px) clamp(20px, 4vw, 24px); 
+          flex: 1;
           gap: 14px;
         }
         .tf-success-icon {
-          width: 72px; height: 72px; border-radius: 50%;
+          width: clamp(60px, 8vw, 72px); height: clamp(60px, 8vw, 72px); 
+          border-radius: 50%;
           background: rgba(196,151,42,0.1); border: 2px solid rgba(196,151,42,0.2);
           display: flex; align-items: center; justify-content: center;
         }
         .tf-success-title {
-          font-family: 'Inter',sans-serif; font-size: 22px; font-weight: 800;
+          font-family: 'Inter',sans-serif; font-size: clamp(18px, 2.5vw, 22px); 
+          font-weight: 800;
           color: #0f1d3d; letter-spacing: -0.01em;
         }
         .tf-success-body {
-          font-family: 'Inter',sans-serif; font-size: 14px; color: #64748b;
+          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.1vw, 14px); 
+          color: #64748b;
           line-height: 1.68; max-width: 360px;
+          word-wrap: break-word;
         }
         .tf-success-reset {
           margin-top: 8px; background: none; border: 1px solid rgba(196,151,42,0.3);
-          color: #C4972A; border-radius: 40px; padding: 8px 22px;
-          font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 600;
+          color: #C4972A; border-radius: 40px; padding: clamp(6px, 0.8vw, 8px) clamp(18px, 2vw, 22px);
+          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.1vw, 13px); 
+          font-weight: 600;
           cursor: pointer; transition: background 0.2s, color 0.2s;
         }
         .tf-success-reset:hover { background: #C4972A; color: #fff; }
@@ -1476,6 +1580,7 @@ export default function Training() {
           .tf-container { grid-template-columns: 1fr; }
           .tf-left { border-radius: 28px 28px 0 0; }
           .tf-direct { padding-top: 20px; }
+          .tf-left .apply-now-btn { align-self: center; width: 100%; justify-content: center; }
         }
         @media (max-width: 900px) {
           .cat-grid { grid-template-columns: 1fr; }
@@ -1489,6 +1594,23 @@ export default function Training() {
           .tp-block { padding: 28px 20px; }
           .cta-trust { gap: 14px; }
           .tf-row { grid-template-columns: 1fr; }
+          .tf-left { padding: clamp(24px, 4vw, 40px) clamp(16px, 3vw, 28px); }
+          .tf-right { padding: clamp(20px, 3vw, 32px) clamp(14px, 2.5vw, 24px); }
+          .tf-info-item { flex-direction: row; }
+          .tf-section { border-radius: 20px; }
+          .tf-left .apply-now-btn { 
+            width: 100%; 
+            justify-content: center; 
+          }
+        }
+        @media (max-width: 600px) {
+          .tf-info-item { flex-direction: row; }
+          .tf-info-item svg { align-self: flex-start; flex-shrink: 0; }
+          .tf-info-body { font-size: clamp(11px, 2.5vw, 12px); }
+          .tf-sub { font-size: clamp(12px, 2.8vw, 13px); }
+          .tf-heading { font-size: clamp(1.3rem, 5vw, 1.6rem); }
+          .tf-direct { flex-direction: column; align-items: flex-start; gap: 8px; }
+          .tf-direct-link { font-size: clamp(12px, 3vw, 13px); }
         }
         @media (max-width: 480px) {
           .tb-banner-stats { gap: 10px; }
@@ -1496,8 +1618,22 @@ export default function Training() {
           .cat-panel { padding: 0 16px 20px; }
           .cta-btns { flex-direction: column; align-items: center; }
           .cta-btn-primary, .cta-btn-secondary { width: 100%; justify-content: center; }
-          .tf-right { padding: 28px 20px; }
+          .tf-right { padding: 16px 12px; }
           .tf-submit { width: 100%; }
+          .tf-left .apply-now-btn { width: 100%; justify-content: center; }
+          .tf-info-item { flex-direction: row; align-items: flex-start; gap: 8px; }
+          .tf-info-item svg { min-width: 16px; }
+          .tf-info-body { font-size: clamp(10.5px, 2.5vw, 11.5px); }
+          .tf-label { font-size: clamp(11px, 2.5vw, 12px); }
+          .tf-input { font-size: clamp(12px, 2.8vw, 13px); }
+          .tf-select { font-size: clamp(12px, 2.8vw, 13px); }
+          .tf-textarea { font-size: clamp(12px, 2.8vw, 13px); }
+          .tf-form-intro { font-size: clamp(11px, 2.5vw, 12px); padding: 8px 12px; }
+          .tf-privacy { font-size: clamp(10px, 2.2vw, 11px); }
+          .tf-submit { font-size: clamp(12px, 2.8vw, 13px); padding: 12px 20px; min-height: 44px; }
+          .tf-success-title { font-size: clamp(16px, 4vw, 18px); }
+          .tf-success-body { font-size: clamp(11px, 2.5vw, 12px); }
+          .tf-field-err { font-size: clamp(10px, 2.2vw, 11px); }
         }
       `}</style>
 
