@@ -1,5 +1,6 @@
 import { motion, useInView, useAnimation, AnimatePresence } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import EVSLogo from "../EVSLogo";
 // Import proper social media icons from react-icons
 import { 
@@ -25,7 +26,7 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Modern 2026 Footer — Premium Design with Glass Morphism
 // Features: Animated borders, social links, newsletter (Formspree), back to top
-// UPDATED: All social media links with proper icons
+// UPDATED: React Router Links for all internal navigation
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Footer() {
@@ -115,7 +116,7 @@ export default function Footer() {
     },
   };
 
-  // ── UPDATED: Social Media Links with correct URLs and icons ──
+  // ── Social Media Links ──
   const socialLinks = [
     { 
       name: "LinkedIn", 
@@ -155,20 +156,30 @@ export default function Footer() {
     },
   ];
 
+  // ── UPDATED: Quick Links with React Router paths ──
   const quickLinks = [
-    { name: "About Us", url: "#about" },
-    { name: "Featured Jobs", url: "#jobs" },
-    { name: "Contact Us", url: "#contact" },
-    { name: "FAQ", url: "#faq" },
-    { name: "Testimonials", url: "#testimonials" },
+    { name: "About Us", url: "/about" },
+    { name: "Featured Jobs", url: "/jobs" },
+    { name: "Contact Us", url: "/contact" },
+    { name: "FAQ", url: "/faq" },
+    { name: "Testimonials", url: "/testimonials" },
   ];
 
+  // ── UPDATED: Legal Links with React Router paths ──
   const legalLinks = [
-    { name: "Privacy Policy", url: "#" },
-    { name: "GDPR Compliance", url: "#" },
-    { name: "Terms of Service", url: "#" },
-    { name: "Cookie Policy", url: "#" },
-    { name: "Accessibility", url: "#" },
+    { name: "Privacy Policy", url: "/privacy-policy" },
+    { name: "GDPR Compliance", url: "/gdpr-compliance" },
+    { name: "Terms of Service", url: "/terms-of-service" },
+    { name: "Cookie Policy", url: "/cookie-policy" },
+    { name: "Accessibility", url: "/accessibility" },
+  ];
+
+  // ── UPDATED: Bottom bar quick legal links ──
+  const bottomBarLinks = [
+    { name: "Privacy", url: "/privacy-policy" },
+    { name: "GDPR", url: "/gdpr-compliance" },
+    { name: "Terms", url: "/terms-of-service" },
+    { name: "Cookies", url: "/cookie-policy" },
   ];
 
   // Floating particles for background
@@ -325,7 +336,7 @@ export default function Footer() {
               Your trusted partner in care excellence.
             </p>
             
-            {/* ── UPDATED: Social Links with all 6 platforms ── */}
+            {/* Social Links */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
               {socialLinks.map((social) => {
                 const IconComponent = social.icon;
@@ -373,7 +384,7 @@ export default function Footer() {
             </div>
           </motion.div>
 
-          {/* Quick Links Column */}
+          {/* ── UPDATED: Quick Links with React Router Link ── */}
           <motion.div variants={itemVariants}>
             <h3
               style={{
@@ -411,8 +422,8 @@ export default function Footer() {
                   transition={{ delay: idx * 0.05 }}
                   style={{ marginBottom: 12 }}
                 >
-                  <a
-                    href={link.url}
+                  <Link
+                    to={link.url}
                     style={{
                       fontFamily: "'Inter', sans-serif",
                       fontSize: 13,
@@ -434,13 +445,13 @@ export default function Footer() {
                   >
                     <ChevronRight size={12} style={{ opacity: 0.7 }} />
                     {link.name}
-                  </a>
+                  </Link>
                 </motion.li>
               ))}
             </ul>
           </motion.div>
 
-          {/* Legal Column */}
+          {/* ── UPDATED: Legal Column with React Router Link ── */}
           <motion.div variants={itemVariants}>
             <h3
               style={{
@@ -478,8 +489,8 @@ export default function Footer() {
                   transition={{ delay: 0.2 + idx * 0.05 }}
                   style={{ marginBottom: 12 }}
                 >
-                  <a
-                    href={link.url}
+                  <Link
+                    to={link.url}
                     style={{
                       fontFamily: "'Inter', sans-serif",
                       fontSize: 13,
@@ -501,7 +512,7 @@ export default function Footer() {
                   >
                     <Shield size={10} style={{ opacity: 0.7 }} />
                     {link.name}
-                  </a>
+                  </Link>
                 </motion.li>
               ))}
             </ul>
@@ -752,7 +763,7 @@ export default function Footer() {
           </motion.div>
         </motion.div>
 
-        {/* Bottom Bar with Glass Effect */}
+        {/* ── UPDATED: Bottom Bar with React Router Links ── */}
         <motion.div
           variants={itemVariants}
           initial="hidden"
@@ -787,32 +798,30 @@ export default function Footer() {
           </div>
 
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-            {["Privacy", "GDPR", "Terms", "Cookies"].map((link, idx) => (
-              <motion.a
-                key={link}
-                href="#"
-                whileHover={{ x: 2 }}
-                style={{
-                  fontFamily: "'Inter', sans-serif",
-                  color: "rgba(255,255,255,0.45)",
-                  fontSize: 12,
-                  textDecoration: "none",
-                  transition: "all 0.3s ease",
-                  letterSpacing: "0.3px",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#C4972A")}
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = "rgba(255,255,255,0.45)")
-                }
-              >
-                {link}
-              </motion.a>
+            {bottomBarLinks.map((link) => (
+              <motion.div key={link.name} whileHover={{ x: 2 }}>
+                <Link
+                  to={link.url}
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    color: "rgba(255,255,255,0.45)",
+                    fontSize: 12,
+                    textDecoration: "none",
+                    transition: "all 0.3s ease",
+                    letterSpacing: "0.3px",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#C4972A")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.45)")}
+                >
+                  {link.name}
+                </Link>
+              </motion.div>
             ))}
           </div>
         </motion.div>
       </div>
 
-      {/* Back to Top Button - Left Side, Only Appears When Needed */}
+      {/* Back to Top Button */}
       <AnimatePresence>
         {showScrollTop && (
           <motion.button
@@ -840,6 +849,7 @@ export default function Footer() {
               zIndex: 1000,
               transition: "all 0.3s ease",
             }}
+            aria-label="Scroll to top"
           >
             <ArrowUp size={20} strokeWidth={2.5} style={{ color: "#0f1d3d" }} />
           </motion.button>

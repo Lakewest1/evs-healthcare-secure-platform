@@ -4,7 +4,34 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>evs-healthcare</title>
+    <title>EVS Healthcare | Healthcare Staffing Solutions</title>
+    <meta name="description" content="EVS Healthcare Solutions - Quality healthcare staffing across North-West England. NHS-approved professionals, 24/7 support." />
+    
+    <!-- Google Analytics Consent Mode - Default to denied -->
+    <script>
+      // Define dataLayer and gtag function
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      
+      // Default to denied until consent is given via cookie banner
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'wait_for_update': 500
+      });
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <!-- ⚠️ REPLACE G-XXXXXXXXXX WITH YOUR ACTUAL GOOGLE ANALYTICS MEASUREMENT ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
   </head>
   <body>
     <div id="root"></div>

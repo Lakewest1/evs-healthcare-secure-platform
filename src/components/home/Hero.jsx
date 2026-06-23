@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   Briefcase, 
   Building2, 
@@ -228,6 +229,7 @@ export default function Hero() {
   const heroRef = useRef(null);
   const videoRef = useRef(null);
   const mobile = useMemo(() => isMobile(), []);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const openDelay = mobile ? 300 : 800;
@@ -275,8 +277,36 @@ export default function Hero() {
     }
   };
 
+  // ── UPDATED: "Find Your Role" → Navigate to Jobs page and scroll to top ──
   const handlePrimaryCTA = () => {
-    goToSection(activeRole === "jobseeker" ? "register" : "employers");
+    if (activeRole === "jobseeker") {
+      // Job Seeker: Navigate to Jobs.jsx page
+      navigate("/jobs");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      // Employer: Navigate to Employers.jsx page
+      navigate("/employers");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // ── UPDATED: "View Open Roles" / "How We Work" secondary button ──
+  const handleSecondaryCTA = () => {
+    if (activeRole === "jobseeker") {
+      // Job Seeker: Navigate to Jobs.jsx page
+      navigate("/jobs");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      // Employer: Navigate to Employers.jsx then scroll to "How It Works" section
+      navigate("/employers");
+      setTimeout(() => {
+        const el = document.getElementById("employer-services");
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
+      }, 400);
+    }
   };
 
   const enter = (delay = "0s") => ({
@@ -744,6 +774,7 @@ export default function Hero() {
               ...enter(mobile ? "0.6s" : "0.8s"),
             }}
           >
+            {/* ── UPDATED: Primary CTA button ── */}
             <button
               onClick={handlePrimaryCTA}
               style={{
@@ -776,10 +807,9 @@ export default function Hero() {
               {primaryCTAText} <ArrowRight size={14} />
             </button>
 
+            {/* ── UPDATED: Secondary CTA button ── */}
             <button
-              onClick={() =>
-                activeRole === "jobseeker" ? goToSection("jobs") : goToSection("employers")
-              }
+              onClick={handleSecondaryCTA}
               style={{
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.25)",
@@ -856,7 +886,10 @@ export default function Hero() {
             pointerEvents: "auto",
             cursor: "pointer",
           }}
-          onClick={() => goToSection("jobs")}
+          onClick={() => {
+            navigate("/jobs");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = "rgba(196,151,42,0.45)";
             e.currentTarget.style.boxShadow = "0 8px 32px rgba(196,151,42,0.15)";

