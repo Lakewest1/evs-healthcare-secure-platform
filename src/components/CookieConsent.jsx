@@ -166,7 +166,7 @@ export default function CookieConsent() {
 
   return (
     <>
-      {/* Main Cookie Banner */}
+      {/* ─── MAIN COOKIE BANNER ─── */}
       <AnimatePresence>
         {showBanner && !showPreferences && (
           <motion.div
@@ -176,29 +176,37 @@ export default function CookieConsent() {
             transition={{ type: "spring", stiffness: 100, damping: 20 }}
             style={{
               position: "fixed",
-              bottom: 24,
+              bottom: 16,
               left: "50%",
               transform: "translateX(-50%)",
               zIndex: 9999,
-              width: "calc(100% - 48px)",
+              width: "calc(100% - 24px)",
               maxWidth: 640,
               background: "rgba(255, 255, 255, 0.98)",
               backdropFilter: "blur(20px)",
               borderRadius: 20,
               boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
               border: "1px solid rgba(196,151,42,0.15)",
-              padding: "clamp(20px, 4vw, 28px)",
+              padding: "clamp(16px, 4vw, 28px)",
             }}
             role="dialog"
             aria-labelledby="cookie-title"
             aria-describedby="cookie-description"
           >
-            <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+            <div style={{ 
+              display: "flex", 
+              gap: 14, 
+              alignItems: "flex-start",
+              flexDirection: "column",
+              "@media (minWidth: 480px)": {
+                flexDirection: "row",
+              }
+            }}>
               {/* Cookie Icon */}
               <div
                 style={{
-                  width: 44,
-                  height: 44,
+                  width: 40,
+                  height: 40,
                   borderRadius: 12,
                   background: "rgba(196,151,42,0.1)",
                   display: "flex",
@@ -206,9 +214,10 @@ export default function CookieConsent() {
                   justifyContent: "center",
                   color: "#C4972A",
                   flexShrink: 0,
+                  alignSelf: "center",
                 }}
               >
-                <Cookie size={22} strokeWidth={1.5} />
+                <Cookie size={20} strokeWidth={1.5} />
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -216,10 +225,11 @@ export default function CookieConsent() {
                   id="cookie-title"
                   style={{
                     fontFamily: "'Inter', sans-serif",
-                    fontSize: 15,
+                    fontSize: "clamp(14px, 2.5vw, 15px)",
                     fontWeight: 700,
                     color: "#0f1d3d",
-                    marginBottom: 6,
+                    marginBottom: 4,
+                    textAlign: "center",
                   }}
                 >
                   We Value Your Privacy
@@ -228,10 +238,11 @@ export default function CookieConsent() {
                   id="cookie-description"
                   style={{
                     fontFamily: "'Inter', sans-serif",
-                    fontSize: 13,
+                    fontSize: "clamp(12px, 2vw, 13px)",
                     color: "#64748b",
                     lineHeight: 1.6,
                     margin: 0,
+                    textAlign: "center",
                   }}
                 >
                   We use cookies to enhance your browsing experience, analyze site traffic, 
@@ -254,9 +265,10 @@ export default function CookieConsent() {
                 <div
                   style={{
                     display: "flex",
-                    gap: 10,
+                    gap: 8,
                     flexWrap: "wrap",
-                    marginTop: 18,
+                    marginTop: 16,
+                    justifyContent: "center",
                   }}
                 >
                   <motion.button
@@ -264,16 +276,19 @@ export default function CookieConsent() {
                     whileTap={{ scale: 0.97 }}
                     onClick={acceptAll}
                     style={{
-                      padding: "11px 24px",
+                      padding: "10px 18px",
                       borderRadius: 50,
                       background: "linear-gradient(135deg, #C4972A, #8B6914)",
                       color: "#fff",
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 13,
+                      fontSize: "clamp(11px, 1.5vw, 13px)",
                       fontWeight: 700,
                       border: "none",
                       cursor: "pointer",
                       boxShadow: "0 2px 8px rgba(196,151,42,0.25)",
+                      flex: "1 1 auto",
+                      minWidth: "80px",
+                      textAlign: "center",
                     }}
                   >
                     Accept All
@@ -284,15 +299,18 @@ export default function CookieConsent() {
                     whileTap={{ scale: 0.97 }}
                     onClick={acceptEssential}
                     style={{
-                      padding: "11px 24px",
+                      padding: "10px 18px",
                       borderRadius: 50,
                       background: "#f1f5f9",
                       color: "#475569",
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 13,
+                      fontSize: "clamp(11px, 1.5vw, 13px)",
                       fontWeight: 600,
                       border: "1px solid #e2e8f0",
                       cursor: "pointer",
+                      flex: "1 1 auto",
+                      minWidth: "80px",
+                      textAlign: "center",
                     }}
                   >
                     Essential Only
@@ -303,21 +321,24 @@ export default function CookieConsent() {
                     whileTap={{ scale: 0.97 }}
                     onClick={openPreferences}
                     style={{
-                      padding: "11px 24px",
+                      padding: "10px 18px",
                       borderRadius: 50,
                       background: "transparent",
                       color: "#C4972A",
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 13,
+                      fontSize: "clamp(11px, 1.5vw, 13px)",
                       fontWeight: 600,
                       border: "1.5px solid #C4972A",
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
-                      gap: 6,
+                      gap: 4,
+                      flex: "1 1 auto",
+                      minWidth: "80px",
+                      justifyContent: "center",
                     }}
                   >
-                    <Settings size={14} />
+                    <Settings size={13} />
                     Customize
                   </motion.button>
                 </div>
@@ -327,7 +348,7 @@ export default function CookieConsent() {
         )}
       </AnimatePresence>
 
-      {/* Preferences Panel */}
+      {/* ─── PREFERENCES PANEL ─── */}
       <AnimatePresence>
         {showPreferences && (
           <motion.div
@@ -343,7 +364,7 @@ export default function CookieConsent() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              padding: 20,
+              padding: 16,
             }}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
@@ -366,8 +387,9 @@ export default function CookieConsent() {
                 overflow: "auto",
                 background: "#fff",
                 borderRadius: 24,
-                padding: "clamp(24px, 5vw, 32px)",
+                padding: "clamp(20px, 4vw, 32px)",
                 boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+                margin: "0 8px",
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -377,28 +399,31 @@ export default function CookieConsent() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  marginBottom: 24,
+                  marginBottom: 20,
+                  flexWrap: "wrap",
+                  gap: 8,
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div
                     style={{
-                      width: 40,
-                      height: 40,
+                      width: 36,
+                      height: 36,
                       borderRadius: 10,
                       background: "rgba(196,151,42,0.1)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       color: "#C4972A",
+                      flexShrink: 0,
                     }}
                   >
-                    <Settings size={20} strokeWidth={1.5} />
+                    <Settings size={18} strokeWidth={1.5} />
                   </div>
                   <h3
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 17,
+                      fontSize: "clamp(16px, 3vw, 17px)",
                       fontWeight: 700,
                       color: "#0f1d3d",
                       margin: 0,
@@ -421,6 +446,9 @@ export default function CookieConsent() {
                     color: "#94a3b8",
                     padding: 4,
                     borderRadius: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                   aria-label="Close preferences"
                 >
@@ -431,10 +459,11 @@ export default function CookieConsent() {
               <p
                 style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: 13,
+                  fontSize: "clamp(12px, 2vw, 13px)",
                   color: "#64748b",
                   lineHeight: 1.6,
-                  marginBottom: 24,
+                  marginBottom: 20,
+                  textAlign: "center",
                 }}
               >
                 Choose which cookies you want to allow. Essential cookies are always 
@@ -442,23 +471,25 @@ export default function CookieConsent() {
               </p>
 
               {/* Cookie Options */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
                 {/* Essential */}
                 <div
                   style={{
                     display: "flex",
                     alignItems: "flex-start",
-                    gap: 14,
-                    padding: 16,
+                    gap: 12,
+                    padding: "clamp(12px, 2vw, 16px)",
                     borderRadius: 14,
                     background: "#f8fafc",
                     border: "1px solid #e2e8f0",
+                    flexDirection: "row",
+                    flexWrap: "wrap",
                   }}
                 >
                   <div
                     style={{
-                      width: 36,
-                      height: 36,
+                      width: 32,
+                      height: 32,
                       borderRadius: 10,
                       background: "rgba(22,163,74,0.1)",
                       display: "flex",
@@ -468,28 +499,34 @@ export default function CookieConsent() {
                       flexShrink: 0,
                     }}
                   >
-                    <Shield size={18} />
+                    <Shield size={16} />
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 700, color: "#0f1d3d" }}>
+                  <div style={{ flex: 1, minWidth: "120px" }}>
+                    <div style={{ 
+                      display: "flex", 
+                      justifyContent: "space-between", 
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: 6,
+                    }}>
+                      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(13px, 2vw, 14px)", fontWeight: 700, color: "#0f1d3d" }}>
                         Essential
                       </span>
                       <span
                         style={{
                           fontFamily: "'Inter', sans-serif",
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: 600,
                           color: "#16a34a",
                           background: "rgba(22,163,74,0.1)",
-                          padding: "4px 10px",
+                          padding: "3px 10px",
                           borderRadius: 20,
                         }}
                       >
                         Always On
                       </span>
                     </div>
-                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: "#94a3b8", margin: "4px 0 0", lineHeight: 1.5 }}>
+                    <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(11px, 1.5vw, 12px)", color: "#94a3b8", margin: "4px 0 0", lineHeight: 1.5 }}>
                       Required for the website to function. Includes session management, security, 
                       and form submissions.
                     </p>
@@ -498,7 +535,7 @@ export default function CookieConsent() {
 
                 {/* Analytics */}
                 <CookieOption
-                  icon={<Cookie size={18} />}
+                  icon={<Cookie size={16} />}
                   title="Analytics"
                   description="Help us understand how visitors interact with our site so we can improve your experience."
                   enabled={preferences.analytics}
@@ -507,7 +544,7 @@ export default function CookieConsent() {
 
                 {/* Marketing */}
                 <CookieOption
-                  icon={<Cookie size={18} />}
+                  icon={<Cookie size={16} />}
                   title="Marketing"
                   description="Used to deliver relevant advertisements and measure campaign effectiveness."
                   enabled={preferences.marketing}
@@ -516,7 +553,7 @@ export default function CookieConsent() {
 
                 {/* Preferences */}
                 <CookieOption
-                  icon={<Cookie size={18} />}
+                  icon={<Cookie size={16} />}
                   title="Preferences"
                   description="Remember your settings, such as language or region, to personalize your experience."
                   enabled={preferences.preferences}
@@ -525,46 +562,77 @@ export default function CookieConsent() {
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ 
+                display: "flex", 
+                gap: 8, 
+                flexWrap: "wrap",
+                flexDirection: "column",
+              }}>
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={savePreferences}
                   style={{
-                    flex: 1,
                     padding: "12px 24px",
                     borderRadius: 50,
                     background: "linear-gradient(135deg, #C4972A, #8B6914)",
                     color: "#fff",
                     fontFamily: "'Inter', sans-serif",
-                    fontSize: 13,
+                    fontSize: "clamp(12px, 1.5vw, 13px)",
                     fontWeight: 700,
                     border: "none",
                     cursor: "pointer",
                     boxShadow: "0 2px 8px rgba(196,151,42,0.25)",
+                    width: "100%",
+                    textAlign: "center",
                   }}
                 >
                   Save Preferences
                 </motion.button>
 
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={acceptAll}
-                  style={{
-                    padding: "12px 24px",
-                    borderRadius: 50,
-                    background: "#f1f5f9",
-                    color: "#475569",
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    border: "1px solid #e2e8f0",
-                    cursor: "pointer",
-                  }}
-                >
-                  Accept All
-                </motion.button>
+                <div style={{ display: "flex", gap: 8, width: "100%" }}>
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={acceptAll}
+                    style={{
+                      padding: "12px 24px",
+                      borderRadius: 50,
+                      background: "#f1f5f9",
+                      color: "#475569",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "clamp(12px, 1.5vw, 13px)",
+                      fontWeight: 600,
+                      border: "1px solid #e2e8f0",
+                      cursor: "pointer",
+                      flex: 1,
+                      textAlign: "center",
+                    }}
+                  >
+                    Accept All
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={acceptEssential}
+                    style={{
+                      padding: "12px 24px",
+                      borderRadius: 50,
+                      background: "#f1f5f9",
+                      color: "#475569",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "clamp(12px, 1.5vw, 13px)",
+                      fontWeight: 600,
+                      border: "1px solid #e2e8f0",
+                      cursor: "pointer",
+                      flex: 1,
+                      textAlign: "center",
+                    }}
+                  >
+                    Essential Only
+                  </motion.button>
+                </div>
               </div>
 
               {/* Cookie Policy Link */}
@@ -573,7 +641,7 @@ export default function CookieConsent() {
                   href="/cookie-policy"
                   style={{
                     fontFamily: "'Inter', sans-serif",
-                    fontSize: 12,
+                    fontSize: "clamp(11px, 1.5vw, 12px)",
                     color: "#C4972A",
                     textDecoration: "underline",
                   }}
@@ -590,7 +658,7 @@ export default function CookieConsent() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Cookie Option Sub-Component
+// Cookie Option Sub-Component — Fully Responsive
 // ─────────────────────────────────────────────────────────────────────────────
 function CookieOption({ icon, title, description, enabled, onToggle }) {
   return (
@@ -598,20 +666,22 @@ function CookieOption({ icon, title, description, enabled, onToggle }) {
       style={{
         display: "flex",
         alignItems: "flex-start",
-        gap: 14,
-        padding: 16,
+        gap: 12,
+        padding: "clamp(12px, 2vw, 16px)",
         borderRadius: 14,
         background: "#fff",
         border: `1.5px solid ${enabled ? "rgba(196,151,42,0.3)" : "#e2e8f0"}`,
         transition: "all 0.2s ease",
         cursor: "pointer",
+        flexDirection: "row",
+        flexWrap: "wrap",
       }}
       onClick={onToggle}
     >
       <div
         style={{
-          width: 36,
-          height: 36,
+          width: 32,
+          height: 32,
           borderRadius: 10,
           background: enabled ? "rgba(196,151,42,0.1)" : "#f1f5f9",
           display: "flex",
@@ -624,30 +694,35 @@ function CookieOption({ icon, title, description, enabled, onToggle }) {
       >
         {icon}
       </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 600, color: "#0f1d3d" }}>
+      <div style={{ flex: 1, minWidth: "100px" }}>
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 4,
+        }}>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(13px, 2vw, 14px)", fontWeight: 600, color: "#0f1d3d" }}>
             {title}
           </span>
           {/* Toggle Switch */}
           <div
             style={{
-              width: 40,
-              height: 22,
-              borderRadius: 11,
+              width: 36,
+              height: 20,
+              borderRadius: 10,
               background: enabled ? "#C4972A" : "#cbd5e1",
               position: "relative",
               transition: "background 0.2s ease",
               flexShrink: 0,
-              marginLeft: 12,
             }}
           >
             <motion.div
-              animate={{ x: enabled ? 18 : 2 }}
+              animate={{ x: enabled ? 16 : 2 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               style={{
-                width: 18,
-                height: 18,
+                width: 16,
+                height: 16,
                 borderRadius: "50%",
                 background: "#fff",
                 position: "absolute",
@@ -657,7 +732,7 @@ function CookieOption({ icon, title, description, enabled, onToggle }) {
             />
           </div>
         </div>
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: "#94a3b8", margin: "4px 0 0", lineHeight: 1.5 }}>
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(11px, 1.5vw, 12px)", color: "#94a3b8", margin: "4px 0 0", lineHeight: 1.5 }}>
           {description}
         </p>
       </div>

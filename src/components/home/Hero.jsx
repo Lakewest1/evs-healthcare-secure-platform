@@ -63,8 +63,8 @@ const TESTIMONIALS = [
 ];
 
 const JOBS = [
-  { title: "Registered Nurse (RGN)", pay: "£18–£24/hr", urgent: true, icon: Stethoscope },
-  { title: "Mental Health Nurse (RMN)", pay: "£22–£30/hr", urgent: false, icon: Heart },
+  { title: "Registered Nurse (RGN)", pay: "£26–£38/hr", urgent: true, icon: Stethoscope },
+  { title: "Mental Health Nurse (RMN)", pay: "£30–£40/hr", urgent: false, icon: Heart },
 ];
 
 const LEFT_CURTAIN_ICONS = [UserRound, Handshake, GraduationCap];
@@ -269,20 +269,39 @@ export default function Hero() {
   const CURTAIN_EASING = "cubic-bezier(0.76, 0, 0.24, 1)";
   const CURTAIN_TRANSITION = `transform ${CURTAIN_DURATION} ${CURTAIN_EASING}`;
 
-  const goToSection = (sectionId) => {
-    const el = document.getElementById(sectionId.toLowerCase());
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+  // ── SCROLL TO FEATURED JOBS SECTION (at the bottom of the page) ──
+  const scrollToFeaturedJobs = () => {
+    // Try to find the jobs section by ID first
+    const jobsSection = document.getElementById("featured-jobs");
+    if (jobsSection) {
+      const top = jobsSection.getBoundingClientRect().top + window.pageYOffset - 100;
       window.scrollTo({ top, behavior: "smooth" });
+      return;
     }
+    
+    // Fallback: try to find by class name
+    const jobsElement = document.querySelector(".jobs-grid, .jobs-section, #jobs");
+    if (jobsElement) {
+      const top = jobsElement.getBoundingClientRect().top + window.pageYOffset - 100;
+      window.scrollTo({ top, behavior: "smooth" });
+      return;
+    }
+    
+    // Last resort: scroll to bottom of page
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
   };
 
-  // ── UPDATED: "Find Your Role" → Navigate to Jobs page and scroll to top ──
+  // ── NAVIGATE TO JOBS PAGE ──
+  const navigateToJobs = () => {
+    navigate("/jobs");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // ── UPDATED: "Find Your Role" → Scroll to featured jobs at bottom ──
   const handlePrimaryCTA = () => {
     if (activeRole === "jobseeker") {
-      // Job Seeker: Navigate to Jobs.jsx page
-      navigate("/jobs");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Job Seeker: Scroll to featured jobs section at the bottom
+      scrollToFeaturedJobs();
     } else {
       // Employer: Navigate to Employers.jsx page
       navigate("/employers");
@@ -290,12 +309,11 @@ export default function Hero() {
     }
   };
 
-  // ── UPDATED: "View Open Roles" / "How We Work" secondary button ──
+  // ── UPDATED: "View Open Roles" → Navigate to Jobs.jsx page ──
   const handleSecondaryCTA = () => {
     if (activeRole === "jobseeker") {
       // Job Seeker: Navigate to Jobs.jsx page
-      navigate("/jobs");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      navigateToJobs();
     } else {
       // Employer: Navigate to Employers.jsx then scroll to "How It Works" section
       navigate("/employers");
@@ -774,7 +792,7 @@ export default function Hero() {
               ...enter(mobile ? "0.6s" : "0.8s"),
             }}
           >
-            {/* ── UPDATED: Primary CTA button ── */}
+            {/* ── UPDATED: "Find Your Role" → Scrolls to featured jobs at bottom ── */}
             <button
               onClick={handlePrimaryCTA}
               style={{
@@ -807,7 +825,7 @@ export default function Hero() {
               {primaryCTAText} <ArrowRight size={14} />
             </button>
 
-            {/* ── UPDATED: Secondary CTA button ── */}
+            {/* ── UPDATED: "View Open Roles" → Navigates to Jobs.jsx page ── */}
             <button
               onClick={handleSecondaryCTA}
               style={{
@@ -886,10 +904,7 @@ export default function Hero() {
             pointerEvents: "auto",
             cursor: "pointer",
           }}
-          onClick={() => {
-            navigate("/jobs");
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
+          onClick={navigateToJobs}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = "rgba(196,151,42,0.45)";
             e.currentTarget.style.boxShadow = "0 8px 32px rgba(196,151,42,0.15)";

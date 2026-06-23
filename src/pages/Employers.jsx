@@ -2,6 +2,7 @@
 // Production-ready: WCAG AA, SSR-safe, single style block, env-var form endpoint,
 // PoundSterling (not DollarSign), aria-describedby on all inputs, autocomplete attrs,
 // double-submit guard, dev-only console.error, useReducedMotion throughout.
+// Fully responsive for mobile devices with modern styling.
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
@@ -21,7 +22,7 @@ import {
   Heart,
   Briefcase,
   Calendar,
-  PoundSterling,   // ← FIX: was DollarSign (wrong currency for UK agency)
+  PoundSterling,
   ShieldCheck,
   UserCheck,
   Zap,
@@ -64,8 +65,6 @@ const EASE = [0.16, 1, 0.3, 1];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Form endpoint — set VITE_FORMSPREE_ID in your .env file.
-// Falls back gracefully to a clear error rather than silently posting to a
-// placeholder URL that will return a 404.
 // ─────────────────────────────────────────────────────────────────────────────
 const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_ID
   ? `https://formspree.io/f/${import.meta.env.VITE_FORMSPREE_ID}`
@@ -97,7 +96,7 @@ function useAnimatedCounter(end, duration = 2000, shouldAnimate = false) {
       if (!startTime) startTime = ts;
       const elapsed = ts - startTime;
       const p       = Math.min(elapsed / duration, 1);
-      const eased   = 1 - Math.pow(1 - p, 3);         // easeOutCubic
+      const eased   = 1 - Math.pow(1 - p, 3);
       setCount(Math.floor(eased * end));
       if (p < 1) {
         rafRef.current = requestAnimationFrame(tick);
@@ -110,7 +109,6 @@ function useAnimatedCounter(end, duration = 2000, shouldAnimate = false) {
     rafRef.current = requestAnimationFrame(tick);
 
     return () => {
-      // FIX: always cancel the RAF on cleanup — prevents leak on fast unmount
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [shouldAnimate, hasAnimated, end, duration]);
@@ -219,7 +217,7 @@ const BENEFITS = [
     desc: "All staff meet NHS compliance requirements with mandatory training tracked and updated.",
   },
   {
-    icon: PoundSterling,   // FIX: was DollarSign
+    icon: PoundSterling,
     title: "Competitive UK Rates",
     desc: "Transparent, affordable pricing with no hidden fees. Value without compromising quality.",
   },
@@ -306,7 +304,7 @@ const PROCESS_STEPS = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HERO BANNER
+// HERO BANNER — INCREASED HEIGHT
 // ─────────────────────────────────────────────────────────────────────────────
 function HeroBanner() {
   const [ref, inView] = useReveal(0.2);
@@ -685,7 +683,7 @@ function RequestForm() {
   const [formData,  setFormData]     = useState(BLANK_FORM);
   const [errors,    setErrors]       = useState({});
   const [isSubmitting, setSubmitting] = useState(false);
-  const [submitStatus, setStatus]    = useState(null); // "success" | "error" | null
+  const [submitStatus, setStatus]    = useState(null);
   const submitBtnRef = useRef(null);
   const shouldReduce = useReducedMotion();
 
@@ -718,11 +716,10 @@ function RequestForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return;   // FIX: double-submit guard
+    if (isSubmitting) return;
     if (!validate())  return;
 
     if (!FORMSPREE_URL) {
-      // FIX: don't silently fail — surface env config problem in dev
       if (import.meta.env.DEV) {
         console.error(
           "[EVS Employers] VITE_FORMSPREE_ID is not set. Add it to your .env file."
@@ -755,7 +752,6 @@ function RequestForm() {
         document.getElementById("rf-success")?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 100);
     } catch (err) {
-      // FIX: dev-only console.error
       if (import.meta.env.DEV) console.error("[EVS Employers] Form submit error:", err);
       setStatus("error");
     } finally {
@@ -763,7 +759,6 @@ function RequestForm() {
     }
   };
 
-  // Field helpers — FIX: aria-describedby links error messages to inputs
   const inputClass = (name) =>
     `rf-input${errors[name] ? " rf-input-error" : ""}`;
 
@@ -842,7 +837,6 @@ function RequestForm() {
           noValidate
           aria-label="Staff request form"
         >
-          {/* Error banner */}
           {submitStatus === "error" && (
             <div className="rf-error-banner" role="alert">
               <AlertCircle size={17} aria-hidden="true" />
@@ -864,7 +858,6 @@ function RequestForm() {
             </div>
           )}
 
-          {/* ── Organisation ── */}
           <fieldset className="rf-group">
             <legend className="rf-legend">
               <Building2 size={17} aria-hidden="true" /> Organisation Details
@@ -902,7 +895,6 @@ function RequestForm() {
             </div>
           </fieldset>
 
-          {/* ── Contact ── */}
           <fieldset className="rf-group">
             <legend className="rf-legend">
               <Mail size={17} aria-hidden="true" /> Contact Information
@@ -979,7 +971,6 @@ function RequestForm() {
             </div>
           </fieldset>
 
-          {/* ── Staff Requirements ── */}
           <fieldset className="rf-group">
             <legend className="rf-legend">
               <Stethoscope size={17} aria-hidden="true" /> Staff Requirements
@@ -1085,7 +1076,6 @@ function RequestForm() {
             </div>
           </fieldset>
 
-          {/* ── Location & Budget ── */}
           <fieldset className="rf-group">
             <legend className="rf-legend">
               <MapPin size={17} aria-hidden="true" /> Location &amp; Budget
@@ -1125,7 +1115,6 @@ function RequestForm() {
             </div>
           </fieldset>
 
-          {/* ── Additional Requirements ── */}
           <fieldset className="rf-group">
             <legend className="rf-legend">
               <ClipboardCheck size={17} aria-hidden="true" /> Additional Requirements
@@ -1148,7 +1137,6 @@ function RequestForm() {
             </div>
           </fieldset>
 
-          {/* ── Submit ── */}
           <div className="rf-submit-wrap">
             <motion.button
               ref={submitBtnRef}
@@ -1243,7 +1231,6 @@ function CTASection() {
 // ROOT — consolidated <style> block, single injection
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Employers() {
-  // FIX: stable dep array — scroll fires only on mount
   useEffect(() => { window.scrollTo({ top: 0 }); }, []);
 
   return (
@@ -1288,7 +1275,7 @@ export default function Employers() {
           text-align: center; margin-bottom: clamp(36px,5vh,56px);
         }
         .emp-section-sub {
-          font-family: 'Inter', sans-serif; font-size: 14px;
+          font-family: 'Inter', sans-serif; font-size: clamp(13px, 1.2vw, 14px);
           color: #64748b; max-width: 500px; margin: 0 auto; line-height: 1.68;
         }
 
@@ -1296,7 +1283,12 @@ export default function Employers() {
         .emp-section {
           padding: clamp(52px,8vh,80px) 0;
         }
-        .emp-section-cream { background: #fefcf8; border-radius: 24px; padding-left: 24px; padding-right: 24px; margin: 8px 0; }
+        .emp-section-cream { 
+          background: #fefcf8; 
+          border-radius: 24px; 
+          padding: clamp(32px, 5vw, 48px) clamp(16px, 3vw, 24px); 
+          margin: 8px 0; 
+        }
 
         /* ── Card base ── */
         .emp-card {
@@ -1308,11 +1300,12 @@ export default function Employers() {
         }
         .emp-card-center { text-align: center; }
         .emp-card-title {
-          font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 700;
+          font-family: 'Inter', sans-serif; font-size: clamp(15px, 1.5vw, 17px); 
+          font-weight: 700;
           color: #0f1d3d; margin-bottom: 8px; letter-spacing: -0.01em;
         }
         .emp-card-desc {
-          font-family: 'Inter', sans-serif; font-size: 13px;
+          font-family: 'Inter', sans-serif; font-size: clamp(12px, 1.1vw, 13px);
           color: #64748b; line-height: 1.65; margin: 0;
         }
         .emp-card-icon {
@@ -1324,9 +1317,9 @@ export default function Employers() {
 
         /* ── Benefits card ── */
         .emp-benefit-card {
-          display: flex; align-items: flex-start; gap: 16px;
+          display: flex; align-items: flex-start; gap: 14px;
           background: #fff; border-radius: 16px;
-          padding: clamp(18px,2.5vw,24px);
+          padding: clamp(16px,2.5vw,24px);
           border: 1px solid rgba(0,0,0,0.05);
           box-shadow: 0 1px 2px rgba(0,0,0,0.04);
           transition: transform 0.25s ease, border-color 0.25s ease;
@@ -1341,7 +1334,7 @@ export default function Employers() {
 
         /* ── Sector card ── */
         .emp-sector-card {
-          display: flex; align-items: center; gap: 14px;
+          display: flex; align-items: center; gap: 12px;
           background: #fff; border-radius: 14px;
           padding: clamp(14px,2vw,20px);
           border: 1px solid rgba(0,0,0,0.05);
@@ -1389,13 +1382,18 @@ export default function Employers() {
           gap: clamp(12px,2vw,20px); list-style: none;
         }
 
-        /* ── Hero ── */
+        /* ── HERO BANNER — INCREASED HEIGHT ── */
         .emp-hero {
           position: relative; border-radius: 24px; overflow: hidden;
           margin-bottom: 48px;
           box-shadow: 0 8px 32px rgba(15,29,61,0.1);
         }
-        .emp-hero-bg { position: relative; width: 100%; height: 440px; overflow: hidden; }
+        .emp-hero-bg { 
+          position: relative; 
+          width: 100%; 
+          height: clamp(480px, 65vh, 560px);  /* ← INCREASED HEIGHT */
+          overflow: hidden; 
+        }
         .emp-hero-img {
           width: 100%; height: 100%; object-fit: cover;
           transition: transform 0.6s ease;
@@ -1407,59 +1405,72 @@ export default function Employers() {
         }
         .emp-hero-body {
           position: absolute; inset: 0; display: flex; flex-direction: column;
-          justify-content: center; padding: clamp(28px,4vw,56px) clamp(24px,5vw,64px); color: #fff;
+          justify-content: center; padding: clamp(28px, 4vw, 56px) clamp(24px, 5vw, 64px); 
+          color: #fff;
         }
         .emp-hero-icon {
-          width: 50px; height: 50px; border-radius: 14px;
+          width: clamp(42px, 5vw, 50px); height: clamp(42px, 5vw, 50px); 
+          border-radius: 14px;
           background: rgba(196,151,42,0.18); border: 1px solid rgba(196,151,42,0.3);
           display: flex; align-items: center; justify-content: center;
-          color: #C4972A; margin-bottom: 18px;
+          color: #C4972A; margin-bottom: clamp(12px, 2vw, 18px);
         }
         .emp-hero-eyebrow {
-          font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
-          letter-spacing: 0.22em; text-transform: uppercase; color: #C4972A; margin-bottom: 14px;
+          font-family: 'Inter', sans-serif; font-size: clamp(10px, 1vw, 11px); 
+          font-weight: 700;
+          letter-spacing: 0.22em; text-transform: uppercase; color: #C4972A; 
+          margin-bottom: clamp(10px, 1.5vw, 14px);
         }
         .emp-hero-title {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: clamp(2rem, 4.5vw, 3.6rem);
-          font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 16px;
+          font-size: clamp(1.8rem, 4.5vw, 3.6rem);
+          font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; 
+          margin-bottom: clamp(12px, 1.5vw, 16px);
         }
         .emp-hero-highlight {
           background: linear-gradient(135deg, #C4972A, #f0c060, #e8b84a);
-          -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+          background-clip: text;
         }
         .emp-hero-sub {
-          font-family: 'Inter', sans-serif; font-size: clamp(14px,1.4vw,16px);
-          color: rgba(255,255,255,0.82); max-width: 540px; line-height: 1.72; margin-bottom: 28px;
+          font-family: 'Inter', sans-serif; font-size: clamp(13px, 1.4vw, 16px);
+          color: rgba(255,255,255,0.82); max-width: 540px; line-height: 1.72; 
+          margin-bottom: clamp(20px, 3vw, 28px);
         }
-        .emp-hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+        .emp-hero-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: clamp(20px, 3vw, 28px); }
         .emp-btn-primary {
           display: inline-flex; align-items: center; gap: 8px;
-          padding: clamp(11px,1.4vw,14px) clamp(22px,2.8vw,32px); border-radius: 50px;
+          padding: clamp(10px, 1.4vw, 14px) clamp(18px, 2.8vw, 32px); border-radius: 50px;
           background: linear-gradient(135deg, #C4972A, #8B6914);
           color: #fff; font-family: 'Inter', sans-serif;
-          font-size: clamp(13px,1.2vw,14px); font-weight: 700; border: none; cursor: pointer;
+          font-size: clamp(12px, 1.2vw, 14px); font-weight: 700; border: none; cursor: pointer;
           box-shadow: 0 2px 8px rgba(196,151,42,0.25); transition: box-shadow 0.2s;
+          white-space: nowrap;
         }
         .emp-btn-primary:hover { box-shadow: 0 4px 16px rgba(196,151,42,0.4); }
         .emp-btn-secondary {
           display: inline-flex; align-items: center;
-          padding: clamp(11px,1.4vw,14px) clamp(22px,2.8vw,32px); border-radius: 50px;
+          padding: clamp(10px, 1.4vw, 14px) clamp(18px, 2.8vw, 32px); border-radius: 50px;
           background: rgba(255,255,255,0.08); backdrop-filter: blur(10px);
           border: 1.5px solid rgba(255,255,255,0.2); color: #fff;
-          font-family: 'Inter', sans-serif; font-size: clamp(13px,1.2vw,14px); font-weight: 600;
+          font-family: 'Inter', sans-serif; font-size: clamp(12px, 1.2vw, 14px); 
+          font-weight: 600;
           cursor: pointer; transition: background 0.2s, border-color 0.2s;
+          white-space: nowrap;
         }
         .emp-btn-secondary:hover { background: rgba(255,255,255,0.13); border-color: rgba(255,255,255,0.35); }
-        .emp-hero-stats { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
-        .emp-hero-stat-group { display: flex; align-items: center; gap: 14px; }
-        .emp-hero-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.15); }
+        .emp-hero-stats { 
+          display: flex; align-items: center; gap: clamp(10px, 2vw, 18px); 
+          flex-wrap: wrap; 
+        }
+        .emp-hero-stat-group { display: flex; align-items: center; gap: clamp(10px, 1.5vw, 14px); }
+        .emp-hero-divider { width: 1px; height: clamp(24px, 3vh, 30px); background: rgba(255,255,255,0.15); }
         .emp-hero-stat-num {
-          font-family: 'Inter', sans-serif; font-size: clamp(18px,2vw,24px);
+          font-family: 'Inter', sans-serif; font-size: clamp(16px, 2vw, 24px);
           font-weight: 800; color: #C4972A; display: block;
         }
         .emp-hero-stat-lbl {
-          font-family: 'Inter', sans-serif; font-size: 11px;
+          font-family: 'Inter', sans-serif; font-size: clamp(10px, 0.9vw, 11px);
           color: rgba(255,255,255,0.6); font-weight: 500;
         }
 
@@ -1467,7 +1478,7 @@ export default function Employers() {
         .emp-cta-section { padding-bottom: clamp(52px,8vh,80px); }
         .emp-cta-inner {
           background: linear-gradient(135deg, #0a1628 0%, #0f1d3d 50%, #1a2a4a 100%);
-          border-radius: 28px; padding: clamp(40px,6vw,60px) clamp(28px,5vw,56px);
+          border-radius: 28px; padding: clamp(32px,6vw,60px) clamp(20px,5vw,56px);
           position: relative; overflow: hidden;
         }
         .emp-cta-glow {
@@ -1476,19 +1487,19 @@ export default function Employers() {
         }
         .emp-cta-body { position: relative; z-index: 2; text-align: center; }
         .emp-cta-sub {
-          font-family: 'Inter', sans-serif; font-size: 14px;
+          font-family: 'Inter', sans-serif; font-size: clamp(13px, 1.2vw, 14px);
           color: rgba(255,255,255,0.78); max-width: 500px;
-          margin: 0 auto clamp(24px,4vh,32px); line-height: 1.72;
+          margin: 0 auto clamp(20px, 4vh, 32px); line-height: 1.72;
         }
         .emp-cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
         .emp-cta-ticks {
           display: flex; align-items: center; justify-content: center;
-          gap: 24px; flex-wrap: wrap; list-style: none;
+          gap: clamp(16px, 3vw, 24px); flex-wrap: wrap; list-style: none;
           padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.08);
         }
         .emp-cta-tick {
           display: flex; align-items: center; gap: 7px;
-          font-family: 'Inter', sans-serif; font-size: 12px;
+          font-family: 'Inter', sans-serif; font-size: clamp(11px, 1vw, 12px);
           color: rgba(255,255,255,0.62); font-weight: 500;
         }
 
@@ -1498,7 +1509,7 @@ export default function Employers() {
           display: flex; align-items: flex-start; gap: 12px;
           padding: 14px 18px; background: #fef2f2; border: 1px solid #fecaca;
           border-radius: 12px; color: #dc2626;
-          font-family: 'Inter', sans-serif; font-size: 13px;
+          font-family: 'Inter', sans-serif; font-size: clamp(12px, 1.1vw, 13px);
           margin-bottom: 24px; line-height: 1.5;
         }
         .rf-error-close {
@@ -1506,13 +1517,14 @@ export default function Employers() {
           color: #dc2626; cursor: pointer; padding: 4px; border-radius: 4px; flex-shrink: 0;
         }
         .rf-group {
-          background: #fff; border-radius: 16px; padding: clamp(20px,3vw,28px);
+          background: #fff; border-radius: 16px; padding: clamp(18px,3vw,28px);
           margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.06);
           box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
         .rf-legend {
-          font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700;
-          color: #0f1d3d; margin-bottom: 20px;
+          font-family: 'Inter', sans-serif; font-size: clamp(14px, 1.3vw, 15px); 
+          font-weight: 700;
+          color: #0f1d3d; margin-bottom: 18px;
           display: flex; align-items: center; gap: 10px; width: 100%;
           padding-bottom: 12px; border-bottom: 1px solid rgba(0,0,0,0.05);
         }
@@ -1525,14 +1537,16 @@ export default function Employers() {
         .rf-row-3 { grid-template-columns: repeat(3, 1fr); }
         .rf-field { display: flex; flex-direction: column; }
         .rf-label {
-          font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+          font-family: 'Inter', sans-serif; font-size: clamp(12px, 1.1vw, 13px); 
+          font-weight: 600;
           color: #334155; margin-bottom: 6px;
         }
         .rf-req { color: #dc2626; }
         .rf-input, .rf-select {
-          width: 100%; padding: 11px 14px;
+          width: 100%; padding: clamp(10px, 1.2vw, 11px) clamp(12px, 1.5vw, 14px);
           border: 1.5px solid #e2e8f0; border-radius: 10px;
-          font-family: 'Inter', sans-serif; font-size: 14px; color: #0f1d3d;
+          font-family: 'Inter', sans-serif; font-size: clamp(13px, 1.1vw, 14px); 
+          color: #0f1d3d;
           background: #fff; transition: border-color 0.2s, box-shadow 0.2s;
         }
         .rf-input:focus, .rf-select:focus {
@@ -1549,74 +1563,80 @@ export default function Employers() {
         }
         textarea.rf-input { resize: vertical; min-height: 110px; }
         .rf-err {
-          font-family: 'Inter', sans-serif; font-size: 12px;
+          font-family: 'Inter', sans-serif; font-size: clamp(11px, 1vw, 12px);
           color: #dc2626; margin-top: 4px;
         }
         .rf-help {
-          font-family: 'Inter', sans-serif; font-size: 12px;
+          font-family: 'Inter', sans-serif; font-size: clamp(11px, 1vw, 12px);
           color: #94a3b8; margin-top: 6px;
         }
         .rf-submit-wrap { text-align: center; padding-top: 12px; }
         .rf-submit-btn {
           display: inline-flex; align-items: center; gap: 10px;
-          padding: 15px 44px; border-radius: 50px;
+          padding: clamp(13px, 1.5vw, 15px) clamp(28px, 4vw, 44px); 
+          border-radius: 50px;
           background: linear-gradient(135deg, #C4972A, #8B6914);
           color: #fff; font-family: 'Inter', sans-serif;
-          font-size: 15px; font-weight: 700; border: none; cursor: pointer;
+          font-size: clamp(13px, 1.2vw, 15px); font-weight: 700; 
+          border: none; cursor: pointer;
           box-shadow: 0 2px 12px rgba(196,151,42,0.3);
           transition: opacity 0.2s, box-shadow 0.2s;
-          min-width: 240px; justify-content: center;
+          min-width: clamp(200px, 30vw, 240px); justify-content: center;
         }
         .rf-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
         .rf-spinner { animation: rf-spin 1s linear infinite; }
         @keyframes rf-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .rf-disclaimer {
-          font-family: 'Inter', sans-serif; font-size: 12px;
+          font-family: 'Inter', sans-serif; font-size: clamp(11px, 1vw, 12px);
           color: #94a3b8; margin-top: 12px;
         }
         .rf-link { color: #C4972A; text-decoration: underline; }
         .rf-success {
           max-width: 600px; margin: 0 auto; text-align: center;
           background: #fff; border-radius: 24px;
-          padding: clamp(32px,5vw,52px) clamp(24px,4vw,44px);
+          padding: clamp(28px,5vw,52px) clamp(20px,4vw,44px);
           border: 1px solid rgba(0,0,0,0.06);
           box-shadow: 0 4px 24px rgba(0,0,0,0.06);
         }
         .rf-success-icon {
-          width: 80px; height: 80px; border-radius: 50%;
+          width: clamp(64px, 8vw, 80px); height: clamp(64px, 8vw, 80px); 
+          border-radius: 50%;
           background: rgba(22,163,74,0.1);
           display: flex; align-items: center; justify-content: center;
-          color: #16a34a; margin: 0 auto 20px;
+          color: #16a34a; margin: 0 auto 18px;
         }
         .rf-success-title {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: 1.8rem; font-weight: 700; color: #0f1d3d; margin-bottom: 12px;
+          font-size: clamp(1.4rem, 2.5vw, 1.8rem); 
+          font-weight: 700; color: #0f1d3d; margin-bottom: 10px;
         }
         .rf-success-desc {
-          font-family: 'Inter', sans-serif; font-size: 14px;
-          color: #64748b; line-height: 1.72; margin-bottom: 28px;
+          font-family: 'Inter', sans-serif; font-size: clamp(13px, 1.2vw, 14px);
+          color: #64748b; line-height: 1.72; margin-bottom: 24px;
         }
         .rf-success-ticks {
-          display: flex; gap: 20px; justify-content: center;
-          flex-wrap: wrap; margin-bottom: 28px;
+          display: flex; gap: clamp(12px, 2vw, 20px); 
+          justify-content: center; flex-wrap: wrap; margin-bottom: 24px;
         }
         .rf-success-tick {
           display: flex; align-items: center; gap: 7px;
-          font-family: 'Inter', sans-serif; font-size: 13px;
+          font-family: 'Inter', sans-serif; font-size: clamp(12px, 1.1vw, 13px);
           color: #0f1d3d; font-weight: 600;
         }
         .rf-success-tick svg { color: #16a34a; flex-shrink: 0; }
         .rf-another-btn {
           display: inline-flex; align-items: center; gap: 8px;
-          padding: 13px 32px; border-radius: 50px;
+          padding: clamp(11px, 1.3vw, 13px) clamp(24px, 3vw, 32px); 
+          border-radius: 50px;
           background: #fff; color: #C4972A;
-          font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+          font-family: 'Inter', sans-serif; font-size: clamp(13px, 1.2vw, 14px); 
+          font-weight: 700;
           border: 2px solid #C4972A; cursor: pointer;
           transition: background 0.2s, color 0.2s;
         }
         .rf-another-btn:hover { background: #C4972A; color: #fff; }
 
-        /* ── Responsive ── */
+        /* ── RESPONSIVE BREAKPOINTS ── */
         @media (max-width: 1100px) {
           .emp-grid-4 { grid-template-columns: repeat(2, 1fr); }
         }
@@ -1624,19 +1644,39 @@ export default function Employers() {
           .emp-grid-3 { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
-          .emp-hero-bg { height: 520px; }
+          .emp-hero-bg { height: clamp(500px, 75vh, 600px) !important; }
+          .emp-hero-body { padding: clamp(24px, 4vw, 40px); }
           .emp-grid-4 { grid-template-columns: 1fr; }
           .emp-grid-3 { grid-template-columns: 1fr; }
           .rf-row, .rf-row-3 { grid-template-columns: 1fr; }
-          .emp-hero-stats { gap: 10px; }
-          .emp-hero-divider { height: 22px; }
-          .emp-cta-ticks { flex-direction: column; gap: 10px; align-items: center; }
+          .emp-hero-stats { gap: 8px; justify-content: center; }
+          .emp-hero-stat-group { gap: 8px; }
+          .emp-hero-divider { height: 18px; }
+          .emp-hero-btns { flex-direction: column; align-items: stretch; }
+          .emp-btn-primary, .emp-btn-secondary { justify-content: center; white-space: normal; }
+          .emp-cta-btns { flex-direction: column; align-items: stretch; }
+          .emp-cta-ticks { flex-direction: column; gap: 8px; align-items: center; }
           .rf-success-ticks { flex-direction: column; align-items: center; }
+          .emp-section-cream { padding: clamp(24px, 4vw, 36px) clamp(12px, 2vw, 20px); }
+          .rf-group { padding: clamp(16px, 3vw, 20px); }
+          .rf-submit-btn { min-width: 100%; }
         }
         @media (max-width: 480px) {
-          .emp-hero-btns { flex-direction: column; align-items: stretch; }
-          .emp-btn-primary, .emp-btn-secondary { justify-content: center; }
-          .emp-cta-btns { flex-direction: column; align-items: stretch; }
+          .emp-hero-title { font-size: clamp(1.5rem, 6vw, 2rem); }
+          .emp-hero-sub { font-size: clamp(12px, 3.5vw, 14px); }
+          .emp-hero-stats { gap: 6px; flex-wrap: wrap; justify-content: center; }
+          .emp-hero-stat-group { gap: 6px; }
+          .emp-hero-stat-num { font-size: clamp(14px, 4vw, 18px); }
+          .emp-hero-stat-lbl { font-size: clamp(9px, 2.5vw, 10px); }
+          .emp-cta-inner { padding: clamp(24px, 5vw, 32px) clamp(16px, 3vw, 24px); }
+          .rf-success { padding: clamp(20px, 4vw, 28px) clamp(16px, 3vw, 24px); }
+          .section-heading { font-size: clamp(1.4rem, 4.5vw, 1.8rem); }
+          .emp-card { padding: clamp(16px, 3vw, 20px); }
+          .emp-benefit-card { flex-direction: column; align-items: center; text-align: center; }
+          .emp-sector-card { flex-direction: column; align-items: center; text-align: center; }
+          .emp-benefit-icon { margin-bottom: 8px; }
+          .emp-card-title { font-size: clamp(14px, 4vw, 16px); }
+          .rf-legend { font-size: clamp(13px, 3.5vw, 14px); }
         }
 
         /* ── Reduced motion ── */

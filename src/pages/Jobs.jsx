@@ -320,7 +320,7 @@ function JobsBanner() {
           Find Your <span className="jobs-banner-highlight">Dream Healthcare Role</span>
         </h1>
         <p className="jobs-banner-subtitle">
-          Explore {JOBS_DATA.length} opportunities across North-West England —
+          Explore {JOBS_DATA.length} opportunities across North-West England -
           from nursing to support roles, we have the perfect position for you.
         </p>
         <div className="jobs-banner-stats" aria-label="Key statistics">
