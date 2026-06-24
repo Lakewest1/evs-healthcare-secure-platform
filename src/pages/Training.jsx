@@ -235,7 +235,6 @@ function TrainingBanner() {
           ))}
         </div>
 
-        {/* Apply Now Button in Banner - scrolls to form */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -293,10 +292,7 @@ function CourseCard({ course, index, categoryColor }) {
       }}
     >
       <div className="cc-card-inner">
-        {/* Colour accent bar */}
         <div className="cc-bar" style={{ background:categoryColor }} aria-hidden="true" />
-
-        {/* Content */}
         <div className="cc-content">
           <p className="cc-title">{course.title}</p>
           <div className="cc-meta">
@@ -310,8 +306,6 @@ function CourseCard({ course, index, categoryColor }) {
             </span>
           </div>
         </div>
-
-        {/* Enrol button — scrolls to form + pre-fills course */}
         <button
           type="button"
           onClick={handleEnrol}
@@ -509,7 +503,6 @@ function TrainingCTA() {
         </p>
 
         <div className="cta-btns">
-          {/* Enquire — scrolls to form, no pre-fill */}
           <motion.button
             type="button"
             whileHover={{ scale:1.04, boxShadow:"0 10px 28px rgba(196,151,42,0.48)" }}
@@ -521,7 +514,6 @@ function TrainingCTA() {
             <ArrowRight size={14} aria-hidden="true" />
           </motion.button>
 
-          {/* Apply Now — scrolls to form */}
           <motion.button
             type="button"
             whileHover={{ scale:1.03, background:"rgba(255,255,255,0.14)" }}
@@ -533,7 +525,6 @@ function TrainingCTA() {
           </motion.button>
         </div>
 
-        {/* Trust indicators */}
         <div className="cta-trust" aria-label="Trust indicators">
           {[
             { icon:<CheckCircle size={13} style={{ color:T.gold }} />, text:"Fully accredited programmes" },
@@ -554,7 +545,7 @@ function TrainingCTA() {
 // ─────────────────────────────────────────────────────────────────────────────
 // TRAINING ENQUIRY FORM — Formspree integration
 // ─────────────────────────────────────────────────────────────────────────────
-const FORMSPREE_ID = "YOUR_FORMSPREE_ID"; // ← replace with your Formspree form ID
+const FORMSPREE_ID = "YOUR_FORMSPREE_ID";
 
 const INITIAL_FORM = {
   name:    "",
@@ -587,11 +578,10 @@ function TrainingForm() {
   const [fields,    setFields]    = useState(INITIAL_FORM);
   const [errors,    setErrors]    = useState({});
   const [touched,   setTouched]   = useState({});
-  const [status,    setStatus]    = useState("idle"); // idle | submitting | success | error
+  const [status,    setStatus]    = useState("idle");
   const [focusedId, setFocusedId] = useState(null);
   const navigate = useNavigate();
 
-  // Listen for course pre-fill events dispatched by CourseCard & scrollToForm
   useEffect(() => {
     const handler = (e) => {
       setFields(prev => ({ ...prev, course: e.detail }));
@@ -683,12 +673,10 @@ function TrainingForm() {
       animate={inView ? "visible" : "hidden"}
       className="tf-section"
     >
-      {/* Decorative blobs */}
       <div className="tf-blob tf-blob-tl" aria-hidden="true" />
       <div className="tf-blob tf-blob-br" aria-hidden="true" />
 
       <div className="tf-container">
-        {/* Left column — info */}
         <div className="tf-left">
           <SectionEyebrow label="Get In Touch" />
 
@@ -718,7 +706,6 @@ function TrainingForm() {
             ))}
           </div>
 
-          {/* Contact direct */}
           <div className="tf-direct">
             <span className="tf-direct-label">Prefer to call?</span>
             <a href="tel:+441772379989" className="tf-direct-link">
@@ -727,7 +714,6 @@ function TrainingForm() {
             </a>
           </div>
 
-          {/* Apply Now button in left panel - scrolls to form */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -755,11 +741,9 @@ function TrainingForm() {
           </motion.button>
         </div>
 
-        {/* Right column — form */}
         <div className="tf-right">
           <AnimatePresence mode="wait">
             {status === "success" ? (
-              /* ── Success state ── */
               <motion.div
                 key="success"
                 initial={{ opacity:0, scale:0.92 }}
@@ -792,7 +776,6 @@ function TrainingForm() {
                 </button>
               </motion.div>
             ) : (
-              /* ── Form state ── */
               <motion.form
                 key="form"
                 initial={{ opacity:0 }}
@@ -808,14 +791,12 @@ function TrainingForm() {
                   Select a course above or choose from the dropdown below, then tell us a little about yourself.
                 </p>
 
-                {/* Error banner */}
                 {status === "error" && (
                   <div className="tf-error-banner" role="alert">
                     Something went wrong. Please try again or call us directly.
                   </div>
                 )}
 
-                {/* Row 1: Name + Email */}
                 <div className="tf-row">
                   <div className="tf-field">
                     <label htmlFor="tf-name" className="tf-label">
@@ -876,7 +857,6 @@ function TrainingForm() {
                   </div>
                 </div>
 
-                {/* Row 2: Phone + Course */}
                 <div className="tf-row">
                   <div className="tf-field">
                     <label htmlFor="tf-phone" className="tf-label">
@@ -939,7 +919,6 @@ function TrainingForm() {
                   </div>
                 </div>
 
-                {/* Message */}
                 <div className="tf-field">
                   <label htmlFor="tf-message" className="tf-label">
                     Additional Information
@@ -963,13 +942,11 @@ function TrainingForm() {
                   </div>
                 </div>
 
-                {/* Privacy note */}
                 <p className="tf-privacy">
                   Your information is kept confidential and used only to respond to your enquiry.
                   We never share your details with third parties.
                 </p>
 
-                {/* Submit */}
                 <motion.button
                   type="submit"
                   whileHover={status !== "submitting" ? { scale:1.02, boxShadow:"0 10px 28px rgba(196,151,42,0.42)" } : {}}
@@ -1178,8 +1155,6 @@ export default function Training() {
           display: flex; align-items: center; gap: 4px;
           font-family: 'Inter',sans-serif; font-size: 11px; color: #64748b;
         }
-
-        /* Enrol button */
         .cc-enrol {
           flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
           padding: 5px 13px; border-radius: 20px; border: none;
@@ -1575,65 +1550,250 @@ export default function Training() {
         .tb-empty h3 { font-family:'Inter',sans-serif; font-size:18px; color:#0f1d3d; margin:14px 0 6px; }
         .tb-empty p  { font-family:'Inter',sans-serif; font-size:13px; }
 
-        /* ── RESPONSIVE ── */
+        /* ── OPTIMIZED RESPONSIVE FOR MOBILE (REDUCED SCROLLING) ── */
         @media (max-width: 960px) {
           .tf-container { grid-template-columns: 1fr; }
           .tf-left { border-radius: 28px 28px 0 0; }
           .tf-direct { padding-top: 20px; }
           .tf-left .apply-now-btn { align-self: center; width: 100%; justify-content: center; }
+          
+          /* ── Reduce banner height on tablet ── */
+          .tb-banner-bg { height: 240px; }
+          .tb-banner-content { padding: 28px 32px; }
+          .tb-banner-title { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+          .tb-banner-icon { width: 44px; height: 44px; }
+          .tb-banner-stats { gap: 14px; }
+          .tb-stat-num { font-size: clamp(18px, 1.8vw, 22px); }
         }
+
         @media (max-width: 900px) {
           .cat-grid { grid-template-columns: 1fr; }
         }
+
         @media (max-width: 768px) {
-          .tb-banner-bg { height: 360px; }
-          .tb-banner-content { padding: 28px 24px; }
-          .tb-banner-icon { width: 42px; height: 42px; }
-          .tb-toolbar { position: static; padding: 10px 12px; }
+          /* ── Reduce banner height on mobile ── */
+          .tb-banner-bg { height: 300px; }
+          .tb-banner-content { padding: 24px 20px; }
+          .tb-banner-icon { width: 38px; height: 38px; }
+          .tb-banner-title { font-size: clamp(1.4rem, 4vw, 1.8rem); }
+          .tb-banner-subtitle { font-size: clamp(12px, 1.5vw, 13px); margin-bottom: 14px; }
+          .tb-banner-stats { gap: 10px; }
+          .tb-stat-num { font-size: clamp(16px, 2.5vw, 20px); }
+          .tb-stat-lbl { font-size: clamp(9px, 1.2vw, 10px); }
+          
+          .tb-toolbar { 
+            position: static; 
+            padding: 10px 12px; 
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .tb-search { min-width: unset; }
+          .tb-select-wrap { justify-content: center; }
+          
           .cat-desc { display: none; }
-          .tp-block { padding: 28px 20px; }
+          .cat-header { padding: 14px 16px; }
+          .cat-icon { width: 38px; height: 38px; }
+          .cat-title { font-size: 15px; }
+          .cat-count { font-size: 10px; padding: 2px 8px; }
+          .cat-panel { padding: 0 16px 16px; }
+          
+          .tp-block { padding: 24px 16px; margin-top: 32px; }
+          .tp-title { font-size: 17px; }
+          .tp-pills { gap: 6px; }
+          .tp-pill { padding: 6px 14px; font-size: 11px; }
+          
           .cta-trust { gap: 14px; }
+          .cta-inner { padding: clamp(30px, 4vw, 40px) clamp(20px, 3vw, 28px); }
+          .cta-heading { font-size: clamp(1.4rem, 3vw, 1.8rem); }
+          .cta-sub { font-size: 13px; margin-bottom: 20px; }
+          .cta-btns { flex-direction: column; align-items: center; }
+          .cta-btn-primary, .cta-btn-secondary { width: 100%; justify-content: center; }
+          .cta-trust-item { font-size: 11px; }
+          
           .tf-row { grid-template-columns: 1fr; }
           .tf-left { padding: clamp(24px, 4vw, 40px) clamp(16px, 3vw, 28px); }
           .tf-right { padding: clamp(20px, 3vw, 32px) clamp(14px, 2.5vw, 24px); }
           .tf-info-item { flex-direction: row; }
-          .tf-section { border-radius: 20px; }
-          .tf-left .apply-now-btn { 
-            width: 100%; 
-            justify-content: center; 
-          }
-        }
-        @media (max-width: 600px) {
-          .tf-info-item { flex-direction: row; }
-          .tf-info-item svg { align-self: flex-start; flex-shrink: 0; }
-          .tf-info-body { font-size: clamp(11px, 2.5vw, 12px); }
-          .tf-sub { font-size: clamp(12px, 2.8vw, 13px); }
-          .tf-heading { font-size: clamp(1.3rem, 5vw, 1.6rem); }
-          .tf-direct { flex-direction: column; align-items: flex-start; gap: 8px; }
-          .tf-direct-link { font-size: clamp(12px, 3vw, 13px); }
-        }
-        @media (max-width: 480px) {
-          .tb-banner-stats { gap: 10px; }
-          .tb-stat-num { font-size: 18px; }
-          .cat-panel { padding: 0 16px 20px; }
-          .cta-btns { flex-direction: column; align-items: center; }
-          .cta-btn-primary, .cta-btn-secondary { width: 100%; justify-content: center; }
-          .tf-right { padding: 16px 12px; }
-          .tf-submit { width: 100%; }
+          .tf-section { border-radius: 20px; margin-top: 40px; }
           .tf-left .apply-now-btn { width: 100%; justify-content: center; }
-          .tf-info-item { flex-direction: row; align-items: flex-start; gap: 8px; }
-          .tf-info-item svg { min-width: 16px; }
-          .tf-info-body { font-size: clamp(10.5px, 2.5vw, 11.5px); }
+          .tf-heading { font-size: clamp(1.3rem, 4vw, 1.6rem); }
+          .tf-sub { font-size: clamp(12px, 2.5vw, 13px); }
+          .tf-info-body { font-size: clamp(11px, 2.2vw, 12px); }
+          .tf-form-intro { font-size: clamp(11px, 2.2vw, 12px); padding: 8px 12px; }
+        }
+
+        @media (max-width: 600px) {
+          .tb-banner-bg { height: 260px; }
+          .tb-banner-title { font-size: clamp(1.2rem, 4.5vw, 1.5rem); }
+          .tb-banner-subtitle { font-size: clamp(11px, 2vw, 12px); }
+          .tb-banner-stats { gap: 8px; }
+          .tb-stat-num { font-size: clamp(14px, 3vw, 18px); }
+          .tb-stat-lbl { font-size: clamp(8px, 1.5vw, 9px); }
+          
+          .tb-toolbar { padding: 8px 10px; gap: 8px; }
+          .tb-search input { font-size: 13px; padding: 8px 0; }
+          .tb-select-wrap select { font-size: 12px; padding: 8px 4px; }
+          
+          .cat-header { padding: 12px 12px; gap: 8px; }
+          .cat-header-left { gap: 10px; }
+          .cat-icon { width: 34px; height: 34px; }
+          .cat-title { font-size: 13px; }
+          .cat-count { font-size: 9px; padding: 2px 6px; }
+          .cat-panel { padding: 0 12px 12px; }
+          .cat-grid { gap: 6px; padding-top: 10px; }
+          
+          .cc-card-inner { padding: 10px 10px 10px 0; }
+          .cc-bar { width: 3px; height: 28px; margin-right: 10px; }
+          .cc-title { font-size: 11px; }
+          .cc-meta-item { font-size: 10px; gap: 3px; }
+          .cc-enrol { padding: 4px 10px; font-size: 10px; gap: 3px; }
+          .cc-enrol svg { width: 9px; height: 9px; }
+          
+          .tp-block { padding: 20px 12px; }
+          .tp-title { font-size: 15px; }
+          .tp-sub { font-size: 12px; }
+          .tp-pill { padding: 5px 12px; font-size: 10px; }
+          
+          .cta-inner { padding: clamp(24px, 4vw, 32px) clamp(16px, 3vw, 20px); }
+          .cta-heading { font-size: clamp(1.2rem, 3.5vw, 1.5rem); }
+          .cta-sub { font-size: 12px; }
+          .cta-btn-primary, .cta-btn-secondary { font-size: 13px; padding: 11px 20px; }
+          
+          .tf-section { margin-top: 32px; border-radius: 16px; }
+          .tf-left { padding: clamp(20px, 3vw, 28px) clamp(14px, 2vw, 20px); }
+          .tf-right { padding: 16px 12px; }
+          .tf-submit { width: 100%; font-size: clamp(12px, 2.8vw, 13px); padding: 12px 20px; min-height: 44px; }
           .tf-label { font-size: clamp(11px, 2.5vw, 12px); }
           .tf-input { font-size: clamp(12px, 2.8vw, 13px); }
           .tf-select { font-size: clamp(12px, 2.8vw, 13px); }
           .tf-textarea { font-size: clamp(12px, 2.8vw, 13px); }
-          .tf-form-intro { font-size: clamp(11px, 2.5vw, 12px); padding: 8px 12px; }
+          .tf-info-item { flex-direction: row; align-items: flex-start; gap: 8px; }
+          .tf-info-item svg { min-width: 16px; }
+          .tf-info-body { font-size: clamp(10.5px, 2.5vw, 11.5px); }
           .tf-privacy { font-size: clamp(10px, 2.2vw, 11px); }
-          .tf-submit { font-size: clamp(12px, 2.8vw, 13px); padding: 12px 20px; min-height: 44px; }
           .tf-success-title { font-size: clamp(16px, 4vw, 18px); }
           .tf-success-body { font-size: clamp(11px, 2.5vw, 12px); }
           .tf-field-err { font-size: clamp(10px, 2.2vw, 11px); }
+        }
+
+        @media (max-width: 480px) {
+          /* ── Super compact mobile ── */
+          .tb-banner-bg { height: 220px; }
+          .tb-banner-content { padding: 18px 16px; }
+          .tb-banner-icon { width: 32px; height: 32px; }
+          .tb-banner-icon svg { width: 18px; height: 18px; }
+          .tb-banner-title { font-size: clamp(1rem, 4vw, 1.3rem); margin-bottom: 4px; }
+          .tb-banner-subtitle { font-size: clamp(10px, 2.2vw, 11px); margin-bottom: 10px; line-height: 1.5; }
+          .tb-banner-stats { gap: 6px; }
+          .tb-stat { gap: 3px; }
+          .tb-stat-num { font-size: clamp(12px, 3vw, 16px); }
+          .tb-stat-lbl { font-size: clamp(7px, 1.5vw, 8px); }
+          .tb-divider { height: 16px; }
+          
+          .tb-toolbar { 
+            padding: 6px 8px; 
+            border-radius: 12px;
+            gap: 6px;
+          }
+          .tb-search { 
+            padding: 0 10px; 
+            border-radius: 8px;
+            min-width: unset;
+          }
+          .tb-search input { 
+            font-size: 12px; 
+            padding: 6px 0; 
+          }
+          .tb-search svg { width: 14px; height: 14px; }
+          .tb-select-wrap { 
+            padding: 0 10px; 
+            border-radius: 8px;
+          }
+          .tb-select-wrap select { 
+            font-size: 11px; 
+            padding: 6px 4px; 
+          }
+          .tb-select-wrap svg { width: 12px; height: 12px; }
+          .tb-count { font-size: 11px; margin-bottom: 12px; }
+          
+          .cat-block { border-radius: 14px; }
+          .cat-header { padding: 10px 10px; }
+          .cat-header-left { gap: 8px; }
+          .cat-icon { width: 30px; height: 30px; border-radius: 10px; }
+          .cat-icon svg { width: 16px; height: 16px; }
+          .cat-title { font-size: 12px; }
+          .cat-count { font-size: 8px; padding: 2px 6px; }
+          .cat-header-right { gap: 6px; padding-left: 8px; }
+          .cat-header-right svg { width: 14px; height: 14px; }
+          .cat-panel { padding: 0 8px 10px; }
+          .cat-grid { gap: 4px; padding-top: 8px; }
+          
+          .cc-card { border-radius: 10px; }
+          .cc-card-inner { padding: 8px 8px 8px 0; }
+          .cc-bar { width: 3px; height: 24px; margin-right: 8px; }
+          .cc-title { font-size: 10px; margin-bottom: 2px; }
+          .cc-meta { gap: 6px; }
+          .cc-meta-item { font-size: 9px; gap: 2px; }
+          .cc-meta-item svg { width: 9px; height: 9px; }
+          .cc-enrol { padding: 3px 8px; font-size: 9px; gap: 2px; }
+          .cc-enrol svg { width: 8px; height: 8px; }
+          
+          .tp-block { padding: 16px 10px; border-radius: 14px; margin-top: 24px; }
+          .tp-title { font-size: 14px; margin-bottom: 4px; }
+          .tp-sub { font-size: 11px; }
+          .tp-pills { gap: 4px; }
+          .tp-pill { padding: 4px 10px; font-size: 9px; border-radius: 30px; }
+          .tp-footer { font-size: 10px; }
+          
+          .cta-strip { border-radius: 16px; margin-top: 32px; }
+          .cta-inner { padding: clamp(20px, 3vw, 28px) clamp(14px, 2vw, 18px); }
+          .cta-icon { width: 40px; height: 40px; margin-bottom: 12px; }
+          .cta-icon svg { width: 18px; height: 18px; }
+          .cta-heading { font-size: clamp(1rem, 3vw, 1.3rem); margin-bottom: 8px; }
+          .cta-sub { font-size: 11px; margin-bottom: 16px; }
+          .cta-btns { gap: 8px; }
+          .cta-btn-primary, .cta-btn-secondary { font-size: 12px; padding: 10px 16px; }
+          .cta-trust { gap: 10px; padding-top: 14px; }
+          .cta-trust-item { font-size: 10px; gap: 4px; }
+          .cta-trust-item svg { width: 11px; height: 11px; }
+          
+          .tf-section { margin-top: 24px; border-radius: 14px; }
+          .tf-left { padding: clamp(16px, 2vw, 24px) clamp(12px, 1.5vw, 16px); }
+          .tf-heading { font-size: clamp(1.1rem, 3.5vw, 1.3rem); margin-bottom: 8px; }
+          .tf-sub { font-size: clamp(11px, 2.2vw, 12px); margin-bottom: 16px; line-height: 1.5; }
+          .tf-info-list { gap: 10px; margin-bottom: 16px; }
+          .tf-info-item { gap: 6px; }
+          .tf-info-item svg { width: 14px; height: 14px; min-width: 14px; }
+          .tf-info-heading { font-size: clamp(11px, 2.2vw, 12px); }
+          .tf-info-body { font-size: clamp(10px, 2vw, 11px); }
+          .tf-direct { padding-top: 14px; gap: 8px; }
+          .tf-direct-label { font-size: 10px; }
+          .tf-direct-link { font-size: clamp(11px, 2.5vw, 12px); gap: 4px; }
+          .tf-direct-link svg { width: 12px; height: 12px; }
+          
+          .tf-right { padding: 14px 10px; }
+          .tf-form { gap: 12px; }
+          .tf-form-intro { font-size: clamp(10px, 2vw, 11px); padding: 6px 10px; }
+          .tf-row { gap: 10px; }
+          .tf-field { gap: 4px; }
+          .tf-label { font-size: clamp(10px, 2.2vw, 11px); gap: 4px; }
+          .tf-optional { font-size: 8px; padding: 1px 5px; }
+          .tf-input-wrap { border-radius: 8px; padding: 0 8px; gap: 6px; }
+          .tf-input-icon { width: 12px; height: 12px; min-width: 12px; }
+          .tf-input { font-size: clamp(11px, 2.5vw, 12px); padding: 8px 0; }
+          .tf-select { font-size: clamp(11px, 2.5vw, 12px); padding: 8px 0; }
+          .tf-textarea-wrap { border-radius: 8px; padding: 8px 10px; gap: 6px; }
+          .tf-textarea { font-size: clamp(11px, 2.5vw, 12px); min-height: 60px; }
+          .tf-textarea-icon { width: 12px; height: 12px; min-width: 12px; }
+          .tf-privacy { font-size: clamp(9px, 2vw, 10px); margin: 0; }
+          .tf-submit { font-size: clamp(11px, 2.5vw, 12px); padding: 10px 16px; min-height: 40px; border-radius: 40px; gap: 6px; }
+          .tf-submit svg { width: 14px; height: 14px; }
+          .tf-success { padding: clamp(20px, 3vw, 28px) clamp(14px, 2vw, 18px); gap: 10px; }
+          .tf-success-icon { width: 48px; height: 48px; }
+          .tf-success-icon svg { width: 24px; height: 24px; }
+          .tf-success-title { font-size: clamp(14px, 3.5vw, 16px); }
+          .tf-success-body { font-size: clamp(11px, 2.2vw, 12px); }
+          .tf-success-reset { font-size: clamp(11px, 2.2vw, 12px); padding: 6px 16px; }
         }
       `}</style>
 

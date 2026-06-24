@@ -24,6 +24,8 @@ import {
   Phone,
   Mail,
   MapPin,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,6 +44,8 @@ const T = {
   slateLight: "#64748b",
   border:     "rgba(0,0,0,0.06)",
   borderGold: "rgba(196,151,42,0.2)",
+  mutedText:  "#475569",
+  textDarkBg: "rgba(255,255,255,0.85)",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -123,7 +127,7 @@ const MISSION_POINTS = [
 ];
 
 const TEAM = [
-  { name: "Sir Wizzy Ummah",   role: "CEO & Founder",           icon: Briefcase,  bio: "20+ years in healthcare recruitment. Sarah founded EVS on a single principle: every placement should feel like a partnership, not a transaction."  },
+  { name: "Sir Wizzy Ummah",   role: "CEO & Founder",           icon: Briefcase,  bio: "20+ years in healthcare recruitment. Sir Wizzy founded EVS on a single principle: every placement should feel like a partnership, not a transaction."  },
   { name: "Michael Roberts", role: "Operations Director",     icon: ShieldCheck, bio: "Former NHS operations lead. Michael ensures same-day cover, watertight compliance, and seamless handovers across all our partner sites."              },
   { name: "Emma Thompson",   role: "Head of Compliance",      icon: BadgeCheck,  bio: "DBS, NMC, NVQ, manual handling - Emma's team manages 100% of regulatory paperwork so our clients never have to chase a document."                  },
   { name: "James Wilson",    role: "Business Development",    icon: TrendingUp,  bio: "James builds the relationships that let us move fast. His network spans NHS procurement, private healthcare groups, and independent care providers." },
@@ -216,6 +220,212 @@ function CheckItem({ children }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ── GLOBAL PARAGRAPH STYLES (injected via CSS) ──
+// ─────────────────────────────────────────────────────────────────────────────
+const PARAGRAPH_STYLES = `
+  /* ==========================================================
+     GLOBAL PARAGRAPH STYLING
+     ========================================================== */
+
+  .about-page p {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+    font-weight: 400;
+    line-height: 1.8;
+    letter-spacing: -0.01em;
+    color: #475569;
+    margin: 0 0 1.5rem;
+    max-width: 68ch;
+    text-wrap: pretty;
+  }
+
+  /* Better contrast on dark backgrounds */
+  .about-page .section-navy p,
+  .about-page .section-navy-grid p {
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* Override for specific elements that need different styling */
+  .about-page .p-small {
+    font-size: clamp(0.875rem, 0.85rem + 0.15vw, 1rem);
+  }
+
+  .about-page .p-large {
+    font-size: clamp(1.125rem, 1.05rem + 0.25vw, 1.25rem);
+  }
+
+  .about-page p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ── Mobile Carousel Styles ── */
+  .mobile-carousel-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .mobile-carousel-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+
+  .mobile-carousel-track > * {
+    flex: 0 0 100%;
+    padding: 0 4px;
+  }
+
+  .mobile-carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(196,151,42,0.2);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #0f1d3d;
+  }
+  .mobile-carousel-btn:hover {
+    background: #C4972A;
+    color: #fff;
+    border-color: #C4972A;
+  }
+  .mobile-carousel-btn:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+  .mobile-carousel-btn-prev { left: -4px; }
+  .mobile-carousel-btn-next { right: -4px; }
+
+  /* ── Mobile Team Marquee ── */
+  .mobile-team-marquee-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    padding: 8px 0;
+  }
+
+  .mobile-team-track {
+    display: flex;
+    width: max-content;
+    animation: mobileTeamMarquee 25s linear infinite;
+    will-change: transform;
+  }
+
+  .mobile-team-track.paused {
+    animation-play-state: paused;
+  }
+
+  .mobile-team-track > * {
+    flex-shrink: 0;
+    width: 280px;
+    margin: 0 10px;
+  }
+
+  @keyframes mobileTeamMarquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .mobile-team-marquee-container .nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .mobile-team-marquee-container .nav-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(196,151,42,0.2);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: #0f1d3d;
+  }
+  .mobile-team-marquee-container .nav-btn:hover {
+    background: #C4972A;
+    color: #fff;
+    border-color: #C4972A;
+  }
+  .mobile-team-marquee-container .nav-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* ── Stats 2x2 Grid on Mobile ── */
+  @media (max-width: 640px) {
+    .stats-grid-desktop {
+      display: none !important;
+    }
+    .stats-grid-mobile {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+  }
+
+  @media (min-width: 641px) {
+    .stats-grid-mobile {
+      display: none !important;
+    }
+    .stats-grid-desktop {
+      display: grid !important;
+    }
+  }
+
+  /* ── Values Carousel on Mobile ── */
+  @media (max-width: 640px) {
+    .values-grid-desktop {
+      display: none !important;
+    }
+    .values-grid-mobile {
+      display: block !important;
+    }
+  }
+
+  @media (min-width: 641px) {
+    .values-grid-mobile {
+      display: none !important;
+    }
+    .values-grid-desktop {
+      display: grid !important;
+    }
+  }
+
+  /* ── Team Grid on Mobile ── */
+  @media (max-width: 640px) {
+    .team-grid-desktop {
+      display: none !important;
+    }
+    .team-grid-mobile {
+      display: block !important;
+    }
+  }
+
+  @media (min-width: 641px) {
+    .team-grid-mobile {
+      display: none !important;
+    }
+    .team-grid-desktop {
+      display: grid !important;
+    }
+  }
+`;
+
+// ─────────────────────────────────────────────────────────────────────────────
 // HERO SECTION
 // ─────────────────────────────────────────────────────────────────────────────
 function HeroSection() {
@@ -234,6 +444,7 @@ function HeroSection() {
 
   return (
     <section
+      className="about-page section-navy"
       aria-labelledby="about-hero-heading"
       style={{
         minHeight: "80vh",
@@ -348,17 +559,17 @@ function HeroSection() {
             <span style={{ width: 32, height: 2, background: T.gold, borderRadius: 999, display: "block" }} />
           </div>
 
-          {/* Heading */}
           <h1
             id="about-hero-heading"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: "clamp(2.2rem, 5vw, 3.8rem)",
+              fontFamily: "'Nunito Sans', sans-serif",
+              fontSize: "clamp(2.2rem, 5vw, 4.5rem)",
               fontWeight: 900,
               color: T.white,
-              letterSpacing: "-0.02em",
               lineHeight: 1.15,
-              marginBottom: "clamp(14px, 2.5vh, 22px)",
+              letterSpacing: "-0.01em",
+              marginBottom: 18,
+              textShadow: "rgba(4, 10, 32, 0.55) 0px 2px 20px, rgba(4, 10, 32, 0.4) 0px 1px 4px",
             }}
           >
             Your Trusted Healthcare
@@ -366,18 +577,15 @@ function HeroSection() {
             <span style={{ color: T.gold }}>Recruitment Partner</span>
           </h1>
 
-          {/* Subheading */}
           <motion.p
             initial={shouldReduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.65, ease: EASE }}
+            className="section-navy"
             style={{
-              fontFamily: "'Inter', sans-serif",
-              color: "rgba(255,255,255,0.78)",
-              fontSize: "clamp(15px, 1.6vw, 17px)",
+              color: "rgba(255,255,255,0.85)",
               maxWidth: 620,
               margin: "0 auto clamp(28px, 4vh, 44px)",
-              lineHeight: 1.72,
             }}
           >
             A client-centred agency with a network of over{" "}
@@ -450,7 +658,6 @@ function HeroSection() {
             </motion.button>
           </div>
 
-          {/* Scroll cue */}
           <motion.div
             initial={shouldReduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -489,7 +696,7 @@ function HeroSection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STATS BAND
+// STATS BAND — 2x2 on mobile
 // ─────────────────────────────────────────────────────────────────────────────
 function StatsSection() {
   const [ref, inView] = useSectionReveal(0.1);
@@ -498,6 +705,7 @@ function StatsSection() {
   return (
     <section
       ref={ref}
+      className="about-page"
       aria-labelledby="stats-heading"
       style={{
         padding: "clamp(60px, 8vh, 96px) clamp(20px, 5vw, 80px)",
@@ -518,14 +726,8 @@ function StatsSection() {
           </Heading>
         </motion.div>
 
-        {/* Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
-            gap: "clamp(14px, 2.5vw, 24px)",
-          }}
-        >
+        {/* Desktop Grid */}
+        <div className="stats-grid-desktop" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))", gap: "clamp(14px, 2.5vw, 24px)" }}>
           {STATS.map((s, i) => {
             const Icon = s.icon;
             return (
@@ -589,6 +791,69 @@ function StatsSection() {
             );
           })}
         </div>
+
+        {/* Mobile 2x2 Grid */}
+        <div className="stats-grid-mobile" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          {STATS.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <motion.div
+                key={s.label}
+                variants={fadeUp(i * 0.1)}
+                initial="hidden"
+                animate={inView ? "visible" : "hidden"}
+                style={{
+                  background: T.white,
+                  borderRadius: 16,
+                  padding: "20px 14px",
+                  textAlign: "center",
+                  border: `1px solid ${T.border}`,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    background: "rgba(196,151,42,0.08)",
+                    border: `1px solid rgba(196,151,42,0.15)`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 auto 12px",
+                  }}
+                >
+                  <Icon size={20} color={T.gold} strokeWidth={1.8} aria-hidden="true" />
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "clamp(22px, 5vw, 28px)",
+                    fontWeight: 800,
+                    color: T.gold,
+                    letterSpacing: "-0.02em",
+                    lineHeight: 1,
+                    marginBottom: 4,
+                  }}
+                >
+                  {s.value}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "clamp(10px, 2.5vw, 12px)",
+                    color: T.slateLight,
+                    fontWeight: 500,
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {s.label.replace("\n", " ")}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -610,6 +875,7 @@ function WhoWeAreSection() {
   return (
     <section
       ref={ref}
+      className="about-page"
       aria-labelledby="who-heading"
       style={{
         padding: "clamp(60px, 8vh, 96px) clamp(20px, 5vw, 80px)",
@@ -636,15 +902,7 @@ function WhoWeAreSection() {
           <Heading id="who-heading" style={{ marginBottom: 20 }}>
             A Client-Centred <Au>Staffing Agency</Au>
           </Heading>
-          <p
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: "clamp(14px, 1.4vw, 15px)",
-              color: T.slate,
-              lineHeight: 1.78,
-              marginBottom: 28,
-            }}
-          >
+          <p>
             With a growing network of over{" "}
             <strong style={{ color: T.navy, fontWeight: 600 }}>
               5,000 healthcare professionals
@@ -704,7 +962,6 @@ function WhoWeAreSection() {
               display: "block",
             }}
           />
-          {/* Caption overlay */}
           <div
             style={{
               position: "absolute",
@@ -752,6 +1009,7 @@ function MissionSection() {
   return (
     <section
       ref={ref}
+      className="about-page"
       aria-labelledby="mission-heading"
       style={{
         padding: "clamp(60px, 8vh, 96px) clamp(20px, 5vw, 80px)",
@@ -830,15 +1088,7 @@ function MissionSection() {
           <Heading id="mission-heading" style={{ marginBottom: 20 }}>
             Transforming Healthcare <Au>Recruitment</Au>
           </Heading>
-          <p
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: "clamp(14px, 1.4vw, 15px)",
-              color: T.slate,
-              lineHeight: 1.78,
-              marginBottom: 28,
-            }}
-          >
+          <p>
             Our mission is to connect exceptional healthcare talent with the organisations
             that need them most reliably, compliantly, and at a moment's notice.
           </p>
@@ -875,15 +1125,41 @@ function MissionSection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// VALUES
+// VALUES — Infinite Carousel on Mobile
 // ─────────────────────────────────────────────────────────────────────────────
 function ValuesSection() {
   const [ref, inView] = useSectionReveal(0.1);
   const shouldReduce  = useReducedMotion();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const intervalRef = useRef(null);
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 640;
+
+  // Auto-slide for mobile
+  useEffect(() => {
+    if (!isMobile || shouldReduce || isPaused) return;
+    intervalRef.current = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % VALUES.length);
+    }, 4000);
+    return () => clearInterval(intervalRef.current);
+  }, [isMobile, isPaused, shouldReduce]);
+
+  const nextSlide = () => {
+    setIsPaused(true);
+    setCurrentIndex((prev) => (prev + 1) % VALUES.length);
+    setTimeout(() => setIsPaused(false), 2000);
+  };
+
+  const prevSlide = () => {
+    setIsPaused(true);
+    setCurrentIndex((prev) => (prev - 1 + VALUES.length) % VALUES.length);
+    setTimeout(() => setIsPaused(false), 2000);
+  };
 
   return (
     <section
       ref={ref}
+      className="about-page"
       aria-labelledby="values-heading"
       style={{
         padding: "clamp(60px, 8vh, 96px) clamp(20px, 5vw, 80px)",
@@ -903,13 +1179,8 @@ function ValuesSection() {
           </Heading>
         </motion.div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
-            gap: "clamp(14px, 2.5vw, 24px)",
-          }}
-        >
+        {/* Desktop Grid */}
+        <div className="values-grid-desktop" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: "clamp(14px, 2.5vw, 24px)" }}>
           {VALUES.map((v, i) => {
             const Icon = v.icon;
             return (
@@ -974,36 +1245,168 @@ function ValuesSection() {
             );
           })}
         </div>
+
+        {/* Mobile Carousel */}
+        <div className="values-grid-mobile" style={{ display: "block", position: "relative" }}>
+          <div className="mobile-carousel-container">
+            <div
+              className="mobile-carousel-track"
+              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+            >
+              {VALUES.map((v, i) => {
+                const Icon = v.icon;
+                return (
+                  <div key={v.title} style={{ flex: "0 0 100%", padding: "0 4px" }}>
+                    <div
+                      style={{
+                        background: T.white,
+                        borderRadius: 20,
+                        padding: "24px 20px",
+                        border: `1px solid ${T.border}`,
+                        boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+                        textAlign: "center",
+                        minHeight: "260px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 52,
+                          height: 52,
+                          borderRadius: 14,
+                          background: "rgba(196,151,42,0.08)",
+                          border: "1px solid rgba(196,151,42,0.14)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginBottom: 18,
+                        }}
+                      >
+                        <Icon size={24} color={T.gold} strokeWidth={1.8} aria-hidden="true" />
+                      </div>
+                      <h3
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: 18,
+                          fontWeight: 700,
+                          color: T.navy,
+                          marginBottom: 10,
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        {v.title}
+                      </h3>
+                      <p
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: 14,
+                          color: T.slateLight,
+                          lineHeight: 1.68,
+                          margin: 0,
+                          maxWidth: "90%",
+                        }}
+                      >
+                        {v.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Navigation Buttons */}
+            <button
+              className="mobile-carousel-btn mobile-carousel-btn-prev"
+              onClick={prevSlide}
+              aria-label="Previous value"
+              style={{ left: "4px" }}
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <button
+              className="mobile-carousel-btn mobile-carousel-btn-next"
+              onClick={nextSlide}
+              aria-label="Next value"
+              style={{ right: "4px" }}
+            >
+              <ChevronRight size={18} />
+            </button>
+
+            {/* Dots */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 16 }}>
+              {VALUES.map((_, i) => (
+                <div
+                  key={i}
+                  onClick={() => {
+                    setIsPaused(true);
+                    setCurrentIndex(i);
+                    setTimeout(() => setIsPaused(false), 2000);
+                  }}
+                  style={{
+                    width: i === currentIndex ? 24 : 8,
+                    height: 8,
+                    borderRadius: 4,
+                    background: i === currentIndex ? T.gold : "#d1d5db",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TEAM
+// TEAM — Marquee on Mobile with hover pause and nav buttons
 // ─────────────────────────────────────────────────────────────────────────────
-function initials(name) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2);
-}
-
-const AVATAR_GRADIENTS = [
-  "linear-gradient(135deg, #C4972A, #8B6914)",
-  "linear-gradient(135deg, #1a2a50, #0f1d3d)",
-  "linear-gradient(135deg, #8B6914, #C4972A)",
-  "linear-gradient(135deg, #0f1d3d, #1a4a80)",
-];
-
 function TeamSection() {
   const [ref, inView] = useSectionReveal(0.1);
   const shouldReduce  = useReducedMotion();
+  const [isPaused, setIsPaused] = useState(false);
+  const [marqueeKey, setMarqueeKey] = useState(0);
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 640;
+
+  const resetMarquee = () => {
+    // Reset animation by changing key
+    setMarqueeKey((prev) => prev + 1);
+  };
+
+  const handlePrev = () => {
+    // For marquee, we need to shift the position
+    // We'll just reset the animation
+    resetMarquee();
+  };
+
+  const handleNext = () => {
+    resetMarquee();
+  };
+
+  function initials(name) {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2);
+  }
+
+  const AVATAR_GRADIENTS = [
+    "linear-gradient(135deg, #C4972A, #8B6914)",
+    "linear-gradient(135deg, #1a2a50, #0f1d3d)",
+    "linear-gradient(135deg, #8B6914, #C4972A)",
+    "linear-gradient(135deg, #0f1d3d, #1a4a80)",
+  ];
 
   return (
     <section
       ref={ref}
+      className="about-page"
       aria-labelledby="team-heading"
       style={{
         padding: "clamp(60px, 8vh, 96px) clamp(20px, 5vw, 80px)",
@@ -1035,13 +1438,8 @@ function TeamSection() {
           </p>
         </motion.div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
-            gap: "clamp(14px, 2.5vw, 24px)",
-          }}
-        >
+        {/* Desktop Grid */}
+        <div className="team-grid-desktop" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: "clamp(14px, 2.5vw, 24px)" }}>
           {TEAM.map((member, i) => {
             const Icon = member.icon;
             return (
@@ -1065,7 +1463,6 @@ function TeamSection() {
                   transition: "box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease",
                 }}
               >
-                {/* Avatar */}
                 <div
                   aria-hidden="true"
                   style={{
@@ -1127,6 +1524,111 @@ function TeamSection() {
             );
           })}
         </div>
+
+        {/* Mobile Marquee */}
+        <div className="team-grid-mobile" style={{ display: "block" }}>
+          <div 
+            className="mobile-team-marquee-container"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchStart={() => setIsPaused(true)}
+            onTouchEnd={() => setTimeout(() => setIsPaused(false), 3000)}
+          >
+            <div 
+              className={`mobile-team-track ${isPaused ? "paused" : ""}`}
+              key={marqueeKey}
+            >
+              {/* Double the items for seamless loop */}
+              {[...TEAM, ...TEAM, ...TEAM].map((member, i) => {
+                const idx = i % TEAM.length;
+                return (
+                  <div
+                    key={`${member.name}-${i}`}
+                    style={{
+                      background: T.white,
+                      borderRadius: 20,
+                      padding: "22px 18px",
+                      border: `1px solid ${T.border}`,
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+                      textAlign: "center",
+                      width: "280px",
+                      flexShrink: 0,
+                      margin: "0 10px",
+                    }}
+                  >
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        width: 72,
+                        height: 72,
+                        borderRadius: "50%",
+                        background: AVATAR_GRADIENTS[idx % AVATAR_GRADIENTS.length],
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 auto 16px",
+                        fontSize: 22,
+                        fontWeight: 800,
+                        fontFamily: "'Inter', sans-serif",
+                        color: T.white,
+                        letterSpacing: "0.04em",
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                      }}
+                    >
+                      {initials(member.name)}
+                    </div>
+                    <h3
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "clamp(16px, 1.5vw, 18px)",
+                        fontWeight: 700,
+                        color: T.navy,
+                        marginBottom: 4,
+                        letterSpacing: "-0.01em",
+                      }}
+                    >
+                      {member.name}
+                    </h3>
+                    <div
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: T.gold,
+                        letterSpacing: "0.06em",
+                        textTransform: "uppercase",
+                        marginBottom: 14,
+                      }}
+                    >
+                      {member.role}
+                    </div>
+                    <p
+                      style={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "clamp(12px, 1.2vw, 13px)",
+                        color: T.slateLight,
+                        lineHeight: 1.65,
+                        margin: 0,
+                      }}
+                    >
+                      {member.bio}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Navigation Buttons for Mobile */}
+            <div className="nav-buttons">
+              <button className="nav-btn" onClick={handlePrev} aria-label="Previous team members">
+                <ChevronLeft size={20} />
+              </button>
+              <button className="nav-btn" onClick={handleNext} aria-label="Next team members">
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -1159,6 +1661,7 @@ function ContactStrip() {
   return (
     <section
       ref={ref}
+      className="about-page section-navy"
       aria-labelledby="contact-strip-heading"
       style={{
         background: `linear-gradient(135deg, ${T.navyDeep} 0%, ${T.navy} 50%, ${T.navyLight} 100%)`,
@@ -1167,7 +1670,6 @@ function ContactStrip() {
         overflow: "hidden",
       }}
     >
-      {/* Ambient glow */}
       <div
         aria-hidden="true"
         style={{
@@ -1183,7 +1685,6 @@ function ContactStrip() {
       />
 
       <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative", zIndex: 1 }}>
-        {/* Top: heading + CTAs */}
         <motion.div
           variants={fadeUp(0)}
           initial="hidden"
@@ -1209,7 +1710,7 @@ function ContactStrip() {
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(14px, 1.4vw, 15px)",
-              color: "rgba(255,255,255,0.72)",
+              color: "rgba(255,255,255,0.85)",
               maxWidth: 480,
               margin: "0 auto clamp(28px, 4vh, 40px)",
               lineHeight: 1.7,
@@ -1270,7 +1771,6 @@ function ContactStrip() {
           </div>
         </motion.div>
 
-        {/* Contact cards */}
         <div
           style={{
             display: "grid",
@@ -1359,7 +1859,7 @@ export default function About() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Playfair+Display:wght@700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Playfair+Display:wght@700;900&family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap');
 
         section[id] { scroll-margin-top: 80px; }
         img { max-width: 100%; height: auto; }
@@ -1370,6 +1870,9 @@ export default function About() {
           outline-offset: 3px;
           border-radius: 4px;
         }
+
+        /* ── Global Paragraph Styles ── */
+        ${PARAGRAPH_STYLES}
 
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after {
@@ -1383,7 +1886,7 @@ export default function About() {
         }
       `}</style>
 
-      <main id="main-content">
+      <main id="main-content" className="about-page">
         <HeroSection />
         <StatsSection />
         <WhoWeAreSection />

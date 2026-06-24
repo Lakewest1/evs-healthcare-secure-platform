@@ -359,6 +359,7 @@ function HeroBanner() {
 
         <span className="emp-hero-eyebrow">For Employers &amp; Care Providers</span>
 
+        {/* ── UPDATED: Hero Title with Nunito Sans ── */}
         <h1 className="emp-hero-title">
           Your Trusted{" "}
           <span className="emp-hero-highlight">Healthcare Staffing</span>{" "}
@@ -1237,7 +1238,7 @@ export default function Employers() {
     <>
       <style>{`
         /* ── Font import ── */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Playfair+Display:wght@700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Playfair+Display:wght@700;900&family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap');
 
         /* ── Reset ── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1421,11 +1422,17 @@ export default function Employers() {
           letter-spacing: 0.22em; text-transform: uppercase; color: #C4972A; 
           margin-bottom: clamp(10px, 1.5vw, 14px);
         }
+
+        /* ── UPDATED: Hero Title with Nunito Sans ── */
         .emp-hero-title {
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: 'Nunito Sans', sans-serif;
           font-size: clamp(1.8rem, 4.5vw, 3.6rem);
-          font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; 
+          font-weight: 900;
+          letter-spacing: -0.02em;
+          line-height: 1.1;
           margin-bottom: clamp(12px, 1.5vw, 16px);
+          color: #fff;
+          text-shadow: 0 2px 20px rgba(4,10,32,0.55), 0 1px 4px rgba(4,10,32,0.4);
         }
         .emp-hero-highlight {
           background: linear-gradient(135deg, #C4972A, #f0c060, #e8b84a);
