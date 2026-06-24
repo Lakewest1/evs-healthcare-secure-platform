@@ -27,6 +27,7 @@ import {
 // Modern 2026 Footer — Premium Design with Glass Morphism
 // Features: Animated borders, social links, newsletter (Formspree), back to top
 // UPDATED: React Router Links for all internal navigation
+// FIXED: Mobile responsive display issues
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Footer() {
@@ -39,9 +40,20 @@ export default function Footer() {
   const [error, setError] = useState(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [currentYear] = useState(new Date().getFullYear());
+  const [isMobile, setIsMobile] = useState(false);
 
   // Formspree endpoint - Replace with your own endpoint ID
   const FORMSPREE_ENDPOINT = "https://formspree.io/f/xqapvgwk";
+
+  // Check mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Check scroll position to show/hide back to top button
   useEffect(() => {
@@ -270,7 +282,9 @@ export default function Footer() {
         style={{
           maxWidth: 1200,
           margin: "0 auto",
-          padding: "clamp(50px, 10vh, 70px) clamp(20px, 5vw, 80px) clamp(40px, 6vh, 60px)",
+          padding: isMobile 
+            ? "40px 20px 30px" 
+            : "clamp(50px, 10vh, 70px) clamp(20px, 5vw, 80px) clamp(40px, 6vh, 60px)",
           position: "relative",
           zIndex: 2,
         }}
@@ -281,9 +295,11 @@ export default function Footer() {
           animate={controls}
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "clamp(40px, 6vw, 60px)",
-            marginBottom: "clamp(40px, 6vh, 60px)",
+            gridTemplateColumns: isMobile 
+              ? "1fr" 
+              : "repeat(auto-fit, minmax(260px, 1fr))",
+            gap: isMobile ? "32px" : "clamp(40px, 6vw, 60px)",
+            marginBottom: isMobile ? "32px" : "clamp(40px, 6vh, 60px)",
           }}
         >
           {/* Brand Column */}
@@ -294,14 +310,14 @@ export default function Footer() {
                 transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
                 style={{ cursor: "pointer" }}
               >
-                <EVSLogo size={44} />
+                <EVSLogo size={isMobile ? 38 : 44} />
               </motion.div>
               <div>
                 <div
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     fontWeight: 800,
-                    fontSize: 15,
+                    fontSize: isMobile ? 13 : 15,
                     color: "#fff",
                     letterSpacing: "1.5px",
                   }}
@@ -312,7 +328,7 @@ export default function Footer() {
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     fontStyle: "italic",
-                    fontSize: 11,
+                    fontSize: isMobile ? 10 : 11,
                     color: "#C4972A",
                     fontWeight: 600,
                     letterSpacing: "0.5px",
@@ -325,7 +341,7 @@ export default function Footer() {
             <p
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 13,
+                fontSize: isMobile ? 12 : 13,
                 color: "rgba(255,255,255,0.55)",
                 lineHeight: 1.7,
                 marginBottom: 24,
@@ -351,8 +367,8 @@ export default function Footer() {
                     whileTap={{ scale: 0.95 }}
                     transition={{ type: "spring", stiffness: 400 }}
                     style={{
-                      width: 38,
-                      height: 38,
+                      width: isMobile ? 34 : 38,
+                      height: isMobile ? 34 : 38,
                       borderRadius: "50%",
                       background: "rgba(255,255,255,0.05)",
                       backdropFilter: "blur(10px)",
@@ -377,7 +393,7 @@ export default function Footer() {
                       e.currentTarget.style.color = "rgba(255,255,255,0.6)";
                     }}
                   >
-                    <IconComponent size={18} />
+                    <IconComponent size={isMobile ? 16 : 18} />
                   </motion.a>
                 );
               })}
@@ -389,7 +405,7 @@ export default function Footer() {
             <h3
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 15,
+                fontSize: isMobile ? 14 : 15,
                 fontWeight: 700,
                 color: "#fff",
                 marginBottom: 24,
@@ -426,7 +442,7 @@ export default function Footer() {
                     to={link.url}
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 13,
+                      fontSize: isMobile ? 12 : 13,
                       color: "rgba(255,255,255,0.55)",
                       textDecoration: "none",
                       transition: "all 0.3s ease",
@@ -456,7 +472,7 @@ export default function Footer() {
             <h3
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 15,
+                fontSize: isMobile ? 14 : 15,
                 fontWeight: 700,
                 color: "#fff",
                 marginBottom: 24,
@@ -493,7 +509,7 @@ export default function Footer() {
                     to={link.url}
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 13,
+                      fontSize: isMobile ? 12 : 13,
                       color: "rgba(255,255,255,0.55)",
                       textDecoration: "none",
                       transition: "all 0.3s ease",
@@ -523,7 +539,7 @@ export default function Footer() {
             <h3
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 15,
+                fontSize: isMobile ? 14 : 15,
                 fontWeight: 700,
                 color: "#fff",
                 marginBottom: 24,
@@ -550,7 +566,7 @@ export default function Footer() {
             <p
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: 13,
+                fontSize: isMobile ? 12 : 13,
                 color: "rgba(255,255,255,0.55)",
                 lineHeight: 1.6,
                 marginBottom: 20,
@@ -571,16 +587,17 @@ export default function Footer() {
                   required
                   style={{
                     flex: 1,
-                    minWidth: 160,
-                    padding: "12px 16px",
+                    minWidth: isMobile ? "100%" : 160,
+                    padding: isMobile ? "11px 14px" : "12px 16px",
                     borderRadius: "12px",
                     border: "1px solid rgba(196,151,42,0.2)",
                     background: "rgba(255,255,255,0.05)",
                     fontFamily: "'Inter', sans-serif",
-                    fontSize: 13,
+                    fontSize: isMobile ? 12 : 13,
                     color: "#fff",
                     outline: "none",
                     transition: "all 0.3s ease",
+                    width: isMobile ? "100%" : "auto",
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = "#C4972A";
@@ -597,13 +614,13 @@ export default function Footer() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   style={{
-                    padding: "12px 24px",
+                    padding: isMobile ? "11px 20px" : "12px 24px",
                     borderRadius: "40px",
                     border: "none",
                     background: "linear-gradient(135deg, #C4972A, #8B6914)",
                     color: "#0f1d3d",
                     fontFamily: "'Inter', sans-serif",
-                    fontSize: 13,
+                    fontSize: isMobile ? 12 : 13,
                     fontWeight: 600,
                     cursor: isSubmitting ? "not-allowed" : "pointer",
                     opacity: isSubmitting ? 0.7 : 1,
@@ -612,6 +629,8 @@ export default function Footer() {
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
+                    width: isMobile ? "100%" : "auto",
+                    justifyContent: "center",
                   }}
                 >
                   {isSubmitting ? (
@@ -682,8 +701,8 @@ export default function Footer() {
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div
                   style={{
-                    width: 36,
-                    height: 36,
+                    width: isMobile ? 32 : 36,
+                    height: isMobile ? 32 : 36,
                     borderRadius: "10px",
                     background: "rgba(196,151,42,0.12)",
                     display: "flex",
@@ -692,7 +711,7 @@ export default function Footer() {
                     color: "#C4972A",
                   }}
                 >
-                  <Phone size={16} strokeWidth={1.5} />
+                  <Phone size={isMobile ? 14 : 16} strokeWidth={1.5} />
                 </div>
                 <div>
                   <div
@@ -710,7 +729,7 @@ export default function Footer() {
                   <div
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 14,
+                      fontSize: isMobile ? 13 : 14,
                       fontWeight: 700,
                       color: "#C4972A",
                     }}
@@ -722,8 +741,8 @@ export default function Footer() {
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div
                   style={{
-                    width: 36,
-                    height: 36,
+                    width: isMobile ? 32 : 36,
+                    height: isMobile ? 32 : 36,
                     borderRadius: "10px",
                     background: "rgba(196,151,42,0.12)",
                     display: "flex",
@@ -732,7 +751,7 @@ export default function Footer() {
                     color: "#C4972A",
                   }}
                 >
-                  <Mail size={16} strokeWidth={1.5} />
+                  <Mail size={isMobile ? 14 : 16} strokeWidth={1.5} />
                 </div>
                 <div>
                   <div
@@ -750,9 +769,10 @@ export default function Footer() {
                   <div
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: 12,
+                      fontSize: isMobile ? 11 : 12,
                       fontWeight: 500,
                       color: "rgba(255,255,255,0.8)",
+                      wordBreak: "break-all",
                     }}
                   >
                     admin_1@evshealthcare.co.uk
@@ -771,33 +791,35 @@ export default function Footer() {
           style={{
             borderTop: "1px solid rgba(196,151,42,0.12)",
             display: "flex",
+            flexDirection: isMobile ? "column" : "row",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: isMobile ? "center" : "center",
             flexWrap: "wrap",
-            gap: 20,
+            gap: isMobile ? 16 : 20,
             background: "rgba(255,255,255,0.02)",
             backdropFilter: "blur(10px)",
             borderRadius: "20px",
-            padding: "24px 28px",
+            padding: isMobile ? "20px 16px" : "24px 28px",
             marginTop: "20px",
+            textAlign: isMobile ? "center" : "left",
           }}
         >
           <div
             style={{
               fontFamily: "'Inter', sans-serif",
               color: "rgba(255,255,255,0.45)",
-              fontSize: 12,
+              fontSize: isMobile ? 11 : 12,
               lineHeight: 1.6,
             }}
           >
             © {currentYear} EVS Healthcare Solutions Limited. All rights reserved.
             <br />
-            <span style={{ fontSize: 11, opacity: 0.7 }}>
+            <span style={{ fontSize: isMobile ? 10 : 11, opacity: 0.7 }}>
               Company registered in England & Wales. GDPR Compliant.
             </span>
           </div>
 
-          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: isMobile ? 16 : 24, flexWrap: "wrap", justifyContent: "center" }}>
             {bottomBarLinks.map((link) => (
               <motion.div key={link.name} whileHover={{ x: 2 }}>
                 <Link
@@ -805,7 +827,7 @@ export default function Footer() {
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     color: "rgba(255,255,255,0.45)",
-                    fontSize: 12,
+                    fontSize: isMobile ? 11 : 12,
                     textDecoration: "none",
                     transition: "all 0.3s ease",
                     letterSpacing: "0.3px",
@@ -834,10 +856,10 @@ export default function Footer() {
             whileTap={{ scale: 0.92 }}
             style={{
               position: "fixed",
-              bottom: 30,
-              left: 30,
-              width: 48,
-              height: 48,
+              bottom: isMobile ? 20 : 30,
+              left: isMobile ? 20 : 30,
+              width: isMobile ? 40 : 48,
+              height: isMobile ? 40 : 48,
               borderRadius: "50%",
               background: "linear-gradient(135deg, #C4972A, #8B6914)",
               border: "none",
@@ -851,22 +873,21 @@ export default function Footer() {
             }}
             aria-label="Scroll to top"
           >
-            <ArrowUp size={20} strokeWidth={2.5} style={{ color: "#0f1d3d" }} />
+            <ArrowUp size={isMobile ? 18 : 20} strokeWidth={2.5} style={{ color: "#0f1d3d" }} />
           </motion.button>
         )}
       </AnimatePresence>
 
       <style>{`
         @media (max-width: 768px) {
-          footer .bottom-bar {
-            flex-direction: column;
-            text-align: center;
+          footer {
+            min-width: 100vw;
+            width: 100%;
           }
-          .back-to-top {
-            bottom: 20px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
+        }
+        @media (max-width: 480px) {
+          footer {
+            font-size: 12px;
           }
         }
         @media (prefers-reduced-motion: reduce) {

@@ -710,7 +710,7 @@ function TrainingForm() {
             <span className="tf-direct-label">Prefer to call?</span>
             <a href="tel:+441772379989" className="tf-direct-link">
               <Phone size={14} aria-hidden="true" />
-              01772 379989
+              07466999218
             </a>
           </div>
 

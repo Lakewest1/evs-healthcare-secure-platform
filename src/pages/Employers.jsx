@@ -36,6 +36,8 @@ import {
   AlertCircle,
   GraduationCap,
   TrendingUp,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -117,6 +119,22 @@ function useAnimatedCounter(end, duration = 2000, shouldAnimate = false) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Mobile detection hook — SSR-safe
+// ─────────────────────────────────────────────────────────────────────────────
+function useMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check, { passive: true });
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  
+  return isMobile;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Animation factory
 // ─────────────────────────────────────────────────────────────────────────────
 const fadeUp = (delay = 0) => ({
@@ -155,6 +173,226 @@ function SectionHeading({ children, light = false }) {
 const Au = ({ children }) => (
   <span style={{ color: T.gold }}>{children}</span>
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Infinite Horizontal Scroll Component
+// ─────────────────────────────────────────────────────────────────────────────
+function InfiniteSlider({ children, gap = 16, speed = 30, pauseOnHover = true }) {
+  const [isPaused, setIsPaused] = useState(false);
+  
+  return (
+    <div 
+      className="infinite-slider-wrapper"
+      onMouseEnter={() => pauseOnHover && setIsPaused(true)}
+      onMouseLeave={() => pauseOnHover && setIsPaused(false)}
+      onTouchStart={() => pauseOnHover && setIsPaused(true)}
+      onTouchEnd={() => pauseOnHover && setIsPaused(false)}
+    >
+      <div 
+        className={`infinite-slider-track${isPaused ? ' paused' : ''}`}
+        style={{ 
+          '--speed': `${speed}s`, 
+          '--gap': `${gap}px`,
+          willChange: 'transform'
+        }}
+      >
+        <div className="infinite-slider-group">
+          {children}
+        </div>
+        <div className="infinite-slider-group" aria-hidden="true">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Horizontal Scroll with Buttons
+// ─────────────────────────────────────────────────────────────────────────────
+function HorizontalScroll({ children, gap = 16 }) {
+  const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+  }, []);
+  
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', checkScroll, { passive: true });
+    window.addEventListener('resize', checkScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+    };
+  }, [checkScroll]);
+  
+  const scroll = useCallback((dir) => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollBy({ 
+      left: dir === 'left' ? -300 : 300, 
+      behavior: 'smooth' 
+    });
+  }, []);
+  
+  return (
+    <div className="horizontal-scroll-container">
+      {canScrollLeft && (
+        <button 
+          className="scroll-btn scroll-btn-left" 
+          onClick={() => scroll('left')}
+          aria-label="Scroll left"
+        >
+          <ChevronLeft size={20} />
+        </button>
+      )}
+      <div 
+        ref={scrollRef}
+        className="horizontal-scroll-content"
+        style={{ gap: `${gap}px` }}
+      >
+        {children}
+      </div>
+      {canScrollRight && (
+        <button 
+          className="scroll-btn scroll-btn-right" 
+          onClick={() => scroll('right')}
+          aria-label="Scroll right"
+        >
+          <ChevronRight size={20} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Flip to Next Card Component (Process Steps)
+// ─────────────────────────────────────────────────────────────────────────────
+function FlipToNextCard({ steps }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [showBack, setShowBack] = useState(false);
+  
+  const goToNext = useCallback(() => {
+    if (isFlipping) return;
+    setIsFlipping(true);
+    setShowBack(true);
+    
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % steps.length);
+      setShowBack(false);
+      setIsFlipping(false);
+    }, 600);
+  }, [isFlipping, steps.length]);
+  
+  const goToPrev = useCallback(() => {
+    if (isFlipping) return;
+    setIsFlipping(true);
+    setShowBack(true);
+    
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev - 1 + steps.length) % steps.length);
+      setShowBack(false);
+      setIsFlipping(false);
+    }, 600);
+  }, [isFlipping, steps.length]);
+  
+  const handleCardClick = useCallback(() => {
+    goToNext();
+  }, [goToNext]);
+  
+  const step = steps[currentIndex];
+  const nextStep = steps[(currentIndex + 1) % steps.length];
+  const Icon = step.icon;
+  
+  return (
+    <div className="flip-next-carousel">
+      <div className="flip-next-inner">
+        <div 
+          className={`flip-next-card${showBack ? ' flipped' : ''}`}
+          onClick={handleCardClick}
+          role="button"
+          tabIndex={0}
+          aria-label={`Step ${step.num}: ${step.title}. ${showBack ? step.desc : 'Tap to see next step'}. Currently viewing step ${currentIndex + 1} of ${steps.length}.`}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleCardClick();
+            }
+          }}
+        >
+          <div className="flip-next-front">
+            <div className="emp-process-num">{step.num}</div>
+            <div className="emp-process-icon">
+              <Icon size={28} strokeWidth={1.6} aria-hidden="true" />
+            </div>
+            <h3 className="emp-card-title">{step.title}</h3>
+            <span className="flip-next-hint">Tap to see next step →</span>
+          </div>
+          <div className="flip-next-back">
+            <div className="emp-process-num">{step.num}</div>
+            <h3 className="emp-card-title">{step.title}</h3>
+            <p className="emp-card-desc">{step.desc}</p>
+            <span className="flip-next-hint">Switching to: {nextStep.title}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flip-next-controls">
+        <button
+          className="flip-nav-btn"
+          onClick={goToPrev}
+          disabled={isFlipping}
+          aria-label="Previous step"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        
+        <div className="flip-dots" role="tablist" aria-label="Process steps">
+          {steps.map((_, index) => (
+            <button
+              key={index}
+              className={`flip-dot${index === currentIndex ? ' active' : ''}`}
+              onClick={() => {
+                if (index !== currentIndex && !isFlipping) {
+                  setIsFlipping(true);
+                  setShowBack(true);
+                  setTimeout(() => {
+                    setCurrentIndex(index);
+                    setShowBack(false);
+                    setIsFlipping(false);
+                  }, 600);
+                }
+              }}
+              disabled={isFlipping}
+              aria-label={`Go to step ${index + 1}`}
+              aria-selected={index === currentIndex}
+              role="tab"
+            />
+          ))}
+        </div>
+        
+        <button
+          className="flip-nav-btn"
+          onClick={goToNext}
+          disabled={isFlipping}
+          aria-label="Next step"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Form data
@@ -243,7 +481,7 @@ const SERVICES = [
   {
     icon: Calendar,
     title: "Temp-to-Perm",
-    desc: "Try before you commit — convert temporary staff to permanent after a trial period.",
+    desc: "Try before you commit - convert temporary staff to permanent after a trial period.",
     color: T.blue,
   },
   {
@@ -304,7 +542,7 @@ const PROCESS_STEPS = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HERO BANNER — INCREASED HEIGHT
+// HERO BANNER
 // ─────────────────────────────────────────────────────────────────────────────
 function HeroBanner() {
   const [ref, inView] = useReveal(0.2);
@@ -347,7 +585,7 @@ function HeroBanner() {
           className="emp-hero-img"
           loading="eager"
           decoding="async"
-          fetchpriority="high"
+          fetchPriority="high"
         />
         <div className="emp-hero-overlay" aria-hidden="true" />
       </div>
@@ -359,7 +597,6 @@ function HeroBanner() {
 
         <span className="emp-hero-eyebrow">For Employers &amp; Care Providers</span>
 
-        {/* ── UPDATED: Hero Title with Nunito Sans ── */}
         <h1 className="emp-hero-title">
           Your Trusted{" "}
           <span className="emp-hero-highlight">Healthcare Staffing</span>{" "}
@@ -410,11 +647,12 @@ function HeroBanner() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SERVICES
+// SERVICES — Mobile: 2x2 grid
 // ─────────────────────────────────────────────────────────────────────────────
 function ServicesSection() {
   const [ref, inView] = useReveal(0.1);
   const shouldReduce  = useReducedMotion();
+  const isMobile = useMobile();
 
   return (
     <section ref={ref} id="employer-services" aria-labelledby="services-heading" className="emp-section">
@@ -433,17 +671,19 @@ function ServicesSection() {
         </p>
       </motion.div>
 
-      <ul className="emp-grid-4" role="list">
-        {SERVICES.map((s, i) => {
-          const Icon = s.icon;
-          return (
-            <li key={s.title}>
+      {isMobile ? (
+        <div className="mobile-grid-2x2" role="list">
+          {SERVICES.map((s, i) => {
+            const Icon = s.icon;
+            return (
               <motion.div
+                key={s.title}
                 variants={fadeUp(i * 0.08)}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 whileHover={shouldReduce ? {} : { y: -4, borderColor: T.borderGold, boxShadow: "0 12px 28px rgba(0,0,0,0.07)" }}
                 className="emp-card"
+                role="listitem"
               >
                 <div className="emp-card-icon" style={{ color: s.color }}>
                   <Icon size={26} strokeWidth={1.6} aria-hidden="true" />
@@ -451,20 +691,44 @@ function ServicesSection() {
                 <h3 className="emp-card-title">{s.title}</h3>
                 <p className="emp-card-desc">{s.desc}</p>
               </motion.div>
-            </li>
-          );
-        })}
-      </ul>
+            );
+          })}
+        </div>
+      ) : (
+        <ul className="emp-grid-4" role="list">
+          {SERVICES.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <li key={s.title}>
+                <motion.div
+                  variants={fadeUp(i * 0.08)}
+                  initial="hidden"
+                  animate={inView ? "visible" : "hidden"}
+                  whileHover={shouldReduce ? {} : { y: -4, borderColor: T.borderGold, boxShadow: "0 12px 28px rgba(0,0,0,0.07)" }}
+                  className="emp-card"
+                >
+                  <div className="emp-card-icon" style={{ color: s.color }}>
+                    <Icon size={26} strokeWidth={1.6} aria-hidden="true" />
+                  </div>
+                  <h3 className="emp-card-title">{s.title}</h3>
+                  <p className="emp-card-desc">{s.desc}</p>
+                </motion.div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// BENEFITS
+// BENEFITS — Mobile: horizontal slide with buttons
 // ─────────────────────────────────────────────────────────────────────────────
 function BenefitsSection() {
   const [ref, inView] = useReveal(0.1);
   const shouldReduce  = useReducedMotion();
+  const isMobile = useMobile();
 
   return (
     <section ref={ref} aria-labelledby="benefits-heading" className="emp-section emp-section-cream">
@@ -483,17 +747,18 @@ function BenefitsSection() {
         </p>
       </motion.div>
 
-      <ul className="emp-grid-3" role="list">
-        {BENEFITS.map((b, i) => {
-          const Icon = b.icon;
-          return (
-            <li key={b.title}>
+      {isMobile ? (
+        <HorizontalScroll gap={16}>
+          {BENEFITS.map((b, i) => {
+            const Icon = b.icon;
+            return (
               <motion.div
+                key={b.title}
                 variants={fadeUp(i * 0.06)}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 whileHover={shouldReduce ? {} : { y: -3, borderColor: T.borderGold }}
-                className="emp-benefit-card"
+                className="emp-benefit-card mobile-slide-card"
               >
                 <div className="emp-benefit-icon">
                   <Icon size={21} strokeWidth={1.8} aria-hidden="true" />
@@ -503,20 +768,46 @@ function BenefitsSection() {
                   <p className="emp-card-desc">{b.desc}</p>
                 </div>
               </motion.div>
-            </li>
-          );
-        })}
-      </ul>
+            );
+          })}
+        </HorizontalScroll>
+      ) : (
+        <ul className="emp-grid-3" role="list">
+          {BENEFITS.map((b, i) => {
+            const Icon = b.icon;
+            return (
+              <li key={b.title}>
+                <motion.div
+                  variants={fadeUp(i * 0.06)}
+                  initial="hidden"
+                  animate={inView ? "visible" : "hidden"}
+                  whileHover={shouldReduce ? {} : { y: -3, borderColor: T.borderGold }}
+                  className="emp-benefit-card"
+                >
+                  <div className="emp-benefit-icon">
+                    <Icon size={21} strokeWidth={1.8} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 className="emp-card-title" style={{ fontSize: 15, marginBottom: 5 }}>{b.title}</h3>
+                    <p className="emp-card-desc">{b.desc}</p>
+                  </div>
+                </motion.div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// WHY EVS
+// WHY EVS — Mobile: auto marquee, pause on hover
 // ─────────────────────────────────────────────────────────────────────────────
 function WhyEVSSection() {
   const [ref, inView] = useReveal(0.1);
   const shouldReduce  = useReducedMotion();
+  const isMobile = useMobile();
 
   return (
     <section ref={ref} aria-labelledby="why-evs-heading" className="emp-section">
@@ -535,17 +826,18 @@ function WhyEVSSection() {
         </p>
       </motion.div>
 
-      <ul className="emp-grid-4" role="list">
-        {WHY_EVS.map((item, i) => {
-          const Icon = item.icon;
-          return (
-            <li key={item.title}>
+      {isMobile ? (
+        <InfiniteSlider gap={16} speed={25} pauseOnHover={true}>
+          {WHY_EVS.map((item, i) => {
+            const Icon = item.icon;
+            return (
               <motion.div
+                key={item.title}
                 variants={fadeUp(i * 0.08)}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 whileHover={shouldReduce ? {} : { y: -4, borderColor: T.borderGold }}
-                className="emp-card emp-card-center"
+                className="emp-card emp-card-center mobile-slide-card"
               >
                 <div className="emp-why-icon">
                   <Icon size={22} strokeWidth={1.6} aria-hidden="true" />
@@ -554,20 +846,45 @@ function WhyEVSSection() {
                 <p className="emp-card-desc" style={{ marginBottom: 14 }}>{item.desc}</p>
                 <span className="emp-stat-badge">{item.stat}</span>
               </motion.div>
-            </li>
-          );
-        })}
-      </ul>
+            );
+          })}
+        </InfiniteSlider>
+      ) : (
+        <ul className="emp-grid-4" role="list">
+          {WHY_EVS.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <li key={item.title}>
+                <motion.div
+                  variants={fadeUp(i * 0.08)}
+                  initial="hidden"
+                  animate={inView ? "visible" : "hidden"}
+                  whileHover={shouldReduce ? {} : { y: -4, borderColor: T.borderGold }}
+                  className="emp-card emp-card-center"
+                >
+                  <div className="emp-why-icon">
+                    <Icon size={22} strokeWidth={1.6} aria-hidden="true" />
+                  </div>
+                  <h3 className="emp-card-title">{item.title}</h3>
+                  <p className="emp-card-desc" style={{ marginBottom: 14 }}>{item.desc}</p>
+                  <span className="emp-stat-badge">{item.stat}</span>
+                </motion.div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SECTORS
+// SECTORS — Mobile: infinite slider
 // ─────────────────────────────────────────────────────────────────────────────
 function SectorsSection() {
   const [ref, inView] = useReveal(0.1);
   const shouldReduce  = useReducedMotion();
+  const isMobile = useMobile();
 
   return (
     <section ref={ref} aria-labelledby="sectors-heading" className="emp-section emp-section-cream">
@@ -586,17 +903,18 @@ function SectorsSection() {
         </p>
       </motion.div>
 
-      <ul className="emp-grid-3" role="list">
-        {SECTORS.map((s, i) => {
-          const Icon = s.icon;
-          return (
-            <li key={s.name}>
+      {isMobile ? (
+        <InfiniteSlider gap={16} speed={30} pauseOnHover={false}>
+          {SECTORS.map((s, i) => {
+            const Icon = s.icon;
+            return (
               <motion.div
+                key={s.name}
                 variants={scaleIn(i * 0.05)}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 whileHover={shouldReduce ? {} : { y: -3, borderColor: T.borderGold }}
-                className="emp-sector-card"
+                className="emp-sector-card mobile-slide-card"
               >
                 <div className="emp-benefit-icon">
                   <Icon size={22} strokeWidth={1.6} aria-hidden="true" />
@@ -607,20 +925,47 @@ function SectorsSection() {
                   <span className="emp-card-desc" style={{ fontSize: 12 }}>{s.desc}</span>
                 </div>
               </motion.div>
-            </li>
-          );
-        })}
-      </ul>
+            );
+          })}
+        </InfiniteSlider>
+      ) : (
+        <ul className="emp-grid-3" role="list">
+          {SECTORS.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <li key={s.name}>
+                <motion.div
+                  variants={scaleIn(i * 0.05)}
+                  initial="hidden"
+                  animate={inView ? "visible" : "hidden"}
+                  whileHover={shouldReduce ? {} : { y: -3, borderColor: T.borderGold }}
+                  className="emp-sector-card"
+                >
+                  <div className="emp-benefit-icon">
+                    <Icon size={22} strokeWidth={1.6} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 className="emp-card-title" style={{ fontSize: 14, marginBottom: 2 }}>{s.name}</h3>
+                    <span className="emp-sector-count">{s.count}</span>
+                    <span className="emp-card-desc" style={{ fontSize: 12 }}>{s.desc}</span>
+                  </div>
+                </motion.div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PROCESS
+// PROCESS — Mobile: flip to next card on click
 // ─────────────────────────────────────────────────────────────────────────────
 function ProcessSection() {
   const [ref, inView] = useReveal(0.1);
   const shouldReduce  = useReducedMotion();
+  const isMobile = useMobile();
 
   return (
     <section ref={ref} aria-labelledby="process-heading" className="emp-section">
@@ -639,29 +984,39 @@ function ProcessSection() {
         </p>
       </motion.div>
 
-      <ol className="emp-grid-4" role="list" style={{ counterReset: "none" }}>
-        {PROCESS_STEPS.map((step, i) => {
-          const Icon = step.icon;
-          return (
-            <li key={step.num}>
-              <motion.div
-                variants={fadeUp(i * 0.1)}
-                initial="hidden"
-                animate={inView ? "visible" : "hidden"}
-                whileHover={shouldReduce ? {} : { y: -4, borderColor: T.borderGold }}
-                className="emp-card emp-card-center"
-              >
-                <div className="emp-process-num">{step.num}</div>
-                <div className="emp-process-icon">
-                  <Icon size={21} strokeWidth={1.6} aria-hidden="true" />
-                </div>
-                <h3 className="emp-card-title">{step.title}</h3>
-                <p className="emp-card-desc">{step.desc}</p>
-              </motion.div>
-            </li>
-          );
-        })}
-      </ol>
+      {isMobile ? (
+        <motion.div
+          variants={fadeUp(0.15)}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+        >
+          <FlipToNextCard steps={PROCESS_STEPS} />
+        </motion.div>
+      ) : (
+        <ol className="emp-grid-4" role="list">
+          {PROCESS_STEPS.map((step, i) => {
+            const Icon = step.icon;
+            return (
+              <li key={step.num}>
+                <motion.div
+                  variants={fadeUp(i * 0.1)}
+                  initial="hidden"
+                  animate={inView ? "visible" : "hidden"}
+                  whileHover={shouldReduce ? {} : { y: -4, borderColor: T.borderGold }}
+                  className="emp-card emp-card-center"
+                >
+                  <div className="emp-process-num">{step.num}</div>
+                  <div className="emp-process-icon">
+                    <Icon size={21} strokeWidth={1.6} aria-hidden="true" />
+                  </div>
+                  <h3 className="emp-card-title">{step.title}</h3>
+                  <p className="emp-card-desc">{step.desc}</p>
+                </motion.div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
     </section>
   );
 }
@@ -685,10 +1040,11 @@ function RequestForm() {
   const [errors,    setErrors]       = useState({});
   const [isSubmitting, setSubmitting] = useState(false);
   const [submitStatus, setStatus]    = useState(null);
-  const submitBtnRef = useRef(null);
+  const [hp, setHp] = useState("");
+  const lastSubmit = useRef(0);
   const shouldReduce = useReducedMotion();
 
-  const validate = () => {
+  const validate = useCallback(() => {
     const e = {};
     if (!formData.organisationName.trim()) e.organisationName = "Organisation name is required";
     if (!formData.contactName.trim())      e.contactName = "Contact name is required";
@@ -707,18 +1063,32 @@ function RequestForm() {
     if (!formData.requirements.trim())     e.requirements = "Please describe your requirements";
     setErrors(e);
     return Object.keys(e).length === 0;
-  };
+  }, [formData]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
-  }, [errors]);
+    setErrors((prev) => {
+      if (prev[name]) {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+      return prev;
+    });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (hp) return;
     if (isSubmitting) return;
-    if (!validate())  return;
+
+    if (Date.now() - lastSubmit.current < 15000) {
+      setErrors({ form: "Please wait a moment before submitting again." });
+      return;
+    }
+
+    if (!validate()) return;
 
     if (!FORMSPREE_URL) {
       if (import.meta.env.DEV) {
@@ -746,6 +1116,7 @@ function RequestForm() {
         body:    JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      lastSubmit.current = Date.now();
       setStatus("success");
       setFormData(BLANK_FORM);
       setErrors({});
@@ -838,6 +1209,12 @@ function RequestForm() {
           noValidate
           aria-label="Staff request form"
         >
+          {/* Honeypot */}
+          <div style={{ position: "absolute", left: "-9999px", opacity: 0 }} aria-hidden="true">
+            <label htmlFor="hp-website">Website</label>
+            <input id="hp-website" type="text" name="website" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} />
+          </div>
+
           {submitStatus === "error" && (
             <div className="rf-error-banner" role="alert">
               <AlertCircle size={17} aria-hidden="true" />
@@ -856,6 +1233,14 @@ function RequestForm() {
               >
                 <X size={15} />
               </button>
+            </div>
+          )}
+
+          {errors.form && (
+            <div className="rf-error-banner" role="alert">
+              <AlertCircle size={17} aria-hidden="true" />
+              <div>{errors.form}</div>
+              <button type="button" onClick={() => setErrors((prev) => { const n = {...prev}; delete n.form; return n; })} className="rf-error-close" aria-label="Dismiss error"><X size={15} /></button>
             </div>
           )}
 
@@ -1140,7 +1525,6 @@ function RequestForm() {
 
           <div className="rf-submit-wrap">
             <motion.button
-              ref={submitBtnRef}
               type="submit"
               disabled={isSubmitting}
               whileHover={!isSubmitting && !shouldReduce ? { scale: 1.02 } : {}}
@@ -1229,21 +1613,16 @@ function CTASection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ROOT — consolidated <style> block, single injection
+// ROOT
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Employers() {
-  useEffect(() => { window.scrollTo({ top: 0 }); }, []);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, []);
 
   return (
     <>
       <style>{`
-        /* ── Font import ── */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Playfair+Display:wght@700;900&family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap');
-
-        /* ── Reset ── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* ── Accessibility focus ── */
         a:focus-visible, button:focus-visible, input:focus-visible,
         select:focus-visible, textarea:focus-visible {
           outline: 2px solid #C4972A;
@@ -1251,7 +1630,6 @@ export default function Employers() {
           border-radius: 4px;
         }
 
-        /* ── Page shell ── */
         .emp-page {
           padding: clamp(80px,12vh,120px) clamp(16px,5vw,80px);
           background: #f8fafc;
@@ -1259,7 +1637,6 @@ export default function Employers() {
         }
         .emp-container { max-width: 1200px; margin: 0 auto; }
 
-        /* ── Shared type ── */
         .eyebrow-text {
           font-family: 'Inter', sans-serif;
           font-size: 10px; font-weight: 800;
@@ -1280,7 +1657,6 @@ export default function Employers() {
           color: #64748b; max-width: 500px; margin: 0 auto; line-height: 1.68;
         }
 
-        /* ── Section wrapper ── */
         .emp-section {
           padding: clamp(52px,8vh,80px) 0;
         }
@@ -1291,7 +1667,6 @@ export default function Employers() {
           margin: 8px 0; 
         }
 
-        /* ── Card base ── */
         .emp-card {
           background: #fff; border-radius: 20px; padding: clamp(22px,3vw,30px) clamp(18px,2.5vw,26px);
           border: 1px solid rgba(0,0,0,0.06);
@@ -1316,7 +1691,6 @@ export default function Employers() {
           margin-bottom: 16px;
         }
 
-        /* ── Benefits card ── */
         .emp-benefit-card {
           display: flex; align-items: flex-start; gap: 14px;
           background: #fff; border-radius: 16px;
@@ -1333,7 +1707,6 @@ export default function Employers() {
           color: #C4972A; flex-shrink: 0;
         }
 
-        /* ── Sector card ── */
         .emp-sector-card {
           display: flex; align-items: center; gap: 12px;
           background: #fff; border-radius: 14px;
@@ -1348,7 +1721,6 @@ export default function Employers() {
           font-weight: 700; color: #C4972A; margin-right: 5px;
         }
 
-        /* ── Why EVS ── */
         .emp-why-icon {
           width: 56px; height: 56px; border-radius: 50%;
           background: rgba(196,151,42,0.08);
@@ -1361,7 +1733,6 @@ export default function Employers() {
           padding: 4px 12px; border-radius: 20px; display: inline-block;
         }
 
-        /* ── Process ── */
         .emp-process-num {
           font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800;
           color: #C4972A; letter-spacing: 2px; margin-bottom: 10px;
@@ -1373,7 +1744,6 @@ export default function Employers() {
           color: #C4972A; margin: 0 auto 16px;
         }
 
-        /* ── Grid layouts ── */
         .emp-grid-4 {
           display: grid; grid-template-columns: repeat(4, 1fr);
           gap: clamp(14px,2.5vw,24px); list-style: none;
@@ -1383,7 +1753,6 @@ export default function Employers() {
           gap: clamp(12px,2vw,20px); list-style: none;
         }
 
-        /* ── HERO BANNER — INCREASED HEIGHT ── */
         .emp-hero {
           position: relative; border-radius: 24px; overflow: hidden;
           margin-bottom: 48px;
@@ -1392,7 +1761,7 @@ export default function Employers() {
         .emp-hero-bg { 
           position: relative; 
           width: 100%; 
-          height: clamp(480px, 65vh, 560px);  /* ← INCREASED HEIGHT */
+          height: clamp(480px, 65vh, 560px);
           overflow: hidden; 
         }
         .emp-hero-img {
@@ -1423,7 +1792,6 @@ export default function Employers() {
           margin-bottom: clamp(10px, 1.5vw, 14px);
         }
 
-        /* ── UPDATED: Hero Title with Nunito Sans ── */
         .emp-hero-title {
           font-family: 'Nunito Sans', sans-serif;
           font-size: clamp(1.8rem, 4.5vw, 3.6rem);
@@ -1458,7 +1826,7 @@ export default function Employers() {
         .emp-btn-secondary {
           display: inline-flex; align-items: center;
           padding: clamp(10px, 1.4vw, 14px) clamp(18px, 2.8vw, 32px); border-radius: 50px;
-          background: rgba(255,255,255,0.08); backdrop-filter: blur(10px);
+          background: rgba(255,255,255,0.08);
           border: 1.5px solid rgba(255,255,255,0.2); color: #fff;
           font-family: 'Inter', sans-serif; font-size: clamp(12px, 1.2vw, 14px); 
           font-weight: 600;
@@ -1481,7 +1849,6 @@ export default function Employers() {
           color: rgba(255,255,255,0.6); font-weight: 500;
         }
 
-        /* ── CTA section ── */
         .emp-cta-section { padding-bottom: clamp(52px,8vh,80px); }
         .emp-cta-inner {
           background: linear-gradient(135deg, #0a1628 0%, #0f1d3d 50%, #1a2a4a 100%);
@@ -1510,7 +1877,6 @@ export default function Employers() {
           color: rgba(255,255,255,0.62); font-weight: 500;
         }
 
-        /* ── Form ── */
         .rf-form { max-width: 900px; margin: 0 auto; }
         .rf-error-banner {
           display: flex; align-items: flex-start; gap: 12px;
@@ -1643,7 +2009,141 @@ export default function Employers() {
         }
         .rf-another-btn:hover { background: #C4972A; color: #fff; }
 
-        /* ── RESPONSIVE BREAKPOINTS ── */
+        .mobile-grid-2x2 {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+        .mobile-grid-2x2 .emp-card { min-height: 100%; }
+
+        .horizontal-scroll-container { position: relative; overflow: hidden; }
+        .horizontal-scroll-content {
+          display: flex;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          padding: 4px 0;
+        }
+        .horizontal-scroll-content::-webkit-scrollbar { display: none; }
+        .mobile-slide-card {
+          flex: 0 0 280px;
+          scroll-snap-align: start;
+          min-width: 280px;
+          max-width: 320px;
+        }
+        .emp-benefit-card.mobile-slide-card {
+          flex: 0 0 280px; min-width: 280px; max-width: 320px; height: auto;
+        }
+        .emp-sector-card.mobile-slide-card {
+          flex: 0 0 260px; min-width: 260px; max-width: 300px; height: auto;
+        }
+        .emp-card.mobile-slide-card {
+          flex: 0 0 260px; min-width: 260px; max-width: 300px; height: auto;
+        }
+
+        .scroll-btn {
+          position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+          width: 40px; height: 40px; border-radius: 50%;
+          background: rgba(255,255,255,0.95); border: 1px solid rgba(0,0,0,0.1);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          color: #0f1d3d; transition: all 0.2s ease;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+        }
+        .scroll-btn:hover { background: #f8fafc; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .scroll-btn:active { transform: translateY(-50%) scale(0.95); }
+        .scroll-btn-left { left: -4px; }
+        .scroll-btn-right { right: -4px; }
+
+        .infinite-slider-wrapper { overflow: hidden; position: relative; }
+        .infinite-slider-track {
+          display: flex; width: max-content;
+          animation: infinite-scroll var(--speed, 30s) linear infinite;
+          will-change: transform;
+        }
+        .infinite-slider-track.paused { animation-play-state: paused; }
+        .infinite-slider-group { display: flex; gap: var(--gap, 16px); flex-shrink: 0; }
+
+        @keyframes infinite-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+
+        .flip-next-carousel {
+          position: relative; display: flex;
+          flex-direction: column; align-items: center; gap: 20px;
+        }
+        .flip-next-inner {
+          perspective: 1000px; width: 100%;
+          max-width: 340px; height: 280px;
+        }
+        .flip-next-card {
+          position: relative; width: 100%; height: 100%;
+          transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+          transform-style: preserve-3d; cursor: pointer;
+          will-change: transform;
+        }
+        .flip-next-card.flipped { transform: rotateY(180deg); }
+        .flip-next-front, .flip-next-back {
+          position: absolute; width: 100%; height: 100%;
+          backface-visibility: hidden; border-radius: 20px;
+          display: flex; flex-direction: column;
+          align-items: center; justify-content: center;
+          padding: 32px 24px;
+          border: 1px solid rgba(0,0,0,0.06);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .flip-next-front { background: #fff; transform: rotateY(0deg); }
+        .flip-next-back {
+          background: linear-gradient(135deg, #fefcf8, #fff);
+          transform: rotateY(180deg);
+          border: 1px solid rgba(196,151,42,0.15);
+        }
+        .flip-next-back .emp-card-title { color: #C4972A; margin-bottom: 16px; font-size: 18px; }
+        .flip-next-back .emp-card-desc { text-align: center; font-size: 15px; line-height: 1.7; }
+        .flip-next-front .emp-card-title { font-size: 18px; margin-bottom: 4px; }
+        .flip-next-front .emp-process-icon { width: 64px; height: 64px; margin-bottom: 20px; }
+        .flip-next-front .emp-process-icon svg { width: 32px; height: 32px; }
+        .flip-next-front .emp-process-num { font-size: 13px; margin-bottom: 12px; }
+        .flip-next-hint {
+          font-family: 'Inter', sans-serif; font-size: 12px;
+          color: #94a3b8; margin-top: 16px; font-style: italic;
+        }
+        .flip-next-back .emp-process-num { font-size: 13px; margin-bottom: 8px; }
+        .flip-next-card:focus-visible {
+          outline: 2px solid #C4972A;
+          outline-offset: 3px;
+          border-radius: 20px;
+        }
+
+        .flip-next-controls { display: flex; align-items: center; gap: 16px; }
+        .flip-nav-btn {
+          width: 44px; height: 44px; border-radius: 50%;
+          background: #fff; border: 1px solid rgba(0,0,0,0.1);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          color: #0f1d3d; transition: all 0.2s ease;
+        }
+        .flip-nav-btn:hover:not(:disabled) {
+          background: #f8fafc; box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+          border-color: #C4972A;
+        }
+        .flip-nav-btn:active:not(:disabled) { transform: scale(0.95); }
+        .flip-nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .flip-dots { display: flex; gap: 8px; align-items: center; }
+        .flip-dot {
+          width: 10px; height: 10px; border-radius: 50%;
+          border: none; cursor: pointer; background: #e2e8f0;
+          transition: all 0.3s ease; padding: 0;
+        }
+        .flip-dot.active { background: #C4972A; width: 28px; border-radius: 20px; }
+        .flip-dot:hover:not(:disabled) { background: #cbd5e1; }
+        .flip-dot.active:hover:not(:disabled) { background: #C4972A; }
+        .flip-dot:disabled { cursor: not-allowed; }
+
         @media (max-width: 1100px) {
           .emp-grid-4 { grid-template-columns: repeat(2, 1fr); }
         }
@@ -1684,15 +2184,21 @@ export default function Employers() {
           .emp-benefit-icon { margin-bottom: 8px; }
           .emp-card-title { font-size: clamp(14px, 4vw, 16px); }
           .rf-legend { font-size: clamp(13px, 3.5vw, 14px); }
+          .mobile-grid-2x2 { gap: 12px; }
+          .mobile-grid-2x2 .emp-card { padding: clamp(14px, 2.5vw, 18px); }
+          .flip-next-inner { height: 260px; max-width: 300px; }
+          .scroll-btn { width: 36px; height: 36px; }
+          .flip-nav-btn { width: 40px; height: 40px; }
         }
 
-        /* ── Reduced motion ── */
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after {
             animation-duration: 0.01ms !important;
             transition-duration: 0.01ms !important;
           }
           .emp-hero-img { transform: none !important; }
+          .infinite-slider-track { animation: none !important; }
+          .flip-next-card { transition: none !important; }
         }
       `}</style>
 

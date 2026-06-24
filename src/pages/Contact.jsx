@@ -23,7 +23,6 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-// ── Social icons from react-icons ──
 import { 
   FaFacebook, 
   FaInstagram, 
@@ -34,95 +33,21 @@ import {
   FaTelegram 
 } from "react-icons/fa";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Contact Page — Modern Enterprise-Grade Contact Experience
-// Features: Hero banner, contact info cards, form with validation, map,
-//           working hours, FAQ section, social media links
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ── Detect screen size ──
-const useScreenSize = () => {
-  const [screenSize, setScreenSize] = useState({
-    isMobile: false,
-    isTablet: false,
-    isDesktop: true,
-  });
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth;
-      setScreenSize({
-        isMobile: width < 768,
-        isTablet: width >= 768 && width < 1024,
-        isDesktop: width >= 1024,
-      });
-    };
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
-
-  return screenSize;
-};
-
-// ── Contact Information Items ──
 const CONTACT_ITEMS = [
-  { 
-    icon: MapPin, 
-    label: "Office Address", 
-    value: "1a John William Street, Preston, PR1 4XE",
-    action: "Get Directions",
-    link: "https://maps.google.com/?q=1a+John+William+Street+Preston+PR1+4XE",
-    isLink: true,
-  },
-  { 
-    icon: Phone, 
-    label: "Phone", 
-    value: "07466999218",
-    secondary: "07466 999218",
-    action: "Call Now",
-    link: "tel:07466999218",
-    isLink: true,
-  },
-  { 
-    icon: Phone, 
-    label: "Out of Hours", 
-    value: "07308 863868",
-    action: "Call Now",
-    link: "tel:07308863868",
-    isLink: true,
-  },
-  { 
-    icon: Mail, 
-    label: "General Enquiries", 
-    value: "admin_1@evshealthcare.co.uk",
-    action: "Copy Email",
-    isLink: false,
-  },
-  { 
-    icon: Mail, 
-    label: "Recruitment", 
-    value: "hentrintta@evshealthcare.co.uk",
-    action: "Copy Email",
-    isLink: false,
-  },
-  { 
-    icon: Mail, 
-    label: "HealthCara", 
-    value: "EVS4961@HEALTHCARA@GMAIL.COM",
-    action: "Copy Email",
-    isLink: false,
-  },
+  { icon: MapPin, label: "Office Address", value: "1a John William Street, Preston, PR1 4XE", action: "Get Directions", link: "https://maps.google.com/?q=1a+John+William+Street+Preston+PR1+4XE", isLink: true },
+  { icon: Phone, label: "Phone", value: "07466999218", secondary: "07466 999218", action: "Call Now", link: "tel:07466999218", isLink: true },
+  { icon: Phone, label: "Out of Hours", value: "07308 863868", action: "Call Now", link: "tel:07308863868", isLink: true },
+  { icon: Mail, label: "General Enquiries", value: "admin_1@evshealthcare.co.uk", action: "Copy Email", isLink: false },
+  { icon: Mail, label: "Recruitment", value: "hentrintta@evshealthcare.co.uk", action: "Copy Email", isLink: false },
+  { icon: Mail, label: "HealthCara", value: "EVS4961@HEALTHCARA@GMAIL.COM", action: "Copy Email", isLink: false },
 ];
 
-// ── Trust Badges ──
 const TRUST_BADGES = [
   { icon: Shield, label: "CQC Compliant", color: "#00A859" },
   { icon: Heart, label: "Free DBS Support", color: "#10b981" },
   { icon: Star, label: "500+ Workers Placed", color: "#C4972A" },
 ];
 
-// ── Working Hours ──
 const WORKING_HOURS = [
   { day: "Monday - Friday", hours: "8:00 AM - 6:00 PM" },
   { day: "Saturday", hours: "9:00 AM - 2:00 PM" },
@@ -130,144 +55,85 @@ const WORKING_HOURS = [
   { day: "Out of Hours Support", hours: "24/7 Emergency" },
 ];
 
-// ── FAQ Data ──
 const FAQS = [
-  {
-    question: "How do I apply for a job at EVS Healthcare?",
-    answer: "You can apply directly through our website by visiting the Jobs page, browsing available positions, and clicking 'Apply Now' on your desired role. You'll be guided through our simple application process."
-  },
-  {
-    question: "What documents do I need to provide?",
-    answer: "You'll need to provide your CV, proof of identity (passport or driving license), proof of address, and any relevant qualifications or certifications. Our recruitment team will guide you through the full compliance process."
-  },
-  {
-    question: "Do you offer training and development?",
-    answer: "Yes! We provide ongoing training, mandatory updates, and professional development opportunities to all our healthcare professionals. This includes manual handling, safeguarding, and role-specific training."
-  },
-  {
-    question: "How quickly can I start working?",
-    answer: "Once your compliance checks are complete and you've been placed in a suitable role, you can start working immediately. Our average placement time is within 48 hours."
-  },
-  {
-    question: "What areas do you cover?",
-    answer: "We primarily cover North-West England, including Preston, Lancashire, and surrounding areas. We work with NHS trusts, private hospitals, and care homes across the region."
-  },
+  { question: "How do I apply for a job at EVS Healthcare?", answer: "You can apply directly through our website by visiting the Jobs page, browsing available positions, and clicking 'Apply Now' on your desired role. You'll be guided through our simple application process." },
+  { question: "What documents do I need to provide?", answer: "You'll need to provide your CV, proof of identity (passport or driving license), proof of address, and any relevant qualifications or certifications. Our recruitment team will guide you through the full compliance process." },
+  { question: "Do you offer training and development?", answer: "Yes! We provide ongoing training, mandatory updates, and professional development opportunities to all our healthcare professionals. This includes manual handling, safeguarding, and role-specific training." },
+  { question: "How quickly can I start working?", answer: "Once your compliance checks are complete and you've been placed in a suitable role, you can start working immediately. Our average placement time is within 48 hours." },
+  { question: "What areas do you cover?", answer: "We primarily cover North-West England, including Preston, Lancashire, and surrounding areas. We work with NHS trusts, private hospitals, and care homes across the region." },
 ];
 
-// ── Social Media Links (using react-icons) ──
 const SOCIAL_LINKS = [
-  { 
-    icon: FaSnapchat, 
-    label: "Snapchat", 
-    url: "https://www.snapchat.com/add/evsrecruitment?share_id=K7sZjmh406w&locale=en-GB", 
-    color: "#FFFC00",
-    username: "@evsrecruitment"
-  },
-  { 
-    icon: FaInstagram, 
-    label: "Instagram", 
-    url: "https://www.instagram.com/evsrecruitment?utm_source=qr&igsh=eWJmZHUyZ3B6cms2", 
-    color: "#E4405F",
-    username: "@evsrecruitment"
-  },
-  { 
-    icon: FaTiktok, 
-    label: "TikTok", 
-    url: "https://www.tiktok.com/@evs.recruitment?_r=1&_t=ZN-97HokvF2OAA", 
-    color: "#000000",
-    username: "@evs.recruitment"
-  },
-  { 
-    icon: FaLinkedin, 
-    label: "LinkedIn", 
-    url: "https://www.linkedin.com/in/evs-healthcare-solutions-limited-b9100121a?utm_source=share_via&utm_content=profile&utm_medium=member_android", 
-    color: "#0077B5",
-    username: "EVS Healthcare"
-  },
-  { 
-    icon: FaTwitter, 
-    label: "X (Twitter)", 
-    url: "https://x.com/EvsSoulutions", 
-    color: "#1DA1F2",
-    username: "@EvsSoulutions"
-  },
-  { 
-    icon: FaTelegram, 
-    label: "Telegram", 
-    url: "https://t.me/+447466999218", 
-    color: "#26A5E4",
-    username: "+447466999218"
-  },
+  { icon: FaSnapchat, label: "Snapchat", url: "https://www.snapchat.com/add/evsrecruitment?share_id=K7sZjmh406w&locale=en-GB", color: "#FFFC00", username: "@evsrecruitment" },
+  { icon: FaInstagram, label: "Instagram", url: "https://www.instagram.com/evsrecruitment?utm_source=qr&igsh=eWJmZHUyZ3B6cms2", color: "#E4405F", username: "@evsrecruitment" },
+  { icon: FaTiktok, label: "TikTok", url: "https://www.tiktok.com/@evs.recruitment?_r=1&_t=ZN-97HokvF2OAA", color: "#000000", username: "@evs.recruitment" },
+  { icon: FaLinkedin, label: "LinkedIn", url: "https://www.linkedin.com/in/evs-healthcare-solutions-limited-b9100121a?utm_source=share_via&utm_content=profile&utm_medium=member_android", color: "#0077B5", username: "EVS Healthcare" },
+  { icon: FaTwitter, label: "X (Twitter)", url: "https://x.com/EvsSoulutions", color: "#1DA1F2", username: "@EvsSoulutions" },
+  { icon: FaTelegram, label: "Telegram", url: "https://t.me/+447466999218", color: "#26A5E4", username: "+447466999218" },
 ];
+
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xpqeeloy";
+
+const FIELD_LIMITS = { name: 100, email: 150, phone: 20, message: 1000 };
+
+const sanitize = (v, max) => (typeof v !== "string" ? "" : v.replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max));
+const isValidEmail = (v) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v.trim());
+const isValidPhone = (v) => !v.trim() || /^[+()0-9\s-]{7,20}$/.test(v.trim());
+
+// ── Single shared viewport hook (replaces the original useScreenSize that
+//    created a new resize listener for every component instance) ──────────
+function useViewport() {
+  const [w, setW] = useState(() => (typeof window === "undefined" ? 1280 : window.innerWidth));
+  useEffect(() => {
+    let raf = null;
+    const onResize = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => { setW(window.innerWidth); raf = null; });
+    };
+    window.addEventListener("resize", onResize);
+    return () => { window.removeEventListener("resize", onResize); if (raf) cancelAnimationFrame(raf); };
+  }, []);
+  return { isMobile: w < 768, isTablet: w >= 768 && w < 1024, isDesktop: w >= 1024 };
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Hero Banner Component
+// Hero Banner
 // ─────────────────────────────────────────────────────────────────────────────
 function ContactHero() {
-  const { isMobile } = useScreenSize();
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className="contact-hero"
+      className="ch-hero"
     >
-      <div className="contact-hero-bg">
+      <div className="ch-hero-bg">
         <img
           src="https://res.cloudinary.com/dbqdgvvgq/image/upload/v1781738736/main-sample.jpg"
-          alt="EVS Healthcare - Contact Us"
-          className="contact-hero-image"
+          alt="EVS Healthcare office — contact us"
+          className="ch-hero-img"
           loading="eager"
+          decoding="async"
         />
-        <div className="contact-hero-overlay" />
+        <div className="ch-hero-overlay" aria-hidden="true" />
       </div>
-      <div className="contact-hero-content">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="contact-hero-badge"
-        >
-          <span className="contact-hero-badge-text">📞 24/7 Support</span>
+
+      <div className="ch-hero-content">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }} className="ch-hero-badge">
+          <span>📞 24/7 Support</span>
         </motion.div>
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="contact-hero-title"
-        >
-          Get in <span className="contact-hero-highlight">Touch</span>
+        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5 }} className="ch-hero-title">
+          Get in <span className="ch-gold">Touch</span>
         </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="contact-hero-subtitle"
-        >
-          We're here to help. Reach out to our team for any inquiries, 
-          support, or career opportunities.
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.5 }} className="ch-hero-sub">
+          We're here to help. Reach out to our team for any inquiries, support, or career opportunities.
         </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="contact-hero-stats"
-        >
-          <div className="contact-hero-stat">
-            <span className="contact-hero-stat-number">24/7</span>
-            <span className="contact-hero-stat-label">Support Available</span>
-          </div>
-          <div className="contact-hero-stat-divider" />
-          <div className="contact-hero-stat">
-            <span className="contact-hero-stat-number">&lt;24hr</span>
-            <span className="contact-hero-stat-label">Response Time</span>
-          </div>
-          <div className="contact-hero-stat-divider" />
-          <div className="contact-hero-stat">
-            <span className="contact-hero-stat-number">100%</span>
-            <span className="contact-hero-stat-label">Satisfaction Rate</span>
-          </div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5 }} className="ch-hero-stats">
+          <div className="ch-stat"><span className="ch-stat-n">24/7</span><span className="ch-stat-l">Support Available</span></div>
+          <span className="ch-stat-div" aria-hidden="true" />
+          <div className="ch-stat"><span className="ch-stat-n">&lt;24hr</span><span className="ch-stat-l">Response Time</span></div>
+          <span className="ch-stat-div" aria-hidden="true" />
+          <div className="ch-stat"><span className="ch-stat-n">100%</span><span className="ch-stat-l">Satisfaction Rate</span></div>
         </motion.div>
       </div>
     </motion.div>
@@ -275,287 +141,71 @@ function ContactHero() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Social Links Component
+// Trust Badges
 // ─────────────────────────────────────────────────────────────────────────────
-function SocialLinks() {
-  const { isMobile } = useScreenSize();
-
-  return (
-    <div className="contact-social">
-      <h3 className="contact-social-title">Connect With Us</h3>
-      <p className="contact-social-subtitle">
-        Follow us on social media for updates, job alerts, and more
-      </p>
-      <div className="contact-social-links">
-        {SOCIAL_LINKS.map((social, idx) => {
-          const Icon = social.icon;
-          return (
-            <motion.a
-              key={idx}
-              href={social.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ y: -4, scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="contact-social-link"
-              style={{ 
-                color: social.color,
-                borderColor: isMobile ? 'transparent' : `${social.color}30`,
-              }}
-              aria-label={`Follow us on ${social.label}`}
-            >
-              <Icon size={isMobile ? 18 : 20} />
-              <span className="contact-social-label">{social.label}</span>
-              {social.username && (
-                <span className="contact-social-username">{social.username}</span>
-              )}
-            </motion.a>
-          );
-        })}
-      </div>
-      
-      {/* Snapchat-specific CTA */}
-      <div className="contact-social-snapchat">
-        <span className="contact-social-snapchat-text">📸 Add us on Snapchat!</span>
-        <span className="contact-social-snapchat-username">Username: evsrecruitment</span>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Working Hours Component
-// ─────────────────────────────────────────────────────────────────────────────
-function WorkingHours({ isInView }) {
-  const { isMobile } = useScreenSize();
-
-  const variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        delay: 0.3,
-        staggerChildren: 0.08,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -10 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
-
+function TrustBadges({ isInView }) {
   return (
     <motion.div
-      variants={variants}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      className="contact-hours"
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: 0.2, staggerChildren: 0.1 }}
+      className="ch-trust"
     >
-      <div className="contact-hours-header">
-        <Clock size={isMobile ? 20 : 24} strokeWidth={1.6} />
-        <h3 className="contact-hours-title">Working Hours</h3>
-      </div>
-      <div className="contact-hours-grid">
-        {WORKING_HOURS.map((item, idx) => (
-          <motion.div
-            key={idx}
-            variants={itemVariants}
-            className="contact-hours-item"
-          >
-            <span className="contact-hours-day">{item.day}</span>
-            <span className="contact-hours-time">{item.hours}</span>
-          </motion.div>
-        ))}
-      </div>
-      <p className="contact-hours-note">
-        <span className="contact-hours-note-icon">🕐</span>
-        Out of hours support available for urgent staffing needs
-      </p>
+      {TRUST_BADGES.map((b, i) => {
+        const Icon = b.icon;
+        return (
+          <div key={i} className="ch-trust-badge">
+            <Icon size={16} strokeWidth={1.6} style={{ color: b.color }} aria-hidden="true" />
+            <span>{b.label}</span>
+          </div>
+        );
+      })}
     </motion.div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FAQ Component
-// ─────────────────────────────────────────────────────────────────────────────
-function FAQSection({ isInView }) {
-  const [openIndex, setOpenIndex] = useState(null);
-  const { isMobile } = useScreenSize();
-
-  const toggleFAQ = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
-  const variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        delay: 0.5,
-        staggerChildren: 0.08,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
-
-  return (
-    <motion.div
-      variants={variants}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      className="contact-faq"
-    >
-      <div className="contact-faq-header">
-        <HelpCircle size={isMobile ? 20 : 24} strokeWidth={1.6} />
-        <h3 className="contact-faq-title">Frequently Asked Questions</h3>
-      </div>
-      <div className="contact-faq-list">
-        {FAQS.map((faq, idx) => {
-          const isOpen = openIndex === idx;
-          return (
-            <motion.div
-              key={idx}
-              variants={itemVariants}
-              className={`contact-faq-item ${isOpen ? "open" : ""}`}
-            >
-              <button
-                onClick={() => toggleFAQ(idx)}
-                className="contact-faq-question"
-                aria-expanded={isOpen}
-              >
-                <span className="contact-faq-question-text">{faq.question}</span>
-                {isOpen ? (
-                  <ChevronUp size={18} className="contact-faq-icon" />
-                ) : (
-                  <ChevronDown size={18} className="contact-faq-icon" />
-                )}
-              </button>
-              <AnimatePresence>
-                {isOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                    className="contact-faq-answer"
-                  >
-                    <p>{faq.answer}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          );
-        })}
-      </div>
-    </motion.div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Map Component
-// ─────────────────────────────────────────────────────────────────────────────
-function MapEmbed() {
-  return (
-    <div className="contact-map">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2352.234567891011!2d-2.703844!3d53.759123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487b6b2e6a6b6b6b%3A0x6b6b6b6b6b6b6b6b!2s1a%20John%20William%20Street%2C%20Preston!5e0!3m2!1sen!2suk!4v1700000000000"
-        className="contact-map-iframe"
-        allowFullScreen=""
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        title="EVS Healthcare Office Location"
-      />
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Contact Info Card Component
+// Contact Info Card
 // ─────────────────────────────────────────────────────────────────────────────
 function ContactInfoCard({ item, index, isInView }) {
-  const [isCopied, setIsCopied] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const { isMobile } = useScreenSize();
-  const IconComponent = item.icon;
+  const [copied, setCopied] = useState(false);
+  const Icon = item.icon;
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(item.value);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable (e.g. non-HTTPS dev env) — silently ignore.
+      // A production deployment over HTTPS will always have this available.
     }
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        delay: index * 0.08,
-        ease: [0.16, 1, 0.3, 1],
-      },
-    },
   };
 
   return (
     <motion.div
-      variants={cardVariants}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`contact-info-card ${isHovered ? "hovered" : ""}`}
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.45, delay: Math.min(index * 0.07, 0.35), ease: [0.16, 1, 0.3, 1] }}
+      className="ch-card"
     >
-      <div className="contact-info-card-icon">
-        <IconComponent size={isMobile ? 18 : 20} strokeWidth={1.6} />
-      </div>
-      <div className="contact-info-card-content">
-        <span className="contact-info-card-label">{item.label}</span>
-        <p className="contact-info-card-value">{item.value}</p>
-        {item.secondary && (
-          <p className="contact-info-card-secondary">{item.secondary}</p>
-        )}
+      <div className="ch-card-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></div>
+      <div className="ch-card-body">
+        <span className="ch-card-label">{item.label}</span>
+        <p className="ch-card-value">{item.value}</p>
+        {item.secondary && <p className="ch-card-secondary">{item.secondary}</p>}
         {item.isLink ? (
           <a
             href={item.link}
             target={item.label === "Office Address" ? "_blank" : "_self"}
-            rel="noopener noreferrer"
-            className="contact-info-card-action"
+            rel="noopener noreferrer nofollow"
+            className="ch-card-action"
           >
-            {item.action} <ArrowRight size={12} />
+            {item.action} <ArrowRight size={11} aria-hidden="true" />
           </a>
         ) : (
-          <button onClick={handleCopy} className="contact-info-card-action">
-            {isCopied ? (
-              <>
-                <Check size={12} /> Copied!
-              </>
-            ) : (
-              <>
-                <Copy size={12} /> {item.action}
-              </>
-            )}
+          <button type="button" onClick={handleCopy} className="ch-card-action">
+            {copied ? <><Check size={11} aria-hidden="true" /> Copied!</> : <><Copy size={11} aria-hidden="true" /> {item.action}</>}
           </button>
         )}
       </div>
@@ -564,182 +214,281 @@ function ContactInfoCard({ item, index, isInView }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Contact Form Component
+// Working Hours
 // ─────────────────────────────────────────────────────────────────────────────
-function ContactFormSection({ isInView }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [error, setError] = useState(null);
-  const { isMobile } = useScreenSize();
+function WorkingHours({ isInView }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      className="ch-hours"
+    >
+      <div className="ch-hours-hd">
+        <Clock size={20} strokeWidth={1.6} aria-hidden="true" />
+        <h3>Working Hours</h3>
+      </div>
+      <div className="ch-hours-grid">
+        {WORKING_HOURS.map((row, i) => (
+          <div key={i} className="ch-hours-row">
+            <span className="ch-hours-day">{row.day}</span>
+            <span className="ch-hours-time">{row.hours}</span>
+          </div>
+        ))}
+      </div>
+      <p className="ch-hours-note">🕐 Out of hours support available for urgent staffing needs</p>
+    </motion.div>
+  );
+}
 
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xpqeeloy";
+// ─────────────────────────────────────────────────────────────────────────────
+// Social Links
+// ─────────────────────────────────────────────────────────────────────────────
+function SocialLinks() {
+  const { isMobile } = useViewport();
+  return (
+    <div className="ch-social">
+      <h3 className="ch-social-title">Connect With Us</h3>
+      <p className="ch-social-sub">Follow us on social media for updates, job alerts, and more</p>
+      <div className="ch-social-grid">
+        {SOCIAL_LINKS.map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <motion.a
+              key={i}
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              whileHover={{ y: -3, scale: 1.04 }}
+              whileTap={{ scale: 0.95 }}
+              className="ch-social-link"
+              style={{ "--social-color": s.color }}
+              aria-label={`Follow us on ${s.label}: ${s.username}`}
+            >
+              <Icon size={isMobile ? 18 : 20} aria-hidden="true" style={{ color: s.color }} />
+              <span className="ch-social-name">{s.label}</span>
+              <span className="ch-social-handle">{s.username}</span>
+            </motion.a>
+          );
+        })}
+      </div>
+      <div className="ch-social-snap">
+        <span className="ch-social-snap-text">📸 Add us on Snapchat!</span>
+        <span className="ch-social-snap-user">Username: evsrecruitment</span>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Map
+// ─────────────────────────────────────────────────────────────────────────────
+function MapEmbed() {
+  return (
+    <div className="ch-map">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2352.234567891011!2d-2.703844!3d53.759123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487b6b2e6a6b6b6b%3A0x6b6b6b6b6b6b6b6b!2s1a%20John%20William%20Street%2C%20Preston!5e0!3m2!1sen!2suk!4v1700000000000"
+        className="ch-map-frame"
+        allowFullScreen=""
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title="EVS Healthcare Office Location — 1a John William Street, Preston"
+        aria-label="Google Maps showing EVS Healthcare office location"
+      />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FAQ
+// ─────────────────────────────────────────────────────────────────────────────
+function FAQSection({ isInView }) {
+  const [open, setOpen] = useState(null);
+  const toggle = (i) => setOpen(open === i ? null : i);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="ch-faq"
+    >
+      <div className="ch-faq-hd">
+        <HelpCircle size={20} strokeWidth={1.6} aria-hidden="true" />
+        <h3>Frequently Asked Questions</h3>
+      </div>
+      <div className="ch-faq-list">
+        {FAQS.map((faq, i) => {
+          const isOpen = open === i;
+          return (
+            <div key={i} className={`ch-faq-item${isOpen ? " open" : ""}`}>
+              <button
+                type="button"
+                onClick={() => toggle(i)}
+                className="ch-faq-q"
+                aria-expanded={isOpen}
+                aria-controls={`faq-answer-${i}`}
+                id={`faq-btn-${i}`}
+              >
+                <span>{faq.question}</span>
+                {isOpen
+                  ? <ChevronUp size={17} className="ch-faq-chevron" aria-hidden="true" />
+                  : <ChevronDown size={17} className="ch-faq-chevron" aria-hidden="true" />}
+              </button>
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    id={`faq-answer-${i}`}
+                    role="region"
+                    aria-labelledby={`faq-btn-${i}`}
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                    className="ch-faq-a"
+                    style={{ overflow: "hidden" }}
+                  >
+                    <p>{faq.answer}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Contact Form
+// ─────────────────────────────────────────────────────────────────────────────
+function ContactForm({ isInView }) {
+  const { isMobile } = useViewport();
+  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [hp, setHp] = useState(""); // honeypot
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
+  const lastSubmit = useRef(0);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    const limit = FIELD_LIMITS[name];
+    setForm((prev) => ({ ...prev, [name]: limit ? value.slice(0, limit) : value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (hp) return; // honeypot triggered
+
+    // client-side rate limit
+    if (Date.now() - lastSubmit.current < 15000) {
+      setError("Please wait a moment before submitting again.");
+      return;
+    }
+
+    // validation
+    if (!form.name.trim()) { setError("Please enter your full name."); return; }
+    if (!isValidEmail(form.email)) { setError("Please enter a valid email address."); return; }
+    if (!isValidPhone(form.phone)) { setError("Please enter a valid phone number."); return; }
+    if (!form.message.trim()) { setError("Please enter a message."); return; }
+
+    setSubmitting(true);
     setError(null);
 
+    const payload = {
+      name:    sanitize(form.name,    FIELD_LIMITS.name),
+      email:   sanitize(form.email,   FIELD_LIMITS.email),
+      phone:   sanitize(form.phone,   FIELD_LIMITS.phone),
+      message: sanitize(form.message, FIELD_LIMITS.message),
+    };
+
     try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
-        setIsSubmitted(true);
-        setFormData({ name: "", email: "", phone: "", message: "" });
-        setTimeout(() => setIsSubmitted(false), 5000);
+      if (res.ok) {
+        lastSubmit.current = Date.now();
+        setSubmitted(true);
+        setForm({ name: "", email: "", phone: "", message: "" });
+        setTimeout(() => setSubmitted(false), 6000);
       } else {
-        const data = await response.json();
+        const data = await res.json().catch(() => ({}));
         setError(data.error || "Something went wrong. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setError("Network error. Please check your connection and try again.");
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
-  };
-
-  const formVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        delay: 0.3,
-        ease: [0.16, 1, 0.3, 1],
-      },
-    },
   };
 
   return (
     <motion.div
-      variants={formVariants}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      className="contact-form-wrapper"
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      className="ch-form-wrap"
     >
-      <div className="contact-form-header">
-        <div className="contact-form-header-icon">
-          <Send size={isMobile ? 20 : 22} strokeWidth={1.6} />
-        </div>
+      <div className="ch-form-hd">
+        <div className="ch-form-hd-icon"><Send size={20} strokeWidth={1.6} aria-hidden="true" /></div>
         <div>
-          <h3 className="contact-form-title">Send us a Message</h3>
-          <p className="contact-form-subtitle">We'll respond within 24 hours</p>
+          <h3 className="ch-form-title">Send us a Message</h3>
+          <p className="ch-form-sub">We'll respond within 24 hours</p>
         </div>
       </div>
 
-      {isSubmitted ? (
-        <div className="contact-form-success">
-          <div className="contact-form-success-icon">
-            <CheckCircle size={isMobile ? 28 : 32} strokeWidth={1.6} />
-          </div>
-          <h4 className="contact-form-success-title">Message Sent!</h4>
-          <p className="contact-form-success-text">
-            Thank you. We'll contact you shortly.
-          </p>
+      {submitted ? (
+        <div className="ch-form-success">
+          <div className="ch-form-success-icon"><CheckCircle size={32} strokeWidth={1.5} aria-hidden="true" /></div>
+          <h4>Message Sent!</h4>
+          <p>Thank you. We'll be in touch shortly.</p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="contact-form">
-          <div className="contact-form-group">
-            <label htmlFor="name" className="contact-form-label">
-              <User size={12} /> Full Name *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              placeholder="John Smith"
-              className="contact-form-input"
-            />
+        <form onSubmit={handleSubmit} className="ch-form" noValidate>
+          {/* Honeypot — visually hidden, bots fill it, humans don't see it */}
+          <div className="ch-hp" aria-hidden="true">
+            <label htmlFor="ch-website">Website</label>
+            <input id="ch-website" type="text" name="website" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} />
           </div>
 
-          <div className="contact-form-group">
-            <label htmlFor="email" className="contact-form-label">
-              <AtSign size={12} /> Email Address *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              placeholder="john@example.com"
-              className="contact-form-input"
-            />
+          <div className="ch-form-row">
+            <label htmlFor="cf-name" className="ch-form-label"><User size={12} aria-hidden="true" /> Full Name *</label>
+            <input id="cf-name" type="text" name="name" value={form.name} onChange={handleChange} required placeholder="John Smith" className="ch-form-input" autoComplete="name" maxLength={FIELD_LIMITS.name} />
           </div>
 
-          <div className="contact-form-group">
-            <label htmlFor="phone" className="contact-form-label">
-              <Phone size={12} /> Phone (Optional)
-            </label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="01234 567890"
-              className="contact-form-input"
-            />
+          <div className="ch-form-row">
+            <label htmlFor="cf-email" className="ch-form-label"><AtSign size={12} aria-hidden="true" /> Email Address *</label>
+            <input id="cf-email" type="email" name="email" value={form.email} onChange={handleChange} required placeholder="john@example.com" className="ch-form-input" autoComplete="email" maxLength={FIELD_LIMITS.email} />
           </div>
 
-          <div className="contact-form-group">
-            <label htmlFor="message" className="contact-form-label">
-              <FileText size={12} /> Message *
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              rows={isMobile ? 3 : 4}
-              value={formData.message}
-              onChange={handleChange}
-              required
-              placeholder="Tell us how we can help..."
-              className="contact-form-textarea"
-            />
+          <div className="ch-form-row">
+            <label htmlFor="cf-phone" className="ch-form-label"><Phone size={12} aria-hidden="true" /> Phone <span className="ch-form-opt">(optional)</span></label>
+            <input id="cf-phone" type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="01234 567890" className="ch-form-input" autoComplete="tel" maxLength={FIELD_LIMITS.phone} />
+          </div>
+
+          <div className="ch-form-row">
+            <label htmlFor="cf-msg" className="ch-form-label"><FileText size={12} aria-hidden="true" /> Message *</label>
+            <textarea id="cf-msg" name="message" rows={isMobile ? 3 : 5} value={form.message} onChange={handleChange} required placeholder="Tell us how we can help..." className="ch-form-textarea" maxLength={FIELD_LIMITS.message} />
+            <span className="ch-form-count">{form.message.length}/{FIELD_LIMITS.message}</span>
           </div>
 
           {error && (
-            <div className="contact-form-error">
-              <AlertCircle size={14} />
-              <p>{error}</p>
+            <div className="ch-form-error" role="alert">
+              <AlertCircle size={14} aria-hidden="true" />
+              <span>{error}</span>
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="contact-form-submit"
-          >
-            {isSubmitting ? (
-              "Sending..."
+          <button type="submit" disabled={submitting} className="ch-form-btn">
+            {submitting ? (
+              <><span className="ch-spin" aria-hidden="true" /> Sending…</>
             ) : (
-              <>
-                Send Message <Send size={14} />
-              </>
+              <>Send Message <Send size={14} aria-hidden="true" /></>
             )}
           </button>
         </form>
@@ -749,911 +498,534 @@ function ContactFormSection({ isInView }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Trust Badges Component
+// Contact Info Grid — 2x2 on mobile, stacked on desktop
 // ─────────────────────────────────────────────────────────────────────────────
-function TrustBadges({ isInView }) {
-  const { isMobile } = useScreenSize();
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        delay: 0.4,
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
+function ContactInfoGrid({ isInView }) {
+  const { isMobile } = useViewport();
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      className="contact-trust-badges"
-    >
-      {TRUST_BADGES.map((badge, idx) => {
-        const Icon = badge.icon;
-        return (
-          <motion.div
-            key={idx}
-            variants={itemVariants}
-            className="contact-trust-badge"
-          >
-            <div
-              className="contact-trust-badge-icon"
-              style={{ color: badge.color }}
-            >
-              <Icon size={isMobile ? 16 : 18} strokeWidth={1.6} />
-            </div>
-            <span className="contact-trust-badge-label">{badge.label}</span>
-          </motion.div>
-        );
-      })}
-    </motion.div>
+    <div className={`ch-info-grid${isMobile ? " ch-info-grid-2x2" : ""}`}>
+      {CONTACT_ITEMS.map((item, i) => (
+        <ContactInfoCard key={i} item={item} index={i} isInView={isInView} />
+      ))}
+    </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main Contact Page Component
+// Main Contact Page
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Contact() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.2 });
-  const { isMobile, isTablet } = useScreenSize();
-
-  const sectionVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: [0.16, 1, 0.3, 1],
-      },
-    },
-  };
-
-  const getGridColumns = () => {
-    if (isMobile) return "1fr";
-    if (isTablet) return "repeat(2, 1fr)";
-    return "repeat(2, 1fr)";
-  };
+  const inView = useInView(ref, { once: true, amount: 0 });
+  const { isMobile, isTablet } = useViewport();
 
   return (
-    <div className="contact-page">
-      <div className="contact-container">
-        {/* ── Hero Banner ── */}
+    <div className="ch-page">
+      <div className="ch-container">
+
         <ContactHero />
 
-        {/* ── Main Content ── */}
         <motion.section
           ref={ref}
-          variants={sectionVariants}
-          initial="hidden"
-          animate={inView ? "visible" : "hidden"}
-          className="contact-main"
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="ch-main"
         >
-          {/* Section Header */}
-          <div className="contact-section-header">
-            <div className="contact-section-badge">
-              <span className="contact-section-badge-text">Connect With Us</span>
-            </div>
-            <h2 className="contact-section-title">
-              We'd Love to <span className="contact-section-highlight">Hear From You</span>
+          {/* Section header */}
+          <div className="ch-section-hd">
+            <span className="ch-section-eyebrow">Connect With Us</span>
+            <h2 className="ch-section-title">
+              We'd Love to <span className="ch-gold">Hear From You</span>
             </h2>
-            <p className="contact-section-subtitle">
+            <p className="ch-section-sub">
               Whether you're looking for a career opportunity or need staffing solutions,
               our team is ready to assist.
             </p>
           </div>
 
-          {/* ── Trust Badges ── */}
           <TrustBadges isInView={inView} />
 
-          {/* ── Grid: Contact Info + Form ── */}
-          <div
-            className="contact-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: getGridColumns(),
-              gap: isMobile ? 20 : 24,
-            }}
-          >
-            {/* Left Column: Contact Info */}
-            <div>
-              <div className="contact-info-grid">
-                {CONTACT_ITEMS.map((item, idx) => (
-                  <ContactInfoCard
-                    key={idx}
-                    item={item}
-                    index={idx}
-                    isInView={inView}
-                  />
-                ))}
-              </div>
+          {/* Two-column grid */}
+          <div className={`ch-grid${isMobile ? " ch-grid-1col" : ""}`}>
 
-              {/* ── Working Hours ── */}
+            {/* Left column */}
+            <div className="ch-col">
+              <ContactInfoGrid isInView={inView} />
               <WorkingHours isInView={inView} />
-
-              {/* ── Social Links ── */}
               <SocialLinks />
             </div>
 
-            {/* Right Column: Form + Map */}
-            <div>
-              {/* Contact Form */}
-              <ContactFormSection isInView={inView} />
-
-              {/* ── Map ── */}
+            {/* Right column */}
+            <div className="ch-col">
+              <ContactForm isInView={inView} />
               <MapEmbed />
             </div>
           </div>
 
-          {/* ── FAQ Section ── */}
           <FAQSection isInView={inView} />
         </motion.section>
 
-        {/* ── Bottom Decorative Line ── */}
+        {/* Bottom ornament */}
         <motion.div
           initial={{ opacity: 0, scaleX: 0 }}
           animate={inView ? { opacity: 1, scaleX: 1 } : {}}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="contact-bottom-line"
+          transition={{ duration: 0.7, delay: 0.5 }}
+          className="ch-ornament"
+          aria-hidden="true"
         >
-          <div className="contact-bottom-line-bar" />
-          <div className="contact-bottom-line-dot" />
-          <div className="contact-bottom-line-bar" />
+          <span className="ch-ornament-bar" />
+          <span className="ch-ornament-dot" />
+          <span className="ch-ornament-bar" />
         </motion.div>
       </div>
 
-      {/* ── Styles ── */}
       <style>{`
-        /* ── Base ── */
-        .contact-page {
-          min-height: 100vh;
-          background: #f8fafc;
-          padding: clamp(80px, 12vh, 120px) clamp(16px, 5vw, 80px);
-        }
-        .contact-container {
-          max-width: 1200px;
-          margin: 0 auto;
-        }
+/* ── Reset helpers ──────────────────────────────────────────────────────── */
+.ch-page *, .ch-page *::before, .ch-page *::after { box-sizing: border-box; }
+.ch-page button, .ch-page a { font-family: 'Inter', sans-serif; }
 
-        /* ── Hero Banner ── */
-        .contact-hero {
-          position: relative;
-          border-radius: 24px;
-          overflow: hidden;
-          margin-bottom: 60px;
-          box-shadow: 0 20px 40px -12px rgba(15,29,61,0.15);
-        }
-        .contact-hero-bg {
-          position: relative;
-          width: 100%;
-          height: 320px;
-          overflow: hidden;
-        }
-        .contact-hero-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.6s ease;
-        }
-        .contact-hero:hover .contact-hero-image {
-          transform: scale(1.03);
-        }
-        .contact-hero-overlay {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(15,29,61,0.88) 0%, rgba(15,29,61,0.60) 100%);
-        }
-        .contact-hero-content {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: 40px 48px;
-          color: #fff;
-        }
-        .contact-hero-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(196,151,42,0.2);
-          border: 1px solid rgba(196,151,42,0.3);
-          padding: 6px 16px;
-          border-radius: 40px;
-          margin-bottom: 16px;
-          width: fit-content;
-        }
-        .contact-hero-badge-text {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          font-weight: 600;
-          color: #C4972A;
-          letter-spacing: 0.5px;
-        }
-        .contact-hero-title {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(2rem, 4vw, 3.2rem);
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          margin: 0 0 8px 0;
-          line-height: 1.2;
-        }
-        .contact-hero-highlight {
-          background: linear-gradient(135deg, #C4972A, #f0c060, #e8b84a);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-        .contact-hero-subtitle {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(14px, 1.2vw, 16px);
-          color: rgba(255,255,255,0.85);
-          max-width: 520px;
-          line-height: 1.6;
-          margin: 0 0 20px 0;
-        }
-        .contact-hero-stats {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex-wrap: wrap;
-        }
-        .contact-hero-stat {
-          display: flex;
-          align-items: baseline;
-          gap: 6px;
-        }
-        .contact-hero-stat-number {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(20px, 2vw, 26px);
-          font-weight: 800;
-          color: #C4972A;
-        }
-        .contact-hero-stat-label {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(11px, 0.9vw, 13px);
-          color: rgba(255,255,255,0.7);
-          font-weight: 500;
-        }
-        .contact-hero-stat-divider {
-          width: 1px;
-          height: 28px;
-          background: rgba(255,255,255,0.2);
-        }
+/* ── Page shell ─────────────────────────────────────────────────────────── */
+.ch-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: clamp(80px,12vh,120px) clamp(16px,5vw,80px) clamp(48px,8vh,80px);
+}
+.ch-container { max-width: 1200px; margin: 0 auto; }
 
-        /* ── Section Header ── */
-        .contact-main {
-          margin-bottom: 40px;
-        }
-        .contact-section-header {
-          text-align: center;
-          margin-bottom: 40px;
-        }
-        .contact-section-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 12px;
-        }
-        .contact-section-badge-text {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 4px;
-          text-transform: uppercase;
-          color: #C4972A;
-        }
-        .contact-section-title {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(1.8rem, 3vw, 2.6rem);
-          font-weight: 800;
-          color: #0f1d3d;
-          letter-spacing: -0.02em;
-          margin: 0 0 12px 0;
-        }
-        .contact-section-highlight {
-          color: #C4972A;
-        }
-        .contact-section-subtitle {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(14px, 1.2vw, 16px);
-          color: #64748b;
-          max-width: 520px;
-          margin: 0 auto;
-          line-height: 1.6;
-        }
+/* ── Gold utility ────────────────────────────────────────────────────────── */
+.ch-gold {
+  background: linear-gradient(135deg, #C4972A, #f0c060, #e8b84a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
-        /* ── Trust Badges ── */
-        .contact-trust-badges {
-          display: flex;
-          justify-content: center;
-          gap: 24px;
-          flex-wrap: wrap;
-          margin-bottom: 40px;
-        }
-        .contact-trust-badge {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: #fff;
-          padding: 8px 20px;
-          border-radius: 40px;
-          border: 1px solid rgba(0,0,0,0.06);
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-        .contact-trust-badge-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .contact-trust-badge-label {
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          font-weight: 500;
-          color: #0f1d3d;
-        }
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.ch-hero {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 56px;
+  box-shadow: 0 20px 48px -12px rgba(15,29,61,0.18);
+}
+.ch-hero-bg {
+  position: relative;
+  width: 100%;
+  height: clamp(280px,38vh,380px);
+  overflow: hidden;
+}
+.ch-hero-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+  display: block;
+}
+.ch-hero:hover .ch-hero-img { transform: scale(1.04); }
+.ch-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(140deg, rgba(15,29,61,0.92) 0%, rgba(15,29,61,0.60) 100%);
+}
+.ch-hero-content {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(24px,5vw,52px) clamp(24px,6vw,56px);
+  color: #fff;
+}
+.ch-hero-badge {
+  display: inline-flex; align-items: center;
+  background: rgba(196,151,42,0.18);
+  border: 1px solid rgba(196,151,42,0.3);
+  padding: 6px 16px; border-radius: 40px;
+  margin-bottom: 16px; width: fit-content;
+  font-size: 12px; font-weight: 600; color: #C4972A; letter-spacing: 0.5px;
+}
+.ch-hero-title {
+  font-size: clamp(2rem,4vw,3.2rem);
+  font-weight: 800; letter-spacing: -0.02em;
+  margin: 0 0 10px; line-height: 1.2; color: #fff;
+}
+.ch-hero-sub {
+  font-size: clamp(13px,1.2vw,16px);
+  color: rgba(255,255,255,0.82); max-width: 520px;
+  line-height: 1.65; margin: 0 0 22px;
+}
+.ch-hero-stats {
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+.ch-stat { display: flex; align-items: baseline; gap: 6px; }
+.ch-stat-n {
+  font-size: clamp(20px,2vw,26px);
+  font-weight: 800; color: #C4972A;
+}
+.ch-stat-l {
+  font-size: clamp(10px,0.85vw,13px);
+  color: rgba(255,255,255,0.68); font-weight: 500;
+}
+.ch-stat-div {
+  display: block; width: 1px; height: 28px;
+  background: rgba(255,255,255,0.2);
+}
 
-        /* ── Contact Info Cards ── */
-        .contact-info-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-        .contact-info-card {
-          display: flex;
-          align-items: flex-start;
-          gap: 16px;
-          background: #fff;
-          padding: 18px 20px;
-          border-radius: 16px;
-          border: 1px solid rgba(0,0,0,0.06);
-          transition: all 0.3s ease;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-        .contact-info-card.hovered {
-          border-color: rgba(196,151,42,0.3);
-          box-shadow: 0 8px 24px -12px rgba(15,29,61,0.12);
-          transform: translateY(-2px);
-        }
-        .contact-info-card-icon {
-          width: 44px;
-          height: 44px;
-          border-radius: 12px;
-          background: rgba(196,151,42,0.1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #C4972A;
-          flex-shrink: 0;
-        }
-        .contact-info-card-content {
-          flex: 1;
-          min-width: 0;
-        }
-        .contact-info-card-label {
-          font-family: 'Inter', sans-serif;
-          font-size: 11px;
-          font-weight: 600;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-          color: #94a3b8;
-          display: block;
-          margin-bottom: 2px;
-        }
-        .contact-info-card-value {
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          font-weight: 500;
-          color: #0f1d3d;
-          margin: 0 0 2px 0;
-        }
-        .contact-info-card-secondary {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          color: #64748b;
-          margin: 0 0 6px 0;
-        }
-        .contact-info-card-action {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-family: 'Inter', sans-serif;
-          font-size: 11px;
-          font-weight: 500;
-          color: #C4972A;
-          background: rgba(196,151,42,0.1);
-          padding: 4px 12px;
-          border-radius: 20px;
-          border: none;
-          cursor: pointer;
-          text-decoration: none;
-          transition: all 0.2s ease;
-        }
-        .contact-info-card-action:hover {
-          background: rgba(196,151,42,0.2);
-        }
+/* ── Main section ────────────────────────────────────────────────────────── */
+.ch-main { margin-bottom: 40px; }
+.ch-section-hd { text-align: center; margin-bottom: 36px; }
+.ch-section-eyebrow {
+  display: inline-block;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: #C4972A; margin-bottom: 12px;
+}
+.ch-section-title {
+  font-size: clamp(1.75rem,3vw,2.6rem);
+  font-weight: 800; color: #0f1d3d;
+  letter-spacing: -0.02em; margin: 0 0 12px;
+}
+.ch-section-sub {
+  font-size: clamp(14px,1.2vw,16px);
+  color: #64748b; max-width: 520px;
+  margin: 0 auto; line-height: 1.65;
+}
 
-        /* ── Working Hours ── */
-        .contact-hours {
-          background: #fff;
-          padding: 24px;
-          border-radius: 16px;
-          border: 1px solid rgba(0,0,0,0.06);
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-          margin-top: 16px;
-        }
-        .contact-hours-header {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 16px;
-          color: #C4972A;
-        }
-        .contact-hours-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 16px;
-          font-weight: 700;
-          color: #0f1d3d;
-          margin: 0;
-        }
-        .contact-hours-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .contact-hours-item {
-          display: flex;
-          justify-content: space-between;
-          padding: 6px 0;
-          border-bottom: 1px solid rgba(0,0,0,0.04);
-        }
-        .contact-hours-item:last-child {
-          border-bottom: none;
-        }
-        .contact-hours-day {
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          font-weight: 500;
-          color: #0f1d3d;
-        }
-        .contact-hours-time {
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          color: #64748b;
-          font-weight: 500;
-        }
-        .contact-hours-note {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          color: #94a3b8;
-          margin: 12px 0 0;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .contact-hours-note-icon {
-          font-size: 14px;
-        }
+/* ── Trust badges ────────────────────────────────────────────────────────── */
+.ch-trust {
+  display: flex; justify-content: center;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 36px;
+}
+.ch-trust-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff; padding: 8px 20px;
+  border-radius: 40px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  font-size: 13px; font-weight: 500; color: #0f1d3d;
+}
 
-        /* ── Social Links ── */
-        .contact-social {
-          background: #fff;
-          padding: 24px;
-          border-radius: 16px;
-          border: 1px solid rgba(0,0,0,0.06);
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-          margin-top: 16px;
-        }
-        .contact-social-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 16px;
-          font-weight: 700;
-          color: #0f1d3d;
-          margin: 0 0 4px 0;
-        }
-        .contact-social-subtitle {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          color: #94a3b8;
-          margin: 0 0 16px 0;
-        }
-        .contact-social-links {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-        .contact-social-link {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 14px;
-          border-radius: 12px;
-          background: rgba(0,0,0,0.04);
-          text-decoration: none;
-          transition: all 0.3s ease;
-          color: #64748b;
-          border: 1px solid transparent;
-        }
-        .contact-social-link:hover {
-          background: rgba(0,0,0,0.08);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        .contact-social-label {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          font-weight: 500;
-        }
-        .contact-social-username {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          color: #94a3b8;
-          background: rgba(0,0,0,0.04);
-          padding: 2px 8px;
-          border-radius: 6px;
-        }
-        .contact-social-snapchat {
-          margin-top: 12px;
-          padding: 12px 16px;
-          background: rgba(255,252,0,0.08);
-          border: 1px solid rgba(255,252,0,0.2);
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-        .contact-social-snapchat-text {
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          font-weight: 600;
-          color: #0f1d3d;
-        }
-        .contact-social-snapchat-username {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          font-weight: 500;
-          color: #C4972A;
-          background: rgba(196,151,42,0.1);
-          padding: 4px 12px;
-          border-radius: 6px;
-        }
+/* ── Two-column grid ─────────────────────────────────────────────────────── */
+.ch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.ch-grid-1col { grid-template-columns: 1fr; }
+.ch-col { display: flex; flex-direction: column; gap: 16px; }
 
-        /* ── Contact Form ── */
-        .contact-form-wrapper {
-          background: #fff;
-          padding: 28px 24px;
-          border-radius: 20px;
-          border: 1px solid rgba(0,0,0,0.06);
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-        .contact-form-header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 20px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid rgba(0,0,0,0.06);
-        }
-        .contact-form-header-icon {
-          width: 44px;
-          height: 44px;
-          border-radius: 12px;
-          background: rgba(196,151,42,0.1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #C4972A;
-        }
-        .contact-form-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 16px;
-          font-weight: 700;
-          color: #0f1d3d;
-          margin: 0;
-        }
-        .contact-form-subtitle {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          color: #94a3b8;
-          margin: 0;
-        }
+/* ── Info cards ──────────────────────────────────────────────────────────── */
+.ch-info-grid { display: flex; flex-direction: column; gap: 12px; }
 
-        .contact-form {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-        .contact-form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-        .contact-form-label {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          font-weight: 500;
-          color: #64748b;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .contact-form-input,
-        .contact-form-textarea {
-          width: 100%;
-          padding: 10px 14px;
-          border-radius: 12px;
-          border: 1.5px solid rgba(0,0,0,0.08);
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          color: #0f1d3d;
-          background: #f8fafc;
-          transition: all 0.2s ease;
-          outline: none;
-        }
-        .contact-form-input:focus,
-        .contact-form-textarea:focus {
-          border-color: #C4972A;
-          background: #fff;
-          box-shadow: 0 0 0 4px rgba(196,151,42,0.08);
-        }
-        .contact-form-input::placeholder,
-        .contact-form-textarea::placeholder {
-          color: #94a3b8;
-        }
-        .contact-form-textarea {
-          resize: vertical;
-          min-height: 80px;
-        }
+/* 2x2 grid on mobile */
+.ch-info-grid-2x2 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 12px !important;
+}
 
-        .contact-form-error {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(239,68,68,0.08);
-          border: 1px solid rgba(239,68,68,0.2);
-          border-radius: 10px;
-          padding: 10px 14px;
-          color: #ef4444;
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-        }
+.ch-card {
+  display: flex; align-items: flex-start; gap: 16px;
+  background: #fff; padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+.ch-card:hover {
+  border-color: rgba(196,151,42,0.3);
+  box-shadow: 0 10px 28px -12px rgba(15,29,61,0.14);
+  transform: translateY(-2px);
+}
+.ch-card-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(196,151,42,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: #C4972A; flex-shrink: 0;
+}
+.ch-card-body { flex: 1; min-width: 0; }
+.ch-card-label {
+  display: block; font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.6px; text-transform: uppercase;
+  color: #94a3b8; margin-bottom: 3px;
+}
+.ch-card-value {
+  font-size: 14px; font-weight: 500; color: #0f1d3d;
+  margin: 0 0 2px; overflow-wrap: break-word; word-break: break-all;
+}
+.ch-card-secondary { font-size: 12px; color: #64748b; margin: 0 0 6px; }
+.ch-card-action {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; color: #C4972A;
+  background: rgba(196,151,42,0.09); padding: 4px 12px;
+  border-radius: 20px; border: none; cursor: pointer;
+  text-decoration: none; transition: background 0.15s ease;
+}
+.ch-card-action:hover { background: rgba(196,151,42,0.18); }
+.ch-card-action:focus-visible { outline: 2px solid #C4972A; outline-offset: 2px; }
 
-        .contact-form-submit {
-          width: 100%;
-          padding: 12px 20px;
-          border-radius: 40px;
-          border: none;
-          background: linear-gradient(135deg, #C4972A, #8B6914);
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          font-weight: 600;
-          color: #0f1d3d;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-        }
-        .contact-form-submit:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(196,151,42,0.3);
-        }
-        .contact-form-submit:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-          transform: none;
-        }
+/* ── Working Hours ───────────────────────────────────────────────────────── */
+.ch-hours {
+  background: #fff; padding: 22px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.ch-hours-hd {
+  display: flex; align-items: center; gap: 10px;
+  color: #C4972A; margin-bottom: 16px;
+}
+.ch-hours-hd h3 {
+  font-size: 15px; font-weight: 700;
+  color: #0f1d3d; margin: 0;
+}
+.ch-hours-grid { display: flex; flex-direction: column; gap: 2px; }
+.ch-hours-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.ch-hours-row:last-child { border-bottom: none; }
+.ch-hours-day { font-size: 13px; font-weight: 500; color: #0f1d3d; }
+.ch-hours-time { font-size: 13px; font-weight: 500; color: #64748b; }
+.ch-hours-note { font-size: 12px; color: #94a3b8; margin: 12px 0 0; }
 
-        .contact-form-success {
-          text-align: center;
-          padding: 30px 20px;
-        }
-        .contact-form-success-icon {
-          width: 64px;
-          height: 64px;
-          border-radius: 50%;
-          background: rgba(16,185,129,0.12);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #10b981;
-          margin: 0 auto 16px;
-        }
-        .contact-form-success-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 18px;
-          font-weight: 700;
-          color: #0f1d3d;
-          margin: 0 0 8px 0;
-        }
-        .contact-form-success-text {
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          color: #64748b;
-          margin: 0;
-        }
+/* ── Social Links ────────────────────────────────────────────────────────── */
+.ch-social {
+  background: #fff; padding: 22px 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.ch-social-title { font-size: 15px; font-weight: 700; color: #0f1d3d; margin: 0 0 4px; }
+.ch-social-sub { font-size: 12px; color: #94a3b8; margin: 0 0 16px; }
+.ch-social-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.ch-social-link {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 13px; border-radius: 12px;
+  background: rgba(0,0,0,0.035);
+  border: 1px solid rgba(0,0,0,0.06);
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.ch-social-link:hover {
+  background: rgba(0,0,0,0.07);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.ch-social-link:focus-visible { outline: 2px solid #C4972A; outline-offset: 2px; }
+.ch-social-name { font-size: 12px; font-weight: 600; color: #334155; }
+.ch-social-handle {
+  font-size: 10px; color: #94a3b8;
+  background: rgba(0,0,0,0.04);
+  padding: 2px 7px; border-radius: 6px;
+}
+.ch-social-snap {
+  margin-top: 12px; padding: 12px 16px;
+  background: rgba(255,252,0,0.07);
+  border: 1px solid rgba(255,252,0,0.25);
+  border-radius: 10px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.ch-social-snap-text { font-size: 13px; font-weight: 600; color: #0f1d3d; }
+.ch-social-snap-user {
+  font-size: 12px; font-weight: 500; color: #C4972A;
+  background: rgba(196,151,42,0.1); padding: 4px 12px; border-radius: 6px;
+}
 
-        /* ── Map ── */
-        .contact-map {
-          margin-top: 16px;
-          border-radius: 16px;
-          overflow: hidden;
-          border: 1px solid rgba(0,0,0,0.06);
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-          height: 220px;
-        }
-        .contact-map-iframe {
-          width: 100%;
-          height: 100%;
-          border: 0;
-        }
+/* ── Contact Form ────────────────────────────────────────────────────────── */
+.ch-form-wrap {
+  background: #fff; padding: clamp(20px,3vw,28px) clamp(18px,3vw,26px);
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.ch-form-hd {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 20px; padding-bottom: 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.ch-form-hd-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(196,151,42,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: #C4972A; flex-shrink: 0;
+}
+.ch-form-title { font-size: 15px; font-weight: 700; color: #0f1d3d; margin: 0 0 2px; }
+.ch-form-sub { font-size: 12px; color: #94a3b8; margin: 0; }
 
-        /* ── FAQ ── */
-        .contact-faq {
-          background: #fff;
-          padding: 28px 24px;
-          border-radius: 20px;
-          border: 1px solid rgba(0,0,0,0.06);
-          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-          margin-top: 24px;
-        }
-        .contact-faq-header {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 20px;
-          color: #C4972A;
-        }
-        .contact-faq-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 16px;
-          font-weight: 700;
-          color: #0f1d3d;
-          margin: 0;
-        }
-        .contact-faq-list {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-        .contact-faq-item {
-          border-radius: 12px;
-          border: 1px solid rgba(0,0,0,0.06);
-          overflow: hidden;
-          transition: border-color 0.3s ease;
-        }
-        .contact-faq-item.open {
-          border-color: rgba(196,151,42,0.3);
-        }
-        .contact-faq-question {
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 14px 16px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          font-family: 'Inter', sans-serif;
-          font-size: 14px;
-          font-weight: 600;
-          color: #0f1d3d;
-          text-align: left;
-          transition: background 0.2s ease;
-        }
-        .contact-faq-question:hover {
-          background: rgba(0,0,0,0.02);
-        }
-        .contact-faq-question-text {
-          flex: 1;
-          padding-right: 12px;
-        }
-        .contact-faq-icon {
-          color: #C4972A;
-          flex-shrink: 0;
-        }
-        .contact-faq-answer {
-          padding: 0 16px 16px;
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          color: #64748b;
-          line-height: 1.6;
-        }
-        .contact-faq-answer p {
-          margin: 0;
-        }
+/* Honeypot */
+.ch-hp {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; left: -9999px;
+}
 
-        /* ── Bottom Decorative Line ── */
-        .contact-bottom-line {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          margin-top: 40px;
-        }
-        .contact-bottom-line-bar {
-          width: 60px;
-          height: 1px;
-          background: rgba(196,151,42,0.25);
-          border-radius: 999;
-        }
-        .contact-bottom-line-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: #C4972A;
-          opacity: 0.5;
-        }
+.ch-form { display: flex; flex-direction: column; gap: 14px; }
+.ch-form-row { display: flex; flex-direction: column; gap: 5px; position: relative; }
+.ch-form-label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12.5px; font-weight: 600; color: #334155;
+}
+.ch-form-opt { font-weight: 400; color: #94a3b8; font-size: 11px; }
+.ch-form-input, .ch-form-textarea {
+  width: 100%; padding: 11px 15px;
+  border-radius: 11px;
+  border: 1.5px solid rgba(0,0,0,0.08);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; color: #0f1d3d;
+  background: #f8fafc;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  outline: none;
+}
+.ch-form-input:focus-visible, .ch-form-textarea:focus-visible {
+  border-color: #C4972A; background: #fff;
+  box-shadow: 0 0 0 4px rgba(196,151,42,0.1);
+}
+.ch-form-input::placeholder, .ch-form-textarea::placeholder { color: #94a3b8; }
+.ch-form-textarea { resize: vertical; min-height: 90px; }
+.ch-form-count {
+  text-align: right; font-size: 11px; color: #94a3b8;
+  position: absolute; bottom: -18px; right: 0;
+}
 
-        /* ── Responsive ── */
-        @media (max-width: 768px) {
-          .contact-hero-bg { height: 340px; }
-          .contact-hero-content { padding: 28px 24px; }
-          .contact-hero-stats { gap: 12px; }
-          .contact-hero-stat-divider { height: 20px; }
-          .contact-trust-badges { gap: 12px; }
-          .contact-trust-badge { padding: 6px 14px; }
-          .contact-trust-badge-label { font-size: 11px; }
-          .contact-info-card { padding: 14px 16px; }
-          .contact-form-wrapper { padding: 20px 16px; }
-          .contact-grid { gap: 16px; }
-          .contact-hours { padding: 18px; }
-          .contact-social { padding: 18px; }
-          .contact-social-links { gap: 8px; }
-          .contact-social-link { padding: 6px 10px; }
-          .contact-social-username { display: none; }
-          .contact-social-snapchat { 
-            flex-direction: column; 
-            align-items: flex-start; 
-            gap: 6px;
-          }
-          .contact-map { height: 180px; }
-          .contact-faq { padding: 20px 16px; }
-          .contact-faq-question { font-size: 13px; padding: 12px 14px; }
-        }
+.ch-form-error {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(239,68,68,0.07);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 10px; padding: 10px 14px;
+  color: #dc2626; font-size: 13px;
+}
+.ch-form-btn {
+  width: 100%; padding: 13px 20px;
+  border-radius: 40px; border: none;
+  background: linear-gradient(135deg, #C4972A, #8B6914);
+  font-size: 14px; font-weight: 700; color: #0f1d3d;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 4px 14px rgba(196,151,42,0.28);
+}
+.ch-form-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(196,151,42,0.36);
+}
+.ch-form-btn:focus-visible { outline: 2px solid #0f1d3d; outline-offset: 3px; }
+.ch-form-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
 
-        @media (max-width: 480px) {
-          .contact-hero-bg { height: 380px; }
-          .contact-hero-title { font-size: 1.6rem; }
-          .contact-hero-stat-number { font-size: 18px; }
-          .contact-hero-stat-label { font-size: 10px; }
-          .contact-info-card { flex-direction: column; align-items: center; text-align: center; }
-          .contact-info-card-icon { width: 48px; height: 48px; }
-          .contact-info-card-content { text-align: center; }
-          .contact-info-card-action { justify-content: center; }
-          .contact-hours-item { flex-direction: column; align-items: flex-start; gap: 2px; }
-          .contact-social-link { padding: 6px 10px; }
-          .contact-social-label { font-size: 11px; }
-          .contact-map { height: 150px; }
-        }
+.ch-spin {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(15,29,61,0.3);
+  border-top-color: #0f1d3d;
+  border-radius: 50%;
+  animation: ch-spin 0.75s linear infinite;
+}
+@keyframes ch-spin { to { transform: rotate(360deg); } }
 
-        @media (prefers-reduced-motion: reduce) {
-          .contact-hero-image,
-          .contact-info-card,
-          .contact-form-submit,
-          .contact-social-link {
-            transition: none !important;
-          }
-          .contact-hero-image { transform: none !important; }
-        }
+.ch-form-success {
+  text-align: center; padding: 32px 20px;
+}
+.ch-form-success-icon {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: rgba(16,185,129,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: #10b981; margin: 0 auto 16px;
+}
+.ch-form-success h4 { font-size: 18px; font-weight: 700; color: #0f1d3d; margin: 0 0 8px; }
+.ch-form-success p { font-size: 14px; color: #64748b; margin: 0; }
+
+/* ── Map ─────────────────────────────────────────────────────────────────── */
+.ch-map {
+  border-radius: 16px; overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  height: 230px;
+}
+.ch-map-frame { width: 100%; height: 100%; border: 0; display: block; }
+
+/* ── FAQ ─────────────────────────────────────────────────────────────────── */
+.ch-faq {
+  background: #fff; padding: clamp(20px,3vw,28px) clamp(18px,3vw,26px);
+  border-radius: 20px; margin-top: 24px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.ch-faq-hd {
+  display: flex; align-items: center; gap: 10px;
+  color: #C4972A; margin-bottom: 18px;
+}
+.ch-faq-hd h3 { font-size: 16px; font-weight: 700; color: #0f1d3d; margin: 0; }
+.ch-faq-list { display: flex; flex-direction: column; gap: 6px; }
+.ch-faq-item {
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.07);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+.ch-faq-item.open { border-color: rgba(196,151,42,0.35); }
+.ch-faq-q {
+  width: 100%; display: flex;
+  justify-content: space-between; align-items: center;
+  padding: 14px 16px; background: none; border: none;
+  cursor: pointer; font-size: 13.5px; font-weight: 600;
+  color: #0f1d3d; text-align: left; gap: 12px;
+  transition: background 0.15s ease;
+}
+.ch-faq-q:hover { background: rgba(0,0,0,0.018); }
+.ch-faq-q:focus-visible { outline: 2px solid #C4972A; outline-offset: -2px; border-radius: 11px; }
+.ch-faq-chevron { color: #C4972A; flex-shrink: 0; }
+.ch-faq-a {
+  padding: 0 16px 14px;
+  font-size: 13px; color: #475569; line-height: 1.65;
+}
+.ch-faq-a p { margin: 0; }
+
+/* ── Ornament ────────────────────────────────────────────────────────────── */
+.ch-ornament {
+  display: flex; align-items: center;
+  justify-content: center; gap: 12px; margin-top: 40px;
+}
+.ch-ornament-bar {
+  display: block; width: 60px; height: 1px;
+  background: rgba(196,151,42,0.25); border-radius: 999px;
+}
+.ch-ornament-dot {
+  display: block; width: 6px; height: 6px;
+  border-radius: 50%; background: #C4972A; opacity: 0.5;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .ch-hero-bg { height: clamp(300px,45vh,380px); }
+  .ch-hero-content { padding: 24px 22px; }
+  .ch-hero-stats { gap: 12px; }
+  .ch-stat-div { height: 20px; }
+  .ch-trust { gap: 10px; }
+  .ch-trust-badge { padding: 6px 14px; font-size: 12px; }
+  .ch-card { padding: 14px 16px; }
+  .ch-social-handle { display: none; }
+  .ch-social-snap { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .ch-map { height: 190px; }
+  .ch-faq-q { font-size: 13px; padding: 12px 14px; }
+}
+
+@media (max-width: 480px) {
+  .ch-hero-bg { height: clamp(320px,52vh,420px); }
+  .ch-hero-title { font-size: 1.55rem; }
+  .ch-stat-n { font-size: 18px; }
+  .ch-card { flex-direction: column; align-items: center; text-align: center; }
+  .ch-card-body { text-align: center; }
+  .ch-card-action { display: inline-flex; justify-content: center; }
+  .ch-hours-row { flex-direction: column; gap: 2px; }
+  .ch-map { height: 160px; }
+  .ch-form-count { position: static; text-align: right; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ch-hero-img,
+  .ch-card,
+  .ch-form-btn,
+  .ch-social-link { transition: none !important; }
+  .ch-hero-img { transform: none !important; }
+  .ch-spin { animation-duration: 2s; }
+}
       `}</style>
     </div>
   );
