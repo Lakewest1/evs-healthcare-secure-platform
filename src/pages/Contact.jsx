@@ -498,21 +498,6 @@ function ContactForm({ isInView }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Contact Info Grid — 2x2 on mobile, stacked on desktop
-// ─────────────────────────────────────────────────────────────────────────────
-function ContactInfoGrid({ isInView }) {
-  const { isMobile } = useViewport();
-
-  return (
-    <div className={`ch-info-grid${isMobile ? " ch-info-grid-2x2" : ""}`}>
-      {CONTACT_ITEMS.map((item, i) => (
-        <ContactInfoCard key={i} item={item} index={i} isInView={isInView} />
-      ))}
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Main Contact Page
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Contact() {
@@ -552,7 +537,11 @@ export default function Contact() {
 
             {/* Left column */}
             <div className="ch-col">
-              <ContactInfoGrid isInView={inView} />
+              <div className={`ch-info-grid${isMobile ? " ch-info-grid-2x2" : ""}`}>
+                {CONTACT_ITEMS.map((item, i) => (
+                  <ContactInfoCard key={i} item={item} index={i} isInView={inView} />
+                ))}
+              </div>
               <WorkingHours isInView={inView} />
               <SocialLinks />
             </div>
@@ -715,7 +704,7 @@ export default function Contact() {
 /* ── Info cards ──────────────────────────────────────────────────────────── */
 .ch-info-grid { display: flex; flex-direction: column; gap: 12px; }
 
-/* 2x2 grid on mobile */
+/* 2x2 grid on mobile — reduces scrolling */
 .ch-info-grid-2x2 {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
@@ -1016,6 +1005,32 @@ export default function Contact() {
   .ch-hours-row { flex-direction: column; gap: 2px; }
   .ch-map { height: 160px; }
   .ch-form-count { position: static; text-align: right; }
+  
+  /* 2x2 grid cards — more compact on very small screens */
+  .ch-info-grid-2x2 {
+    gap: 8px !important;
+  }
+  .ch-info-grid-2x2 .ch-card {
+    padding: 12px 10px !important;
+  }
+  .ch-info-grid-2x2 .ch-card-icon {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .ch-info-grid-2x2 .ch-card-icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .ch-info-grid-2x2 .ch-card-label {
+    font-size: 9px !important;
+  }
+  .ch-info-grid-2x2 .ch-card-value {
+    font-size: 11px !important;
+  }
+  .ch-info-grid-2x2 .ch-card-action {
+    font-size: 10px !important;
+    padding: 3px 10px !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

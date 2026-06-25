@@ -9,32 +9,26 @@ import { Menu, X, Phone, Mail } from "lucide-react";
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS HEALTHCARE SOLUTIONS LTD — Production Navbar
 //
-// Mobile fixes applied:
-//   • Z-index hierarchy: page content (0–99) → overlay (200) → drawer (300)
-//     → navbar (400). Nothing can pierce the overlay or sit above the drawer.
-//   • Scroll-lock: uses scrollY save/restore instead of position:fixed to
-//     prevent iOS layout jump.
-//   • GSAP tilt disabled on mobile — never runs on touch devices.
-//   • GSAP logo float/dot: instances stored in refs and killed on unmount.
-//   • Heavy CSS animations (glow pulse, shine sweep) stripped on mobile via
-//     @media (hover: none) — runs only on pointer devices.
-//   • Drawer spring: damping raised, stiffness lowered → no overshoot on
-//     budget Android; translateX only, no extra transforms.
-//   • Drawer backdrop-filter: none on mobile (reduced to simple rgba bg).
-//   • Drawer slide: CSS transform, not Framer spring, for buttery 60fps.
-//   • Mobile text color: dynamically set based on page (white on home/about, dark on others)
-//   • Z-index fix: drawer now sits above navbar (z-index: 500)
+// Z-index hierarchy (fixed):
+//   • Page content: 0–99
+//   • Overlay: 500 (covers everything below)
+//   • Drawer: 600 (above overlay, covers navbar completely)
+//   • Navbar: 400
+//   • Hamburger icon: 401 (above navbar, below drawer)
+//
+// When drawer opens: overlay covers page + navbar, drawer slides over all.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const NAV_LINKS = ["About", "Jobs", "Training", "Employers", "Contact"];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Z-INDEX SCALE (nothing outside this file should exceed these)
+// Z-INDEX SCALE
 // ─────────────────────────────────────────────────────────────────────────────
 const Z = {
   navbar:  400,
-  overlay: 200,
-  drawer:  500, // ← INCREASED: drawer now sits ABOVE navbar
+  hamburger: 401,
+  overlay: 500,  // Covers navbar
+  drawer:  600,  // Above everything
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -53,8 +47,7 @@ function useIsMobile(bp = 768) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CSS — consolidated, no per-component injections
-// Mobile heavy animations stripped via @media (hover: none)
+// CSS — consolidated
 // ─────────────────────────────────────────────────────────────────────────────
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
@@ -64,14 +57,14 @@ const CSS = `
     position: fixed;
     top: 0; left: 0; right: 0;
     z-index: ${Z.navbar};
-    perspective: 1400px;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .evs-navbar-inner {
-    transform-style: preserve-3d;
     will-change: transform;
-    transition: background 0.4s ease, box-shadow 0.4s ease,
-                border-radius 0.4s ease, border-bottom 0.4s ease;
+    transition: background 0.35s ease, box-shadow 0.35s ease,
+                border-radius 0.35s ease, border-bottom 0.35s ease;
   }
 
   /* Gold glow line — desktop only */
@@ -102,7 +95,6 @@ const CSS = `
     background: none; border: none; cursor: pointer;
     padding: 8px 4px;
     white-space: nowrap; flex-shrink: 0;
-    transform-style: preserve-3d;
     transition: color 0.25s ease;
     -webkit-tap-highlight-color: transparent;
   }
@@ -133,7 +125,6 @@ const CSS = `
   .navbar-dark-text .evs-link:hover,
   .navbar-dark-text .evs-link[data-active="true"] { color: #C4972A; font-weight: 600; }
 
-  /* ── MOBILE: Dynamic text color based on page ── */
   .navbar-mobile-white .evs-link        { color: rgba(255,255,255,0.85) !important; }
   .navbar-mobile-white .evs-link:hover,
   .navbar-mobile-white .evs-link[data-active="true"] { color: #C4972A !important; font-weight: 600; }
@@ -163,7 +154,6 @@ const CSS = `
   .navbar-dark-text .evs-hire-staff     { color: #0f1d3d; border: 1px solid rgba(15,29,61,0.2); }
   .navbar-dark-text .evs-hire-staff:hover { background: rgba(196,151,42,0.06); border-color: #C4972A; transform: translateY(-2px); }
 
-  /* ── MOBILE: Dynamic Hire Staff button colors ── */
   .navbar-mobile-white .evs-hire-staff  { color: #ffffff !important; border: 1px solid rgba(255,255,255,0.3) !important; }
   .navbar-mobile-white .evs-hire-staff:hover { background: rgba(255,255,255,0.1) !important; border-color: rgba(255,255,255,0.5) !important; }
   .navbar-mobile-dark .evs-hire-staff   { color: #0f1d3d !important; border: 1px solid rgba(15,29,61,0.2) !important; }
@@ -190,7 +180,6 @@ const CSS = `
     transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
   }
 
-  /* Glow + shine — pointer devices only (desktop) */
   @media (hover: hover) {
     .evs-apply { animation: evsApplyGlow 3s ease-in-out infinite; }
 
@@ -266,7 +255,7 @@ const CSS = `
     display: none; align-items: center; justify-content: center;
     width: 44px; height: 44px;
     background: transparent; border: none; cursor: pointer;
-    flex-shrink: 0; z-index: ${Z.navbar + 1};
+    flex-shrink: 0; z-index: ${Z.hamburger};
     transition: background 0.2s ease;
     -webkit-tap-highlight-color: transparent;
     border-radius: 10px;
@@ -282,24 +271,16 @@ const CSS = `
   .navbar-mobile-dark .evs-mob { color: #0f1d3d !important; }
   .navbar-mobile-dark .evs-mob:hover { background: rgba(196,151,42,0.08) !important; }
 
-  /* ── Overlay
-     z-index: ${Z.overlay} — sits ABOVE page content, BELOW drawer.
-     The navbar (z:${Z.navbar}) is above the overlay so the logo stays
-     visible, but the drawer (z:${Z.drawer}) is also above navbar. ── */
+  /* ── Overlay — covers navbar + page ── */
   .evs-overlay {
     position: fixed; inset: 0;
     background: rgba(5,10,22,0.55);
-    /* No backdrop-filter here — expensive on mobile, unnecessary */
     z-index: ${Z.overlay};
     pointer-events: auto;
-    touch-action: none; /* prevent scroll-through on iOS */
+    touch-action: none;
   }
 
-  /* ── Mobile drawer
-     Sits at z:${Z.drawer} — above overlay AND above navbar.
-     Uses translateX for hardware-composited slide (GPU only, no layout).
-     NO backdrop-filter on mobile — replaced with solid rgba background.
-  ── */
+  /* ── Mobile drawer — above everything ── */
   .evs-drawer {
     position: fixed;
     top: 0; right: 0; bottom: 0;
@@ -308,14 +289,14 @@ const CSS = `
     display: flex; flex-direction: column;
     overflow-y: auto; overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    /* Solid bg — no blur cost on mobile */
     background: rgba(10,22,40,0.97);
     border-left: 1px solid rgba(196,151,42,0.18);
     box-shadow: -6px 0 24px rgba(0,0,0,0.28);
     pointer-events: auto;
-    /* Hardware-composited properties only */
     will-change: transform;
     overscroll-behavior: contain;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   .evs-drawer::-webkit-scrollbar { width: 3px; }
   .evs-drawer::-webkit-scrollbar-thumb { background: #C4972A; border-radius: 999px; }
@@ -360,7 +341,6 @@ const CSS = `
     border: none; border-radius: 12px; cursor: pointer; color: #ffffff;
     background: linear-gradient(135deg, #f0c060, #C4972A 45%, #8B6914);
     font-family: 'Inter', sans-serif;
-    /* Simplified shadow — no heavy 3D stack on mobile */
     box-shadow: 0 4px 14px rgba(196,151,42,0.35);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
     position: relative; overflow: hidden;
@@ -388,7 +368,7 @@ const CSS = `
     border-radius: 4px;
   }
 
-  /* ── Reduced motion — kill everything ── */
+  /* ── Reduced motion ── */
   @media (prefers-reduced-motion: reduce) {
     .evs-apply,
     .evs-apply .apply-shine { animation: none !important; }
@@ -398,36 +378,33 @@ const CSS = `
 `;
 
 // ── Framer Motion variants ─────────────────────────────────────────────────
-// Drawer: translateX only — no 3D, no scale, no opacity. GPU compositor only.
-// spring stiffness/damping tuned for 60fps on budget Android.
 const drawerV = {
   hidden: {
     x: "100%",
-    transition: { type: "spring", damping: 36, stiffness: 280, restDelta: 0.5 },
+    transition: { duration: 0.28, ease: [0.4, 0, 0.2, 1] },
   },
   visible: {
     x: 0,
     transition: {
-      type: "spring", damping: 30, stiffness: 220, restDelta: 0.5,
+      duration: 0.3, ease: [0.22, 1, 0.36, 1],
       staggerChildren: 0.035, delayChildren: 0.04,
     },
   },
   exit: {
     x: "100%",
-    transition: { type: "spring", damping: 38, stiffness: 300, restDelta: 0.5 },
+    transition: { duration: 0.22, ease: [0.4, 0, 1, 1] },
   },
 };
 
-// Items: only opacity + x (no y, no scale — reduces layout thrash)
 const itemV = {
   hidden:  { opacity: 0, x: 16 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.22, ease: [0.22,1,0.36,1] } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] } },
 };
 
 const overlayV = {
   hidden:  { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.18 } },
-  exit:    { opacity: 0, transition: { duration: 0.15 } },
+  visible: { opacity: 1, transition: { duration: 0.15 } },
+  exit:    { opacity: 0, transition: { duration: 0.12 } },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -445,7 +422,6 @@ export default function Navbar() {
   const logoRef   = useRef(null);
   const logoDotRef = useRef(null);
 
-  // Stored GSAP instances so we can kill them specifically
   const gsapFloat = useRef(null);
   const gsapDot   = useRef(null);
   const gsapTl    = useRef(null);
@@ -453,7 +429,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ── GSAP entrance — desktop only, respects reducedMotion ────────────────
+  // ── GSAP entrance — desktop only ─────────────────────────────────────────
   useEffect(() => {
     if (shouldReduce || !navbarRef.current) return;
 
@@ -481,13 +457,11 @@ export default function Navbar() {
       tl.fromTo(
         ctaBtns,
         { y: -12, opacity: 0, scale: 0.9 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.45, stagger: 0.08,
-          ease: "back.out(1.6)", clearProps: "all" },
+        { y: 0, opacity: 1, scale: 1, duration: 0.45, stagger: 0.08, ease: "back.out(1.6)", clearProps: "all" },
         "-=0.3"
       );
     }
 
-    // Logo float — only on desktop
     if (!isMobile && logoRef.current) {
       gsapFloat.current = gsap.to(logoRef.current, {
         y: -4, repeat: -1, yoyo: true, duration: 2.2, ease: "sine.inOut",
@@ -505,10 +479,8 @@ export default function Navbar() {
       gsapFloat.current?.kill();
       gsapDot.current?.kill();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // intentionally runs once on mount
+  }, []);
 
-  // Kill logo float when switching to mobile (resize)
   useEffect(() => {
     if (isMobile) {
       gsapFloat.current?.kill();
@@ -518,7 +490,7 @@ export default function Navbar() {
     }
   }, [isMobile]);
 
-  // ── GSAP 3D tilt — desktop pointer devices only ──────────────────────────
+  // ── GSAP 3D tilt — desktop only ──────────────────────────────────────────
   useEffect(() => {
     if (isMobile || shouldReduce) return;
     const nb = navbarRef.current;
@@ -557,35 +529,23 @@ export default function Navbar() {
   useEffect(() => {
     const path = location.pathname;
     const routeMap = {
-      "/about":     "About",
-      "/jobs":      "Jobs",
-      "/training":  "Training",
-      "/employers": "Employers",
-      "/contact":   "Contact",
+      "/about": "About", "/jobs": "Jobs", "/training": "Training",
+      "/employers": "Employers", "/contact": "Contact",
     };
-    if (routeMap[path]) {
-      setActiveLink(routeMap[path]);
-      return;
-    }
+    if (routeMap[path]) { setActiveLink(routeMap[path]); return; }
 
-    // Home page: highlight by scroll position
     const onScrollHighlight = () => {
       const pos = window.scrollY + 100;
       const sections = [
-        { id: "about",        link: "About"     },
-        { id: "jobs",         link: "Jobs"      },
-        { id: "training",     link: "Training"  },
-        { id: "for-employers",link: "Employers" },
-        { id: "contact",      link: "Contact"   },
+        { id: "about", link: "About" }, { id: "jobs", link: "Jobs" },
+        { id: "training", link: "Training" }, { id: "for-employers", link: "Employers" },
+        { id: "contact", link: "Contact" },
       ];
       for (const { id, link } of sections) {
         const el = document.getElementById(id);
         if (el) {
           const top = el.offsetTop;
-          if (pos >= top && pos < top + el.offsetHeight) {
-            setActiveLink(link);
-            return;
-          }
+          if (pos >= top && pos < top + el.offsetHeight) { setActiveLink(link); return; }
         }
       }
       setActiveLink("");
@@ -596,25 +556,29 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScrollHighlight);
   }, [location]);
 
-  // ── Scroll-lock (iOS-safe: save/restore scrollY, no position:fixed) ──────
-  const savedScrollY = useRef(0);
+  // ── Scroll-lock with scrollbar compensation ──────────────────────────────
+  const scrollbarWidth = useRef(0);
 
   useEffect(() => {
     if (menuOpen) {
-      savedScrollY.current = window.scrollY;
-      // Prevent body scroll without position:fixed jump
-      document.body.style.overflow    = "hidden";
-      document.body.style.height      = "100%";
+      scrollbarWidth.current = window.innerWidth - document.documentElement.clientWidth;
+      if (scrollbarWidth.current > 0) {
+        document.body.style.paddingRight = `${scrollbarWidth.current}px`;
+      }
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
       document.documentElement.style.overflow = "hidden";
     } else {
-      document.body.style.overflow    = "";
-      document.body.style.height      = "";
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+      document.body.style.touchAction = "";
       document.documentElement.style.overflow = "";
-      // Don't restore scrollY — page doesn't move so no restore needed
     }
+
     return () => {
-      document.body.style.overflow    = "";
-      document.body.style.height      = "";
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+      document.body.style.touchAction = "";
       document.documentElement.style.overflow = "";
     };
   }, [menuOpen]);
@@ -672,8 +636,7 @@ export default function Navbar() {
   const isWhiteText    = isHome || isAbout;
   const isTransparent  = isHome && !scrolled && !isMobile;
 
-  // ── MOBILE: Two separate classes for white vs dark text ──
-  let navbarClass = "navbar-dark-text"; // desktop default
+  let navbarClass = "navbar-dark-text";
   if (isMobile) {
     navbarClass = isWhiteText ? "navbar-mobile-white" : "navbar-mobile-dark";
   } else if (isTransparent) {
@@ -684,35 +647,21 @@ export default function Navbar() {
     navbarClass = "navbar-dark-text";
   }
 
-  // ── MOBILE: Background color based on page ──
   const navBg = isMobile
-    ? isWhiteText 
-      ? "rgba(10,22,40,0.95)"  // Dark background for white text pages (Home, About)
-      : "rgba(255,255,255,0.96)" // Light background for dark text pages
-    : isTransparent
-      ? "transparent"
-      : isWhiteText
-        ? "rgba(10,22,40,0.95)"
-        : "rgba(255,255,255,0.96)";
+    ? isWhiteText ? "rgba(10,22,40,0.95)" : "rgba(255,255,255,0.96)"
+    : isTransparent ? "transparent"
+    : isWhiteText ? "rgba(10,22,40,0.95)" : "rgba(255,255,255,0.96)";
 
   const navBorder = isMobile
-    ? isWhiteText
-      ? "1px solid rgba(196,151,42,0.15)"  // Gold border for dark background
-      : "1px solid rgba(0,0,0,0.07)"        // Light border for light background
-    : isTransparent
-      ? "none"
-      : isWhiteText
-        ? "1px solid rgba(255,255,255,0.08)"
-        : "1px solid rgba(0,0,0,0.06)";
+    ? isWhiteText ? "1px solid rgba(196,151,42,0.15)" : "1px solid rgba(0,0,0,0.07)"
+    : isTransparent ? "none"
+    : isWhiteText ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)";
 
   const navBlur   = (!isMobile && !isTransparent) ? "blur(18px)" : "none";
   const navShadow = isTransparent ? "none" : isMobile
-    ? isWhiteText
-      ? "0 2px 12px rgba(0,0,0,0.3)"     // Darker shadow for dark background
-      : "0 2px 12px rgba(0,0,0,0.06)"     // Lighter shadow for light background
+    ? isWhiteText ? "0 2px 12px rgba(0,0,0,0.3)" : "0 2px 12px rgba(0,0,0,0.06)"
     : "0 4px 24px rgba(0,0,0,0.09)";
 
-  // ── DYNAMIC TEXT COLOR ON MOBILE ──
   const textColor = isMobile
     ? (isWhiteText ? "#ffffff" : "#0f1d3d")
     : (isWhiteText ? "#ffffff" : "#0f1d3d");
@@ -730,6 +679,7 @@ export default function Navbar() {
     <>
       <style>{CSS}</style>
 
+      {/* ── NAVBAR ── */}
       <div className="evs-navbar-wrapper" style={{ zIndex: Z.navbar }}>
         <nav
           ref={navbarRef}
@@ -750,9 +700,7 @@ export default function Navbar() {
           <div
             style={{
               maxWidth: 1400, margin: "0 auto",
-              padding: isMobile
-                ? "12px 20px"
-                : isTransparent ? "16px 28px" : "12px 28px",
+              padding: isMobile ? "12px 20px" : isTransparent ? "16px 28px" : "12px 28px",
               display: "flex", alignItems: "center",
               justifyContent: "space-between",
               gap: "clamp(16px, 2vw, 32px)",
@@ -797,7 +745,6 @@ export default function Navbar() {
                     textTransform: "uppercase", transition: "color 0.3s ease", whiteSpace: "nowrap",
                   }}>Ltd</span>
 
-                  {/* Dot — only animated on desktop via GSAP */}
                   <span
                     ref={logoDotRef}
                     style={{ width: 3, height: 3, borderRadius: "50%", background: "#C4972A", display: "inline-block", flexShrink: 0 }}
@@ -856,7 +803,7 @@ export default function Navbar() {
             >
               <motion.div
                 animate={{ rotate: menuOpen ? 90 : 0 }}
-                transition={{ duration: shouldReduce ? 0 : 0.22, ease: [0.22,1,0.36,1] }}
+                transition={{ duration: shouldReduce ? 0 : 0.2, ease: [0.22, 1, 0.36, 1] }}
               >
                 {menuOpen
                   ? <X     size={22} strokeWidth={1.8} aria-hidden="true" />
@@ -868,16 +815,11 @@ export default function Navbar() {
         </nav>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────────────
-          MOBILE DRAWER + OVERLAY
-          Both rendered in a portal-like div at body level, outside the
-          navbar wrapper, so their z-index stack is clean and independent.
-          Drawer now sits at z-index: ${Z.drawer} (500) which is ABOVE navbar.
-      ───────────────────────────────────────────────────────────────────── */}
+      {/* ── MOBILE DRAWER + OVERLAY (rendered at root level, above everything) ── */}
       <AnimatePresence mode="wait">
         {menuOpen && (
           <>
-            {/* Overlay — blocks page interaction but not drawer */}
+            {/* Overlay: z=500 — covers navbar + page content */}
             <motion.div
               className="evs-overlay"
               variants={overlayV}
@@ -886,10 +828,9 @@ export default function Navbar() {
               exit="exit"
               onClick={() => setMenuOpen(false)}
               aria-hidden="true"
-              style={{ zIndex: Z.overlay }}
             />
 
-            {/* Drawer — now sits above navbar with z-index: 500 */}
+            {/* Drawer: z=600 — slides over overlay, above everything including navbar logo */}
             <motion.aside
               id="evs-drawer"
               role="dialog"
@@ -900,9 +841,8 @@ export default function Navbar() {
               animate="visible"
               exit="exit"
               className="evs-drawer"
-              style={{ zIndex: Z.drawer }}
             >
-              {/* Drawer header with close button */}
+              {/* Drawer header */}
               <motion.div
                 variants={itemV}
                 style={{
@@ -984,7 +924,6 @@ export default function Navbar() {
                   </span>
                 </button>
 
-                {/* Contact */}
                 <div style={{ textAlign: "center", marginTop: 8 }}>
                   <p style={{
                     fontFamily: "'Inter',sans-serif", fontSize: 9, fontWeight: 500,
@@ -995,14 +934,14 @@ export default function Navbar() {
                   </p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <a
-                      href="tel:01772493994"
+                      href="tel:07466999218"
                       style={{
                         fontFamily: "'Inter',sans-serif", fontSize: 14, fontWeight: 600,
                         color: "#C4972A", textDecoration: "none",
                         display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                       }}
                     >
-                      <Phone size={12} aria-hidden="true" /> 01772 493 994
+                      <Phone size={12} aria-hidden="true" /> 07466999218
                     </a>
                     <a
                       href="mailto:admin_1@evshealthcare.co.uk"

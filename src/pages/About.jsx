@@ -627,11 +627,12 @@ function StatsSection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// WHO WE ARE — Text left, Image right
+// WHO WE ARE — Text left, Image right — Centered on mobile
 // ─────────────────────────────────────────────────────────────────────────────
 function WhoWeAreSection() {
   const [ref, inView] = useSectionReveal(0.1);
   const shouldReduce  = useReducedMotion();
+  const isMobile = useMobile();
   const navigate = useNavigate();
 
   const handleApply = useCallback(() => {
@@ -664,6 +665,7 @@ function WhoWeAreSection() {
           variants={fadeLeft(0)}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
+          style={isMobile ? { textAlign: "center" } : {}}
         >
           <Eyebrow>Who We Are</Eyebrow>
           <Heading id="who-heading" style={{ marginBottom: 20 }}>
@@ -685,7 +687,14 @@ function WhoWeAreSection() {
             across the UK, we place skilled, fully vetted staff into NHS trusts,
             private hospitals, and residential care homes at competitive, transparent rates.
           </p>
-          <ul style={{ padding: 0, margin: "0 0 32px", display: "flex", flexDirection: "column", gap: 12 }}>
+          <ul style={{ 
+            padding: 0, 
+            margin: "0 0 32px", 
+            display: "flex", 
+            flexDirection: "column", 
+            gap: 12,
+            ...(isMobile ? { alignItems: "center" } : {})
+          }}>
             {WHO_WE_ARE_POINTS.map((p) => (
               <CheckItem key={p}>{p}</CheckItem>
             ))}
@@ -769,11 +778,12 @@ function WhoWeAreSection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MISSION — Image left, Text right
+// MISSION — Image left, Text right — Centered on mobile
 // ─────────────────────────────────────────────────────────────────────────────
 function MissionSection() {
   const [ref, inView] = useSectionReveal(0.1);
   const shouldReduce  = useReducedMotion();
+  const isMobile = useMobile();
   const navigate = useNavigate();
 
   const handlePartner = useCallback(() => {
@@ -858,6 +868,7 @@ function MissionSection() {
           variants={fadeRight(0.1)}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
+          style={isMobile ? { textAlign: "center" } : {}}
         >
           <Eyebrow>Our Mission</Eyebrow>
           <Heading id="mission-heading" style={{ marginBottom: 20 }}>
@@ -875,7 +886,14 @@ function MissionSection() {
             Our mission is to connect exceptional healthcare talent with the organisations
             that need them most reliably, compliantly, and at a moment's notice.
           </p>
-          <ul style={{ padding: 0, margin: "0 0 32px", display: "flex", flexDirection: "column", gap: 12 }}>
+          <ul style={{ 
+            padding: 0, 
+            margin: "0 0 32px", 
+            display: "flex", 
+            flexDirection: "column", 
+            gap: 12,
+            ...(isMobile ? { alignItems: "center" } : {})
+          }}>
             {MISSION_POINTS.map((p) => (
               <CheckItem key={p}>{p}</CheckItem>
             ))}
@@ -1197,13 +1215,21 @@ function ValuesSection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TEAM — Marquee on Mobile with hover pause and nav buttons
+// TEAM — Simple Slide on Mobile with left/right buttons
 // ─────────────────────────────────────────────────────────────────────────────
 function TeamSection() {
   const [ref, inView] = useSectionReveal(0.1);
   const shouldReduce  = useReducedMotion();
   const isMobile = useMobile();
-  const [isPaused, setIsPaused] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % TEAM.length);
+  }, []);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + TEAM.length) % TEAM.length);
+  }, []);
 
   return (
     <section
@@ -1241,126 +1267,170 @@ function TeamSection() {
         </motion.div>
 
         {isMobile ? (
-          /* Mobile Marquee */
-          <div>
-            <div 
-              style={{ overflow: "hidden", position: "relative", width: "100%", padding: "8px 0" }}
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
-              onTouchStart={() => setIsPaused(true)}
-              onTouchEnd={() => setTimeout(() => setIsPaused(false), 3000)}
-            >
-              <div 
+          /* Mobile Simple Slide */
+          <div style={{ position: "relative", maxWidth: "340px", margin: "0 auto" }}>
+            <div style={{ overflow: "hidden", borderRadius: 20 }}>
+              <div
                 style={{
                   display: "flex",
-                  width: "max-content",
-                  animation: isPaused ? "none" : "mobileTeamMarquee 25s linear infinite",
+                  transition: "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                  transform: `translateX(-${currentIndex * 100}%)`,
                   willChange: "transform",
                 }}
               >
-                {/* Triple the items for seamless loop */}
-                {[...TEAM, ...TEAM, ...TEAM].map((member, i) => {
-                  const idx = i % TEAM.length;
+                {TEAM.map((member, i) => {
                   return (
-                    <div
-                      key={`${member.name}-${i}`}
-                      style={{
-                        background: T.white,
-                        borderRadius: 20,
-                        padding: "22px 18px",
-                        border: `1px solid ${T.border}`,
-                        boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
-                        textAlign: "center",
-                        width: "280px",
-                        flexShrink: 0,
-                        margin: "0 10px",
-                      }}
-                    >
+                    <div key={member.name} style={{ flex: "0 0 100%", padding: "0 4px" }}>
                       <div
-                        aria-hidden="true"
                         style={{
-                          width: 72,
-                          height: 72,
-                          borderRadius: "50%",
-                          background: AVATAR_GRADIENTS[idx % AVATAR_GRADIENTS.length],
+                          background: T.white,
+                          borderRadius: 20,
+                          padding: "28px 22px",
+                          border: `1px solid ${T.border}`,
+                          boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+                          textAlign: "center",
+                          minHeight: "340px",
                           display: "flex",
+                          flexDirection: "column",
                           alignItems: "center",
                           justifyContent: "center",
-                          margin: "0 auto 16px",
-                          fontSize: 22,
-                          fontWeight: 800,
-                          fontFamily: "'Inter', sans-serif",
-                          color: T.white,
-                          letterSpacing: "0.04em",
-                          boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
                         }}
                       >
-                        {getInitials(member.name)}
+                        <div
+                          aria-hidden="true"
+                          style={{
+                            width: 72,
+                            height: 72,
+                            borderRadius: "50%",
+                            background: AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length],
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            margin: "0 auto 16px",
+                            fontSize: 22,
+                            fontWeight: 800,
+                            fontFamily: "'Inter', sans-serif",
+                            color: T.white,
+                            letterSpacing: "0.04em",
+                            boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                          }}
+                        >
+                          {getInitials(member.name)}
+                        </div>
+                        <h3
+                          style={{
+                            fontFamily: "'Inter', sans-serif",
+                            fontSize: 18,
+                            fontWeight: 700,
+                            color: T.navy,
+                            marginBottom: 4,
+                            letterSpacing: "-0.01em",
+                          }}
+                        >
+                          {member.name}
+                        </h3>
+                        <div
+                          style={{
+                            fontFamily: "'Inter', sans-serif",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: T.gold,
+                            letterSpacing: "0.06em",
+                            textTransform: "uppercase",
+                            marginBottom: 14,
+                          }}
+                        >
+                          {member.role}
+                        </div>
+                        <p
+                          style={{
+                            fontFamily: "'Inter', sans-serif",
+                            fontSize: 14,
+                            color: T.slateLight,
+                            lineHeight: 1.65,
+                            margin: 0,
+                          }}
+                        >
+                          {member.bio}
+                        </p>
                       </div>
-                      <h3
-                        style={{
-                          fontFamily: "'Inter', sans-serif",
-                          fontSize: "clamp(16px, 1.5vw, 18px)",
-                          fontWeight: 700,
-                          color: T.navy,
-                          marginBottom: 4,
-                          letterSpacing: "-0.01em",
-                        }}
-                      >
-                        {member.name}
-                      </h3>
-                      <div
-                        style={{
-                          fontFamily: "'Inter', sans-serif",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: T.gold,
-                          letterSpacing: "0.06em",
-                          textTransform: "uppercase",
-                          marginBottom: 14,
-                        }}
-                      >
-                        {member.role}
-                      </div>
-                      <p
-                        style={{
-                          fontFamily: "'Inter', sans-serif",
-                          fontSize: "clamp(12px, 1.2vw, 13px)",
-                          color: T.slateLight,
-                          lineHeight: 1.65,
-                          margin: 0,
-                        }}
-                      >
-                        {member.bio}
-                      </p>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* Navigation Buttons for Mobile */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 16 }}>
-              <button 
-                onClick={() => setIsPaused(!isPaused)}
-                aria-label={isPaused ? "Resume team scroll" : "Pause team scroll"}
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.9)",
-                  border: "1px solid rgba(196,151,42,0.2)",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: T.navy,
-                  transition: "all 0.2s ease",
-                }}
-              >
-                {isPaused ? <ChevronRight size={20} /> : <span style={{ fontSize: 18, lineHeight: 1 }}>⏸</span>}
-              </button>
+            {/* Navigation Buttons */}
+            <button
+              onClick={prevSlide}
+              aria-label="Previous team member"
+              style={{
+                position: "absolute",
+                top: "50%",
+                transform: "translateY(-50%)",
+                left: "-12px",
+                zIndex: 10,
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                background: T.white,
+                border: "1px solid rgba(196,151,42,0.2)",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: T.navy,
+                transition: "all 0.2s ease",
+              }}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={nextSlide}
+              aria-label="Next team member"
+              style={{
+                position: "absolute",
+                top: "50%",
+                transform: "translateY(-50%)",
+                right: "-12px",
+                zIndex: 10,
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                background: T.white,
+                border: "1px solid rgba(196,151,42,0.2)",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: T.navy,
+                transition: "all 0.2s ease",
+              }}
+            >
+              <ChevronRight size={20} />
+            </button>
+
+            {/* Dots */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 16 }}>
+              {TEAM.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  aria-label={`Go to team member ${i + 1}`}
+                  style={{
+                    width: i === currentIndex ? 24 : 8,
+                    height: 8,
+                    borderRadius: 4,
+                    background: i === currentIndex ? T.gold : "#d1d5db",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    border: "none",
+                    padding: 0,
+                  }}
+                />
+              ))}
             </div>
           </div>
         ) : (
@@ -1699,11 +1769,6 @@ export default function About() {
           outline: 2px solid #C4972A;
           outline-offset: 3px;
           border-radius: 4px;
-        }
-
-        @keyframes mobileTeamMarquee {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
         }
 
         @media (prefers-reduced-motion: reduce) {

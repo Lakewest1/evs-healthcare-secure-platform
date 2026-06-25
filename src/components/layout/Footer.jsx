@@ -28,6 +28,7 @@ import {
 // Features: Animated borders, social links, newsletter (Formspree), back to top
 // UPDATED: React Router Links for all internal navigation
 // FIXED: Mobile responsive display issues
+// FIXED: Back-to-top z-index lowered to 98 so navbar overlay (500) covers it
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Footer() {
@@ -205,7 +206,7 @@ export default function Footer() {
   }));
 
   return (
-    <footer ref={ref} style={{ position: "relative", background: "#0a0f1a", overflow: "hidden" }}>
+    <footer ref={ref} style={{ position: "relative", background: "#0a0f1a", overflow: "hidden", zIndex: 1 }}>
       {/* Floating Background Particles */}
       {particles.map((particle) => (
         <motion.div
@@ -843,7 +844,7 @@ export default function Footer() {
         </motion.div>
       </div>
 
-      {/* Back to Top Button */}
+      {/* Back to Top Button — zIndex: 98, below overlay (500) and drawer (600) */}
       <AnimatePresence>
         {showScrollTop && (
           <motion.button
@@ -868,7 +869,7 @@ export default function Footer() {
               alignItems: "center",
               justifyContent: "center",
               boxShadow: "0 6px 16px rgba(196,151,42,0.3)",
-              zIndex: 1000,
+              zIndex: 98, // ← FIXED: Was 1000, now below overlay (500) and drawer (600)
               transition: "all 0.3s ease",
             }}
             aria-label="Scroll to top"

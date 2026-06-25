@@ -5,7 +5,11 @@ import { MessageCircle, X, ChevronRight, Clock, CheckCircle, Users, Award } from
 // ─────────────────────────────────────────────────────────────────────────────
 // Floating WhatsApp Button — Professional Healthcare Support
 // Features: Pulse animation, hover effects, optional tooltip, responsive
+// Z-INDEX: 99 — sits below navbar overlay (500) and drawer (600)
+// When mobile menu opens, overlay covers this button automatically.
 // ─────────────────────────────────────────────────────────────────────────────
+
+const Z_WHATSAPP = 99; // Below overlay (500) and drawer (600)
 
 export default function FloatingWhatsApp() {
   const [isHovered, setIsHovered] = useState(false);
@@ -97,7 +101,7 @@ export default function FloatingWhatsApp() {
               position: "fixed",
               bottom: 100,
               right: 28,
-              zIndex: 998,
+              zIndex: Z_WHATSAPP,
               background: "#ffffff",
               borderRadius: "20px",
               boxShadow: "0 12px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
@@ -291,7 +295,7 @@ export default function FloatingWhatsApp() {
           position: "fixed",
           bottom: 28,
           right: 28,
-          zIndex: 999,
+          zIndex: Z_WHATSAPP,
           width: isMobile ? 52 : 58,
           height: isMobile ? 52 : 58,
           borderRadius: "50%",
@@ -304,6 +308,7 @@ export default function FloatingWhatsApp() {
           cursor: "pointer",
           transition: "all 0.3s ease",
         }}
+        aria-label="Chat with us on WhatsApp"
       >
         {/* Pulsing rings */}
         <div

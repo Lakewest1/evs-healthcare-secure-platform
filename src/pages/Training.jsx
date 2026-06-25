@@ -138,8 +138,6 @@ const TRAINING_CATEGORIES = [
   },
 ];
 
-const ALL_COURSE_TITLES = TRAINING_CATEGORIES.flatMap(c => c.courses.map(cc => cc.title));
-
 const TRAINING_PARTNERS = [
   { id: 1, name: "PRICE",                   color: T.gold  },
   { id: 2, name: "AVALON",                  color: T.blue  },
@@ -463,7 +461,6 @@ function TrainingPartners() {
 function TrainingCTA() {
   const ref    = useRef(null);
   const inView = useInView(ref, { once:true, amount:0.3 });
-  const navigate = useNavigate();
 
   const handleApplyNow = () => {
     scrollToForm();
@@ -545,7 +542,7 @@ function TrainingCTA() {
 // ─────────────────────────────────────────────────────────────────────────────
 // TRAINING ENQUIRY FORM — Formspree integration
 // ─────────────────────────────────────────────────────────────────────────────
-const FORMSPREE_ID = "YOUR_FORMSPREE_ID";
+const FORMSPREE_ID = import.meta.env.VITE_FORMSPREE_TRAINING_ID || "YOUR_FORMSPREE_ID";
 
 const INITIAL_FORM = {
   name:    "",
@@ -582,6 +579,7 @@ function TrainingForm() {
   const [focusedId, setFocusedId] = useState(null);
   const navigate = useNavigate();
 
+  // Listen for prefill events from the Enrol buttons
   useEffect(() => {
     const handler = (e) => {
       setFields(prev => ({ ...prev, course: e.detail }));
@@ -596,7 +594,7 @@ function TrainingForm() {
     setFields(prev => ({ ...prev, [name]: value }));
     if (touched[name]) {
       const errs = validate({ ...fields, [name]: value });
-      setErrors(prev => ({ ...prev, [name]: errs[name] ?? null }));
+      setErrors(prev => ({ ...prev, [name]: errs[name] || undefined }));
     }
   }, [fields, touched]);
 
@@ -604,7 +602,7 @@ function TrainingForm() {
     const { name } = e.target;
     setTouched(prev => ({ ...prev, [name]: true }));
     const errs = validate(fields);
-    setErrors(prev => ({ ...prev, [name]: errs[name] ?? null }));
+    setErrors(prev => ({ ...prev, [name]: errs[name] || undefined }));
     setFocusedId(null);
   }, [fields]);
 
@@ -708,7 +706,7 @@ function TrainingForm() {
 
           <div className="tf-direct">
             <span className="tf-direct-label">Prefer to call?</span>
-            <a href="tel:+441772379989" className="tf-direct-link">
+            <a href="tel:+447466999218" className="tf-direct-link">
               <Phone size={14} aria-hidden="true" />
               07466999218
             </a>
@@ -860,8 +858,7 @@ function TrainingForm() {
                 <div className="tf-row">
                   <div className="tf-field">
                     <label htmlFor="tf-phone" className="tf-label">
-                      Phone Number
-                      <span className="tf-optional">optional</span>
+                      Phone Number                      <span className="tf-optional">optional</span>
                     </label>
                     <div className="tf-input-wrap"
                       style={{ border:inputBorder("phone"), boxShadow:inputShadow("phone") }}>
@@ -1117,6 +1114,7 @@ export default function Training() {
           padding: 20px 24px; cursor: pointer;
           transition: background 0.2s ease;
           text-align: left; border: none; border-bottom: 1px solid transparent;
+          background: transparent; font-family: inherit;
         }
         .cat-header:hover { background: rgba(196,151,42,0.04) !important; }
         .cat-header:focus-visible { outline: 2px solid #C4972A; outline-offset: -2px; border-radius: 19px 19px 0 0; }
@@ -1550,14 +1548,13 @@ export default function Training() {
         .tb-empty h3 { font-family:'Inter',sans-serif; font-size:18px; color:#0f1d3d; margin:14px 0 6px; }
         .tb-empty p  { font-family:'Inter',sans-serif; font-size:13px; }
 
-        /* ── OPTIMIZED RESPONSIVE FOR MOBILE (REDUCED SCROLLING) ── */
+        /* ── OPTIMIZED RESPONSIVE FOR MOBILE ── */
         @media (max-width: 960px) {
           .tf-container { grid-template-columns: 1fr; }
           .tf-left { border-radius: 28px 28px 0 0; }
           .tf-direct { padding-top: 20px; }
           .tf-left .apply-now-btn { align-self: center; width: 100%; justify-content: center; }
           
-          /* ── Reduce banner height on tablet ── */
           .tb-banner-bg { height: 240px; }
           .tb-banner-content { padding: 28px 32px; }
           .tb-banner-title { font-size: clamp(1.6rem, 3vw, 2.2rem); }
@@ -1571,7 +1568,6 @@ export default function Training() {
         }
 
         @media (max-width: 768px) {
-          /* ── Reduce banner height on mobile ── */
           .tb-banner-bg { height: 300px; }
           .tb-banner-content { padding: 24px 20px; }
           .tb-banner-icon { width: 38px; height: 38px; }
@@ -1615,7 +1611,6 @@ export default function Training() {
           .tf-right { padding: clamp(20px, 3vw, 32px) clamp(14px, 2.5vw, 24px); }
           .tf-info-item { flex-direction: row; }
           .tf-section { border-radius: 20px; margin-top: 40px; }
-          .tf-left .apply-now-btn { width: 100%; justify-content: center; }
           .tf-heading { font-size: clamp(1.3rem, 4vw, 1.6rem); }
           .tf-sub { font-size: clamp(12px, 2.5vw, 13px); }
           .tf-info-body { font-size: clamp(11px, 2.2vw, 12px); }
@@ -1677,7 +1672,6 @@ export default function Training() {
         }
 
         @media (max-width: 480px) {
-          /* ── Super compact mobile ── */
           .tb-banner-bg { height: 220px; }
           .tb-banner-content { padding: 18px 16px; }
           .tb-banner-icon { width: 32px; height: 32px; }
