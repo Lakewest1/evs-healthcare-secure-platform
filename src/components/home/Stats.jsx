@@ -9,6 +9,8 @@ import { Stethoscope, Building2, Star, Phone } from "lucide-react";
 //   - Even index (0, 2): slide in from LEFT  → translateX(-80px → 0)
 //   - Odd  index (1, 3): slide in from RIGHT → translateX(+80px → 0)
 //   - Mobile: opacity fade only (no directional shift) for performance
+//
+// Fonts: Manrope (headings, counter numbers), Inter (body, labels, descriptions)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const isMobile = () => {
@@ -368,9 +370,9 @@ function StatCard({ stat, isVisible, index, fromLeft }) {
         aria-atomic="true"
         className={done && !mobile ? "evs-counter-glow" : ""}
         style={{
-          fontFamily: "'Nunito Sans', sans-serif",
+          fontFamily: "'Manrope', sans-serif",
           fontSize,
-          fontWeight: 900,
+          fontWeight: 800,
           lineHeight: 1,
           marginBottom: mobile ? "clamp(6px, 1.5vw, 8px)" : "clamp(8px, 1.2vw, 10px)",
           color: "#0f1d3d",
@@ -391,9 +393,9 @@ function StatCard({ stat, isVisible, index, fromLeft }) {
       {/* Label */}
       <div
         style={{
-          fontFamily: "'Nunito Sans', sans-serif",
+          fontFamily: "'Inter', sans-serif",
           fontSize: mobile ? "clamp(12px, 2.5vw, 13px)" : "clamp(13px, 1.8vw, 15px)",
-          fontWeight: 700,
+          fontWeight: 600,
           color: "#1a2540",
           letterSpacing: "0.1px",
           marginBottom: mobile ? "clamp(4px, 1vw, 5px)" : "clamp(5px, 0.8vw, 7px)",
@@ -413,7 +415,7 @@ function StatCard({ stat, isVisible, index, fromLeft }) {
       {/* Description */}
       <div
         style={{
-          fontFamily: "'Nunito Sans', sans-serif",
+          fontFamily: "'Inter', sans-serif",
           fontSize: mobile ? "clamp(10px, 2vw, 11px)" : "clamp(11px, 1.4vw, 12.5px)",
           color: "#6b7a99",
           letterSpacing: "0.1px",
@@ -490,7 +492,7 @@ export default function Stats() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap');
 
         @keyframes evsCounterGlow {
           0%   { text-shadow: none; }
@@ -649,11 +651,11 @@ export default function Stats() {
               />
               <span
                 style={{
-                  fontFamily: "'Nunito Sans', sans-serif",
+                  fontFamily: "'Inter', sans-serif",
                   fontSize: mobile
                     ? "clamp(9px, 2vw, 10px)"
                     : "clamp(10px, 1.3vw, 11px)",
-                  fontWeight: 800,
+                  fontWeight: 700,
                   letterSpacing: mobile ? "3px" : "4px",
                   textTransform: "uppercase",
                   color: "#C4972A",
@@ -679,11 +681,11 @@ export default function Stats() {
 
             <h2
               style={{
-                fontFamily: "'Nunito Sans', sans-serif",
+                fontFamily: "'Manrope', sans-serif",
                 fontSize: mobile
                   ? "clamp(1.3rem, 4vw, 1.8rem)"
                   : "clamp(1.5rem, 3vw, 2.6rem)",
-                fontWeight: 900,
+                fontWeight: 800,
                 color: "#0f1d3d",
                 lineHeight: 1.2,
                 letterSpacing: "-0.02em",
@@ -711,7 +713,7 @@ export default function Stats() {
 
             <p
               style={{
-                fontFamily: "'Nunito Sans', sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 fontSize: mobile
                   ? "clamp(12px, 3vw, 13px)"
                   : "clamp(13px, 1.6vw, 15px)",

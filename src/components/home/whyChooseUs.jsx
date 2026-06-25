@@ -299,11 +299,11 @@ function FeatureCard({ feature, index }) {
           <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", marginBottom: 5 }}>
             EVS Healthcare
           </div>
-          <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: 20, fontWeight: 700, lineHeight: 1.25, marginBottom: 8, color: "#fff" }}>
+          <h3 style={{ fontFamily: "'Manrope', sans-serif", fontSize: 20, fontWeight: 700, lineHeight: 1.25, marginBottom: 8, color: "#fff" }}>
             {feature.title}
           </h3>
           <div style={{ display: "flex", alignItems: "baseline", gap: 7, marginBottom: 10 }}>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: "#fff", lineHeight: 1 }}>
+            <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: "#fff", lineHeight: 1 }}>
               {feature.stat}
             </span>
             <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.72)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
@@ -362,7 +362,7 @@ function FeatureCard({ feature, index }) {
         </div>
 
         <h3 style={{
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: "'Manrope', sans-serif",
           fontSize: 18,
           fontWeight: 700,
           color: "#0f1d3d",
@@ -375,7 +375,7 @@ function FeatureCard({ feature, index }) {
 
         <div style={{ display: "flex", alignItems: "baseline", gap: 7, margin: "10px 0 6px" }}>
           <span style={{
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Manrope', sans-serif",
             fontSize: 26,
             fontWeight: 700,
             letterSpacing: "-0.03em",
@@ -508,7 +508,7 @@ function HeroBanner() {
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
         </motion.div>
-        <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(1.6rem, 4vw, 2.8rem)", fontWeight: 700, color: "#fff", marginBottom: 10, letterSpacing: "-0.01em", lineHeight: 1.2 }}>
+        <h2 style={{ fontFamily: "'Manrope', sans-serif", fontSize: "clamp(1.6rem, 4vw, 2.8rem)", fontWeight: 700, color: "#fff", marginBottom: 10, letterSpacing: "-0.01em", lineHeight: 1.2 }}>
           Exceptional Care,{" "}<span style={{ color: "#C4972A" }}>Trusted Service</span>
         </h2>
         <p style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.85)", fontSize: "clamp(13px, 1.5vw, 15px)", maxWidth: 480, lineHeight: 1.65 }}>
@@ -542,7 +542,7 @@ function SectionHeader() {
         variants={fadeUp(0.1)}
         initial="hidden"
         animate={inView ? "visible" : "hidden"}
-        style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(1.85rem, 4vw, 2.9rem)", fontWeight: 700, color: "#0f1d3d", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 16 }}
+        style={{ fontFamily: "'Manrope', sans-serif", fontSize: "clamp(1.85rem, 4vw, 2.9rem)", fontWeight: 700, color: "#0f1d3d", letterSpacing: "-0.02em", lineHeight: 1.2, marginBottom: 16 }}
       >
         Your Career,{" "}
         <span style={{ position: "relative", display: "inline-block" }}>
@@ -597,7 +597,7 @@ function CtaStrip() {
         <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#C4972A", marginBottom: 8 }}>
           Ready to get started?
         </div>
-        <h3 style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(1.3rem, 2.5vw, 1.9rem)", fontWeight: 700, color: "#ffffff", lineHeight: 1.28, letterSpacing: "-0.01em" }}>
+        <h3 style={{ fontFamily: "'Manrope', sans-serif", fontSize: "clamp(1.3rem, 2.5vw, 1.9rem)", fontWeight: 700, color: "#ffffff", lineHeight: 1.28, letterSpacing: "-0.01em" }}>
           Join hundreds of healthcare<br />professionals placed by EVS.
         </h3>
       </div>
@@ -733,7 +733,7 @@ export default function WhyChooseUs() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Manrope:wght@400;500;600;700;800&display=swap');
 
         *, *::before, *::after {
           margin: 0;

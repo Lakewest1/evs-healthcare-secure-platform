@@ -22,6 +22,7 @@ import {
 // Features: 3 testimonials visible at once, 5-second auto-slide
 // Updated: Removed self-referential Google Reviews card
 //          Integrated rating badge into section header
+// Fonts: Manrope (headings), Inter (body, buttons, UI)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -662,9 +663,9 @@ export default function Testimonials() {
           {/* Main Heading */}
           <h2
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Manrope', sans-serif",
               fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
-              fontWeight: 800,
+              fontWeight: 700,
               color: "#0f1d3d",
               letterSpacing: "-0.02em",
               textAlign: "center",

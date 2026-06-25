@@ -152,10 +152,10 @@ function TestimonialCarousel({ contentVisible }) {
               <Star key={s} size={10} fill="#f0c060" stroke="#f0c060" style={{ color: "#f0c060" }} />
             ))}
           </div>
-          <div style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.9)", fontStyle: "italic", lineHeight: 1.4 }}>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: "rgba(255,255,255,0.9)", fontStyle: "italic", lineHeight: 1.4 }}>
             "{t.quote}"
           </div>
-          <div style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 4, fontWeight: 600 }}>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.5)", marginTop: 4, fontWeight: 600 }}>
             {t.name} · {t.role}
           </div>
         </div>
@@ -207,7 +207,7 @@ function RoleSwitcher({ activeRole, onRoleChange }) {
             background: activeRole === key ? "#C4972A" : "transparent",
             color: activeRole === key ? "#0f1d3d" : "rgba(255,255,255,0.95)",
             border: "none",
-            fontFamily: "'Nunito Sans', sans-serif",
+            fontFamily: "'Inter', sans-serif",
             fontWeight: 600,
             fontSize: mobile ? 13 : 14,
             cursor: "pointer",
@@ -340,8 +340,7 @@ export default function Hero() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { overflow-x: hidden; width: 100%; }
@@ -613,10 +612,10 @@ export default function Hero() {
                 </div>
               ))}
             </div>
-            <div className="evs-curtain-label" style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: mobile ? 10 : 13, fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "rgba(196,151,42,0.85)", marginBottom: mobile ? 2 : 6 }}>
+            <div className="evs-curtain-label" style={{ fontFamily: "'Inter', sans-serif", fontSize: mobile ? 10 : 13, fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "rgba(196,151,42,0.85)", marginBottom: mobile ? 2 : 6 }}>
               Connecting
             </div>
-            <div style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: mobile ? "clamp(1rem, 2.5vw, 1.6rem)" : "clamp(1.4rem, 3vw, 2.2rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, textAlign: "center", padding: "0 12px" }}>
+            <div style={{ fontFamily: "'Manrope', sans-serif", fontSize: mobile ? "clamp(1rem, 2.5vw, 1.6rem)" : "clamp(1.4rem, 3vw, 2.2rem)", fontWeight: 800, color: "#fff", lineHeight: 1.15, textAlign: "center", padding: "0 12px" }}>
               Healthcare<br />Professionals
             </div>
           </div>
@@ -669,10 +668,10 @@ export default function Hero() {
                 </div>
               ))}
             </div>
-            <div className="evs-curtain-label" style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: mobile ? 10 : 13, fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "rgba(196,151,42,0.85)", marginBottom: mobile ? 2 : 6 }}>
+            <div className="evs-curtain-label" style={{ fontFamily: "'Inter', sans-serif", fontSize: mobile ? 10 : 13, fontWeight: 700, letterSpacing: "3px", textTransform: "uppercase", color: "rgba(196,151,42,0.85)", marginBottom: mobile ? 2 : 6 }}>
               With
             </div>
-            <div style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: mobile ? "clamp(1rem, 2.5vw, 1.6rem)" : "clamp(1.4rem, 3vw, 2.2rem)", fontWeight: 900, color: "#fff", lineHeight: 1.15, textAlign: "center", padding: "0 12px" }}>
+            <div style={{ fontFamily: "'Manrope', sans-serif", fontSize: mobile ? "clamp(1rem, 2.5vw, 1.6rem)" : "clamp(1.4rem, 3vw, 2.2rem)", fontWeight: 800, color: "#fff", lineHeight: 1.15, textAlign: "center", padding: "0 12px" }}>
               Leading<br />Employers
             </div>
           </div>
@@ -728,9 +727,9 @@ export default function Hero() {
 
           <h1
             style={{
-              fontFamily: "'Nunito Sans', sans-serif",
+              fontFamily: "'Manrope', sans-serif",
               fontSize: mobile ? "clamp(1.8rem, 6vw, 3rem)" : "clamp(2.2rem, 5vw, 4.5rem)",
-              fontWeight: 900,
+              fontWeight: 800,
               color: "#ffffff",
               lineHeight: 1.15,
               letterSpacing: "-0.01em",
@@ -757,7 +756,7 @@ export default function Hero() {
             <span
               style={{
                 fontSize: "0.75em",
-                fontWeight: 900,
+                fontWeight: 800,
                 color: "rgba(255,255,255,0.9)",
               }}
             >
@@ -767,7 +766,7 @@ export default function Hero() {
 
           <p
             style={{
-              fontFamily: "'Nunito Sans', sans-serif",
+              fontFamily: "'Inter', sans-serif",
               color: "rgba(255,255,255,0.85)",
               fontSize: mobile ? "clamp(0.85rem, 3.5vw, 1rem)" : "clamp(1rem, 1.6vw, 1.1rem)",
               fontWeight: 400,
@@ -800,8 +799,8 @@ export default function Hero() {
                 color: "#0f1d3d",
                 padding: mobile ? "12px 28px" : "14px 36px",
                 borderRadius: 999,
-                fontFamily: "'Nunito Sans', sans-serif",
-                fontWeight: 800,
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 700,
                 fontSize: mobile ? 13 : 14,
                 letterSpacing: "1px",
                 textTransform: "uppercase",
@@ -834,7 +833,7 @@ export default function Hero() {
                 color: "#fff",
                 padding: mobile ? "12px 28px" : "14px 36px",
                 borderRadius: 999,
-                fontFamily: "'Nunito Sans', sans-serif",
+                fontFamily: "'Inter', sans-serif",
                 fontWeight: 600,
                 fontSize: mobile ? 13 : 14,
                 letterSpacing: "0.5px",
@@ -867,15 +866,15 @@ export default function Hero() {
           >
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <CheckCircle size={12} style={{ color: "#C4972A" }} />
-              <span style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>NHS Approved</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>NHS Approved</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <Users size={12} style={{ color: "#C4972A" }} />
-              <span style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>500+ Workers Placed</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>500+ Workers Placed</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <Clock size={12} style={{ color: "#C4972A" }} />
-              <span style={{ fontFamily: "'Nunito Sans', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>24/7 Support</span>
+              <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>24/7 Support</span>
             </div>
           </div>
         </div>

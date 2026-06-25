@@ -24,6 +24,7 @@ import {
 // Features: Responsive grid, mobile-optimized, formspree integration
 // FIXED: High-contrast input fields (WCAG 1.4.11 compliant)
 // UPDATED: Added Out of Hours phone and additional emails to contact info
+// Fonts: Manrope (headings), Inter (body, buttons, UI)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.3) {
@@ -202,7 +203,7 @@ function UnifiedContactInfo({ isInView }) {
           <div>
             <h3
               style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Manrope', sans-serif",
                 fontSize: headerFontSize,
                 fontWeight: 700,
                 color: "#fff",
@@ -490,7 +491,7 @@ function ContactForm() {
           <div>
             <h3
               style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Manrope', sans-serif",
                 fontSize: headerFontSize,
                 fontWeight: 700,
                 color: "#fff",
@@ -535,7 +536,7 @@ function ContactForm() {
             </div>
             <h4
               style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Manrope', sans-serif",
                 fontSize: isMobile ? 16 : 18,
                 fontWeight: 700,
                 color: "#fff",
@@ -999,9 +1000,9 @@ export default function ContactStrip() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Manrope', sans-serif",
               fontSize: getHeadingSize(),
-              fontWeight: 800,
+              fontWeight: 700,
               color: "#fff",
               letterSpacing: "-0.02em",
               marginBottom: isMobile ? 8 : 10,

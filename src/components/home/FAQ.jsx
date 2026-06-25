@@ -28,6 +28,7 @@ import {
 // Premium FAQ Section — Enterprise-Grade Accordion with Advanced Animations
 // Features: Smooth expand/collapse, 3D hover effects, animated icons, staggered reveal
 // FIXED: Mobile view shows only 3 FAQs with "Show More" button to reduce scrolling
+// Fonts: Manrope (headings), Inter (body, buttons, UI)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.1) {
@@ -522,9 +523,9 @@ export default function FAQ() {
           <motion.h2
             variants={childVariants}
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Manrope', sans-serif",
               fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
-              fontWeight: 800,
+              fontWeight: 700,
               color: "#0f1d3d",
               letterSpacing: "-0.02em",
               marginBottom: 16,
@@ -644,7 +645,7 @@ export default function FAQ() {
               <Search size={48} strokeWidth={1.5} style={{ color: "#94a3b8", opacity: 0.5, margin: "0 auto" }} />
               <h3
                 style={{
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "'Manrope', sans-serif",
                   fontSize: 18,
                   color: "#64748b",
                   marginTop: 16,
@@ -754,7 +755,7 @@ export default function FAQ() {
           
           <h3
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Manrope', sans-serif",
               fontSize: isMobileView ? "clamp(18px, 4vw, 20px)" : "clamp(20px, 4vw, 24px)",
               fontWeight: 700,
               color: "#0f1d3d",

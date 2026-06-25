@@ -1,6 +1,7 @@
 // pages/About.jsx — EVS Healthcare Solutions — About Page
 // Production-ready: semantic HTML, per-section IntersectionObserver, no RTL tricks,
 // GPU-only animations, lazy images, WCAG AA, SSR-safe, mobile-first.
+// Fonts: Manrope (headings H1-H6), Inter (paragraphs, buttons, forms, navigation)
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
@@ -181,6 +182,7 @@ function Eyebrow({ children }) {
     >
       <span style={{ width: 28, height: 2, background: T.gold, borderRadius: 999, display: "block", flexShrink: 0 }} />
       <span
+        className="about-eyebrow-text"
         style={{
           fontFamily: "'Inter', sans-serif",
           fontSize: 10,
@@ -198,12 +200,13 @@ function Eyebrow({ children }) {
   );
 }
 
-/** Section heading */
+/** Section heading — Manrope */
 function Heading({ children, light = false, style = {} }) {
   return (
     <h2
+      className="about-section-heading"
       style={{
-        fontFamily: "'Playfair Display', Georgia, serif",
+        fontFamily: "'Manrope', sans-serif",
         fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
         fontWeight: 700,
         color: light ? T.white : T.navy,
@@ -227,6 +230,7 @@ const Au = ({ children }) => (
 function CheckItem({ children }) {
   return (
     <li
+      className="about-check-item"
       style={{
         display: "flex",
         alignItems: "flex-start",
@@ -370,6 +374,7 @@ function HeroSection() {
           >
             <span style={{ width: 32, height: 2, background: T.gold, borderRadius: 999, display: "block" }} />
             <span
+              className="about-hero-eyebrow"
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 10,
@@ -386,13 +391,14 @@ function HeroSection() {
 
           <h1
             id="about-hero-heading"
+            className="about-hero-title"
             style={{
-              fontFamily: "'Nunito Sans', sans-serif",
+              fontFamily: "'Manrope', sans-serif",
               fontSize: "clamp(2.2rem, 5vw, 4.5rem)",
-              fontWeight: 900,
+              fontWeight: 800,
               color: T.white,
               lineHeight: 1.15,
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.02em",
               marginBottom: 18,
               textShadow: "rgba(4, 10, 32, 0.55) 0px 2px 20px, rgba(4, 10, 32, 0.4) 0px 1px 4px",
             }}
@@ -406,6 +412,7 @@ function HeroSection() {
             initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.65, ease: EASE }}
+            className="about-hero-subtitle"
             style={{
               color: "rgba(255,255,255,0.85)",
               maxWidth: 620,
@@ -436,6 +443,7 @@ function HeroSection() {
               onClick={handleContact}
               whileHover={shouldReduce ? {} : { y: -3, boxShadow: `0 16px 36px rgba(196,151,42,0.45)` }}
               whileTap={shouldReduce ? {} : { y: 1 }}
+              className="about-btn about-btn-primary"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -462,6 +470,7 @@ function HeroSection() {
               onClick={handleApply}
               whileHover={shouldReduce ? {} : { y: -3, background: "rgba(255,255,255,0.13)" }}
               whileTap={shouldReduce ? {} : { y: 1 }}
+              className="about-btn about-btn-secondary"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -595,7 +604,7 @@ function StatsSection() {
                 </div>
                 <div
                   style={{
-                    fontFamily: "'Inter', sans-serif",
+                    fontFamily: "'Manrope', sans-serif",
                     fontSize: isMobile ? "clamp(22px, 5vw, 28px)" : "clamp(28px, 4vw, 38px)",
                     fontWeight: 800,
                     color: T.gold,
@@ -607,6 +616,7 @@ function StatsSection() {
                   {s.value}
                 </div>
                 <div
+                  className="about-stat-label"
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     fontSize: isMobile ? "clamp(10px, 2.5vw, 12px)" : "clamp(12px, 1.3vw, 14px)",
@@ -672,6 +682,7 @@ function WhoWeAreSection() {
             A Client-Centred <Au>Staffing Agency</Au>
           </Heading>
           <p
+            className="about-body-text"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(1rem, 1.1vw, 1.125rem)",
@@ -702,6 +713,7 @@ function WhoWeAreSection() {
           <motion.button
             onClick={handleApply}
             whileHover={shouldReduce ? {} : { x: 4 }}
+            className="about-link-btn"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -761,6 +773,7 @@ function WhoWeAreSection() {
           >
             <Handshake size={20} color={T.gold} aria-hidden="true" />
             <span
+              className="about-image-caption"
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 13,
@@ -851,6 +864,7 @@ function MissionSection() {
           >
             <Target size={20} color={T.gold} aria-hidden="true" />
             <span
+              className="about-image-caption"
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 13,
@@ -875,6 +889,7 @@ function MissionSection() {
             Transforming Healthcare <Au>Recruitment</Au>
           </Heading>
           <p
+            className="about-body-text"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(1rem, 1.1vw, 1.125rem)",
@@ -901,6 +916,7 @@ function MissionSection() {
           <motion.button
             onClick={handlePartner}
             whileHover={shouldReduce ? {} : { x: 4 }}
+            className="about-link-btn"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -1034,8 +1050,9 @@ function ValuesSection() {
                           <Icon size={24} color={T.gold} strokeWidth={1.8} aria-hidden="true" />
                         </div>
                         <h3
+                          className="about-values-mobile-title"
                           style={{
-                            fontFamily: "'Inter', sans-serif",
+                            fontFamily: "'Manrope', sans-serif",
                             fontSize: 18,
                             fontWeight: 700,
                             color: T.navy,
@@ -1046,6 +1063,7 @@ function ValuesSection() {
                           {v.title}
                         </h3>
                         <p
+                          className="about-values-mobile-desc"
                           style={{
                             fontFamily: "'Inter', sans-serif",
                             fontSize: 14,
@@ -1068,6 +1086,7 @@ function ValuesSection() {
             <button
               onClick={prevSlide}
               aria-label="Previous value"
+              className="about-carousel-btn"
               style={{
                 position: "absolute",
                 top: "50%",
@@ -1093,6 +1112,7 @@ function ValuesSection() {
             <button
               onClick={nextSlide}
               aria-label="Next value"
+              className="about-carousel-btn"
               style={{
                 position: "absolute",
                 top: "50%",
@@ -1183,7 +1203,7 @@ function ValuesSection() {
                   </div>
                   <h3
                     style={{
-                      fontFamily: "'Inter', sans-serif",
+                      fontFamily: "'Manrope', sans-serif",
                       fontSize: "clamp(16px, 1.5vw, 18px)",
                       fontWeight: 700,
                       color: T.navy,
@@ -1253,6 +1273,7 @@ function TeamSection() {
             Meet Our <Au>Experts</Au>
           </Heading>
           <p
+            className="about-team-intro"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(14px, 1.4vw, 15px)",
@@ -1318,8 +1339,9 @@ function TeamSection() {
                           {getInitials(member.name)}
                         </div>
                         <h3
+                          className="about-team-mobile-name"
                           style={{
-                            fontFamily: "'Inter', sans-serif",
+                            fontFamily: "'Manrope', sans-serif",
                             fontSize: 18,
                             fontWeight: 700,
                             color: T.navy,
@@ -1330,6 +1352,7 @@ function TeamSection() {
                           {member.name}
                         </h3>
                         <div
+                          className="about-team-mobile-role"
                           style={{
                             fontFamily: "'Inter', sans-serif",
                             fontSize: 12,
@@ -1343,6 +1366,7 @@ function TeamSection() {
                           {member.role}
                         </div>
                         <p
+                          className="about-team-mobile-bio"
                           style={{
                             fontFamily: "'Inter', sans-serif",
                             fontSize: 14,
@@ -1364,6 +1388,7 @@ function TeamSection() {
             <button
               onClick={prevSlide}
               aria-label="Previous team member"
+              className="about-carousel-btn"
               style={{
                 position: "absolute",
                 top: "50%",
@@ -1389,6 +1414,7 @@ function TeamSection() {
             <button
               onClick={nextSlide}
               aria-label="Next team member"
+              className="about-carousel-btn"
               style={{
                 position: "absolute",
                 top: "50%",
@@ -1481,7 +1507,7 @@ function TeamSection() {
                   </div>
                   <h3
                     style={{
-                      fontFamily: "'Inter', sans-serif",
+                      fontFamily: "'Manrope', sans-serif",
                       fontSize: "clamp(16px, 1.5vw, 18px)",
                       fontWeight: 700,
                       color: T.navy,
@@ -1585,8 +1611,9 @@ function ContactStrip() {
           <Eyebrow>Get in Touch</Eyebrow>
           <h2
             id="contact-strip-heading"
+            className="about-contact-title"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "'Manrope', sans-serif",
               fontSize: "clamp(2rem, 3.5vw, 2.8rem)",
               fontWeight: 700,
               color: T.white,
@@ -1598,6 +1625,7 @@ function ContactStrip() {
             Ready to <Au>Join Our Network</Au>?
           </h2>
           <p
+            className="about-contact-sub"
             style={{
               fontFamily: "'Inter', sans-serif",
               fontSize: "clamp(14px, 1.4vw, 15px)",
@@ -1615,6 +1643,7 @@ function ContactStrip() {
               onClick={handleContact}
               whileHover={shouldReduce ? {} : { y: -3, boxShadow: `0 14px 32px rgba(196,151,42,0.45)` }}
               whileTap={shouldReduce ? {} : { y: 1 }}
+              className="about-btn about-btn-primary"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -1639,6 +1668,7 @@ function ContactStrip() {
               onClick={handleApply}
               whileHover={shouldReduce ? {} : { y: -3, background: "rgba(255,255,255,0.13)" }}
               whileTap={shouldReduce ? {} : { y: 1 }}
+              className="about-btn about-btn-secondary"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -1709,6 +1739,7 @@ function ContactStrip() {
                 </div>
                 <div>
                   <div
+                    className="about-contact-label"
                     style={{
                       fontFamily: "'Inter', sans-serif",
                       fontSize: 10,
@@ -1722,6 +1753,7 @@ function ContactStrip() {
                     {c.label}
                   </div>
                   <div
+                    className="about-contact-value"
                     style={{
                       fontFamily: "'Inter', sans-serif",
                       fontSize: "clamp(12px, 1.2vw, 13px)",
@@ -1753,7 +1785,7 @@ export default function About() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Playfair+Display:wght@700;900&family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Manrope:wght@200..800&display=swap');
 
         *, *::before, *::after {
           box-sizing: border-box;
@@ -1771,15 +1803,89 @@ export default function About() {
           border-radius: 4px;
         }
 
+        /* ═══════════════════════════════════════════════════════════════════
+           RESPONSIVE FONT SIZES FOR MOBILE PHONES
+           Comfortable reading sizes — not too big, not too small
+           ═══════════════════════════════════════════════════════════════════ */
+
+        @media (max-width: 640px) {
+          section { overflow-x: hidden; }
+
+          /* Hero section */
+          .about-hero-title { font-size: clamp(1.8rem, 7vw, 2.4rem) !important; line-height: 1.2 !important; }
+          .about-hero-subtitle { font-size: clamp(0.9rem, 3vw, 1rem) !important; line-height: 1.7 !important; }
+          .about-hero-eyebrow { font-size: 9px !important; letter-spacing: 0.18em !important; }
+
+          /* Section headings */
+          .about-section-heading { font-size: clamp(1.5rem, 5vw, 1.9rem) !important; }
+
+          /* Body paragraphs */
+          .about-body-text { font-size: clamp(0.9rem, 3vw, 1rem) !important; line-height: 1.75 !important; }
+
+          /* Check list items */
+          .about-check-item { font-size: 14px !important; gap: 8px !important; }
+
+          /* Link buttons */
+          .about-link-btn { font-size: 13px !important; }
+
+          /* CTA buttons */
+          .about-btn { font-size: clamp(12px, 2.8vw, 14px) !important; padding: clamp(11px, 2vw, 14px) clamp(20px, 4vw, 28px) !important; }
+          .about-btn svg { width: 15px !important; height: 15px !important; }
+
+          /* Stats */
+          .about-stat-label { font-size: clamp(10px, 2.5vw, 12px) !important; }
+
+          /* Values mobile carousel */
+          .about-values-mobile-title { font-size: 17px !important; }
+          .about-values-mobile-desc { font-size: 13.5px !important; line-height: 1.65 !important; }
+
+          /* Team mobile */
+          .about-team-intro { font-size: clamp(12px, 3vw, 14px) !important; }
+          .about-team-mobile-name { font-size: 17px !important; }
+          .about-team-mobile-role { font-size: 11px !important; }
+          .about-team-mobile-bio { font-size: 13px !important; line-height: 1.6 !important; }
+
+          /* Contact strip */
+          .about-contact-title { font-size: clamp(1.6rem, 5vw, 2rem) !important; }
+          .about-contact-sub { font-size: clamp(12px, 2.8vw, 14px) !important; line-height: 1.65 !important; }
+          .about-contact-label { font-size: 9px !important; }
+          .about-contact-value { font-size: clamp(11px, 2.5vw, 13px) !important; }
+
+          /* Image captions */
+          .about-image-caption { font-size: 12px !important; }
+
+          /* Carousel buttons */
+          .about-carousel-btn { width: 34px !important; height: 34px !important; }
+          .about-carousel-btn svg { width: 17px !important; height: 17px !important; }
+
+          /* Eyebrow */
+          .about-eyebrow-text { font-size: 9px !important; letter-spacing: 0.18em !important; }
+        }
+
+        /* ── Smaller phones (320-400px) ── */
+        @media (max-width: 400px) {
+          .about-hero-title { font-size: clamp(1.5rem, 6.5vw, 1.9rem) !important; }
+          .about-hero-subtitle { font-size: 0.85rem !important; }
+          .about-section-heading { font-size: clamp(1.3rem, 5vw, 1.6rem) !important; }
+          .about-body-text { font-size: 0.85rem !important; }
+          .about-check-item { font-size: 13px !important; }
+          .about-btn { font-size: 12px !important; padding: 10px 18px !important; }
+          .about-values-mobile-title { font-size: 15px !important; }
+          .about-values-mobile-desc { font-size: 12.5px !important; }
+          .about-team-mobile-name { font-size: 15px !important; }
+          .about-team-mobile-bio { font-size: 12px !important; }
+          .about-contact-title { font-size: clamp(1.3rem, 5vw, 1.6rem) !important; }
+          .about-contact-sub { font-size: 11px !important; }
+          .about-contact-value { font-size: 11px !important; }
+          .about-image-caption { font-size: 11px !important; }
+          .about-stat-label { font-size: 9px !important; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after {
             animation-duration: 0.01ms !important;
             transition-duration: 0.01ms !important;
           }
-        }
-
-        @media (max-width: 640px) {
-          section { overflow-x: hidden; }
         }
       `}</style>
 

@@ -17,6 +17,9 @@ import { Menu, X, Phone, Mail } from "lucide-react";
 //   • Hamburger icon: 401 (above navbar, below drawer)
 //
 // When drawer opens: overlay covers page + navbar, drawer slides over all.
+//
+// Mobile Home/About: Black bg + white text at top → White bg + navy text on scroll
+// Other mobile pages: White bg + navy text always
 // ─────────────────────────────────────────────────────────────────────────────
 
 const NAV_LINKS = ["About", "Jobs", "Training", "Employers", "Contact"];
@@ -50,7 +53,7 @@ function useIsMobile(bp = 768) {
 // CSS — consolidated
 // ─────────────────────────────────────────────────────────────────────────────
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Manrope:wght@200..800&display=swap');
 
   /* ── Wrapper ── */
   .evs-navbar-wrapper {
@@ -636,9 +639,14 @@ export default function Navbar() {
   const isWhiteText    = isHome || isAbout;
   const isTransparent  = isHome && !scrolled && !isMobile;
 
+  // ── MOBILE: Switch between white text (top) and dark text (scrolled) ──
   let navbarClass = "navbar-dark-text";
   if (isMobile) {
-    navbarClass = isWhiteText ? "navbar-mobile-white" : "navbar-mobile-dark";
+    if (isWhiteText) {
+      navbarClass = scrolled ? "navbar-mobile-dark" : "navbar-mobile-white";
+    } else {
+      navbarClass = "navbar-mobile-dark";
+    }
   } else if (isTransparent) {
     navbarClass = "navbar-transparent";
   } else if (isWhiteText) {
@@ -647,27 +655,36 @@ export default function Navbar() {
     navbarClass = "navbar-dark-text";
   }
 
+  // ── MOBILE: Black at top, white on scroll (Home/About) ──
   const navBg = isMobile
-    ? isWhiteText ? "rgba(10,22,40,0.95)" : "rgba(255,255,255,0.96)"
+    ? isWhiteText 
+      ? (scrolled ? "rgba(255,255,255,0.98)" : "#0a1628") 
+      : "rgba(255,255,255,0.96)"
     : isTransparent ? "transparent"
     : isWhiteText ? "rgba(10,22,40,0.95)" : "rgba(255,255,255,0.96)";
 
   const navBorder = isMobile
-    ? isWhiteText ? "1px solid rgba(196,151,42,0.15)" : "1px solid rgba(0,0,0,0.07)"
+    ? isWhiteText 
+      ? (scrolled ? "1px solid rgba(0,0,0,0.07)" : "1px solid rgba(196,151,42,0.25)") 
+      : "1px solid rgba(0,0,0,0.07)"
     : isTransparent ? "none"
     : isWhiteText ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)";
 
   const navBlur   = (!isMobile && !isTransparent) ? "blur(18px)" : "none";
+  
   const navShadow = isTransparent ? "none" : isMobile
-    ? isWhiteText ? "0 2px 12px rgba(0,0,0,0.3)" : "0 2px 12px rgba(0,0,0,0.06)"
+    ? isWhiteText 
+      ? (scrolled ? "0 2px 12px rgba(0,0,0,0.08)" : "0 4px 20px rgba(0,0,0,0.5)") 
+      : "0 2px 12px rgba(0,0,0,0.06)"
     : "0 4px 24px rgba(0,0,0,0.09)";
 
+  // ── MOBILE: White text at top, navy text on scroll (Home/About) ──
   const textColor = isMobile
-    ? (isWhiteText ? "#ffffff" : "#0f1d3d")
+    ? (isWhiteText ? (scrolled ? "#0f1d3d" : "#ffffff") : "#0f1d3d")
     : (isWhiteText ? "#ffffff" : "#0f1d3d");
 
   const ltdColor = isMobile
-    ? (isWhiteText ? "rgba(255,255,255,0.5)" : "rgba(15,29,61,0.5)")
+    ? (isWhiteText ? (scrolled ? "rgba(15,29,61,0.5)" : "rgba(255,255,255,0.5)") : "rgba(15,29,61,0.5)")
     : (isWhiteText ? "rgba(255,255,255,0.6)" : "rgba(15,29,61,0.5)");
 
   const isLinkActive = (link) => {
@@ -726,12 +743,12 @@ export default function Navbar() {
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: "clamp(4px,0.6vw,6px)", lineHeight: 1.1, flexWrap: "nowrap" }}>
                   <span style={{
-                    fontFamily: "'Inter', sans-serif", fontWeight: 900,
+                    fontFamily: "'Manrope', sans-serif", fontWeight: 800,
                     fontSize: isMobile ? "16px" : "clamp(16px,1.6vw,20px)",
                     color: textColor, letterSpacing: "0.03em", transition: "color 0.3s ease", whiteSpace: "nowrap",
                   }}>EVS</span>
                   <span style={{
-                    fontFamily: "'Inter', sans-serif", fontWeight: 800,
+                    fontFamily: "'Manrope', sans-serif", fontWeight: 700,
                     fontSize: isMobile ? "11px" : "clamp(12px,1.2vw,16px)",
                     color: textColor, letterSpacing: "0.06em", transition: "color 0.3s ease", whiteSpace: "nowrap",
                   }}>HEALTHCARE SOLUTIONS</span>
@@ -799,7 +816,7 @@ export default function Navbar() {
               aria-expanded={menuOpen}
               aria-controls="evs-drawer"
               aria-haspopup="dialog"
-              style={{ color: isMobile ? (isWhiteText ? "#ffffff" : "#0f1d3d") : textColor }}
+              style={{ color: isMobile ? (isWhiteText ? (scrolled ? "#0f1d3d" : "#ffffff") : "#0f1d3d") : textColor }}
             >
               <motion.div
                 animate={{ rotate: menuOpen ? 90 : 0 }}
@@ -856,8 +873,8 @@ export default function Navbar() {
                   <EVSLogo size={38} />
                   <div>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexWrap: "wrap" }}>
-                      <span style={{ fontFamily: "'Inter',sans-serif", fontWeight: 900, fontSize: 14, color: "#fff", letterSpacing: "0.05em" }}>EVS</span>
-                      <span style={{ fontFamily: "'Inter',sans-serif", fontWeight: 800, fontSize: 10, color: "#fff", letterSpacing: "0.06em" }}>HEALTHCARE SOLUTIONS</span>
+                      <span style={{ fontFamily: "'Manrope',sans-serif", fontWeight: 800, fontSize: 14, color: "#fff", letterSpacing: "0.05em" }}>EVS</span>
+                      <span style={{ fontFamily: "'Manrope',sans-serif", fontWeight: 700, fontSize: 10, color: "#fff", letterSpacing: "0.06em" }}>HEALTHCARE SOLUTIONS</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
                       <span style={{ fontFamily: "'Inter',sans-serif", fontSize: 8, fontWeight: 800, color: "rgba(255,255,255,0.4)", letterSpacing: "0.18em", textTransform: "uppercase" }}>Ltd</span>

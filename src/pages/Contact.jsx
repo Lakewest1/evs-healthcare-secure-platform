@@ -631,6 +631,7 @@ export default function Contact() {
   font-size: 12px; font-weight: 600; color: #C4972A; letter-spacing: 0.5px;
 }
 .ch-hero-title {
+  font-family: 'Manrope', sans-serif;
   font-size: clamp(2rem,4vw,3.2rem);
   font-weight: 800; letter-spacing: -0.02em;
   margin: 0 0 10px; line-height: 1.2; color: #fff;
@@ -645,6 +646,7 @@ export default function Contact() {
 }
 .ch-stat { display: flex; align-items: baseline; gap: 6px; }
 .ch-stat-n {
+  font-family: 'Manrope', sans-serif;
   font-size: clamp(20px,2vw,26px);
   font-weight: 800; color: #C4972A;
 }
@@ -667,6 +669,7 @@ export default function Contact() {
   color: #C4972A; margin-bottom: 12px;
 }
 .ch-section-title {
+  font-family: 'Manrope', sans-serif;
   font-size: clamp(1.75rem,3vw,2.6rem);
   font-weight: 800; color: #0f1d3d;
   letter-spacing: -0.02em; margin: 0 0 12px;
@@ -763,6 +766,7 @@ export default function Contact() {
   color: #C4972A; margin-bottom: 16px;
 }
 .ch-hours-hd h3 {
+  font-family: 'Manrope', sans-serif;
   font-size: 15px; font-weight: 700;
   color: #0f1d3d; margin: 0;
 }
@@ -784,7 +788,7 @@ export default function Contact() {
   border: 1px solid rgba(0,0,0,0.06);
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
-.ch-social-title { font-size: 15px; font-weight: 700; color: #0f1d3d; margin: 0 0 4px; }
+.ch-social-title { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 700; color: #0f1d3d; margin: 0 0 4px; }
 .ch-social-sub { font-size: 12px; color: #94a3b8; margin: 0 0 16px; }
 .ch-social-grid { display: flex; flex-wrap: wrap; gap: 8px; }
 .ch-social-link {
@@ -837,7 +841,7 @@ export default function Contact() {
   display: flex; align-items: center; justify-content: center;
   color: #C4972A; flex-shrink: 0;
 }
-.ch-form-title { font-size: 15px; font-weight: 700; color: #0f1d3d; margin: 0 0 2px; }
+.ch-form-title { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 700; color: #0f1d3d; margin: 0 0 2px; }
 .ch-form-sub { font-size: 12px; color: #94a3b8; margin: 0; }
 
 /* Honeypot */
@@ -917,7 +921,7 @@ export default function Contact() {
   display: flex; align-items: center; justify-content: center;
   color: #10b981; margin: 0 auto 16px;
 }
-.ch-form-success h4 { font-size: 18px; font-weight: 700; color: #0f1d3d; margin: 0 0 8px; }
+.ch-form-success h4 { font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 700; color: #0f1d3d; margin: 0 0 8px; }
 .ch-form-success p { font-size: 14px; color: #64748b; margin: 0; }
 
 /* ── Map ─────────────────────────────────────────────────────────────────── */
@@ -940,7 +944,7 @@ export default function Contact() {
   display: flex; align-items: center; gap: 10px;
   color: #C4972A; margin-bottom: 18px;
 }
-.ch-faq-hd h3 { font-size: 16px; font-weight: 700; color: #0f1d3d; margin: 0; }
+.ch-faq-hd h3 { font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700; color: #0f1d3d; margin: 0; }
 .ch-faq-list { display: flex; flex-direction: column; gap: 6px; }
 .ch-faq-item {
   border-radius: 12px;

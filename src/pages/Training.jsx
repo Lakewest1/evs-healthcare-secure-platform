@@ -134,6 +134,7 @@ const TRAINING_CATEGORIES = [
       { id: 31, title: "Mental Health Awareness",     duration: "1 day",  type: "Classroom" },
       { id: 32, title: "Learning Disability Support", duration: "2 days", type: "Classroom" },
       { id: 33, title: "Palliative Care Training",    duration: "2 days", type: "Classroom" },
+      { id: 34, title: "OLIVER'S CAMPAIGN",           duration: "1 day",  type: "Classroom" },
     ],
   },
 ];
@@ -999,6 +1000,8 @@ export default function Training() {
   return (
     <>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Manrope:wght@200..800&display=swap');
+
         /* ── RESET ── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         @media (prefers-reduced-motion: reduce) {
@@ -1040,7 +1043,7 @@ export default function Training() {
           color: #C4972A; margin-bottom: 16px;
         }
         .tb-banner-title {
-          font-family: 'Inter',sans-serif;
+          font-family: 'Manrope',sans-serif;
           font-size: clamp(1.8rem,3.5vw,2.8rem);
           font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 10px;
         }
@@ -1056,7 +1059,7 @@ export default function Training() {
         .tb-banner-stats { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
         .tb-stat { display: flex; align-items: baseline; gap: 6px; }
         .tb-stat-num {
-          font-family: 'Inter',sans-serif; font-size: clamp(20px,2vw,26px); font-weight: 800; color: #C4972A;
+          font-family: 'Manrope',sans-serif; font-size: clamp(20px,2vw,26px); font-weight: 800; color: #C4972A;
         }
         .tb-stat-lbl {
           font-family: 'Inter',sans-serif; font-size: clamp(10px,0.9vw,12px);
@@ -1124,7 +1127,7 @@ export default function Training() {
           display: flex; align-items: center; justify-content: center;
         }
         .cat-title {
-          display: block; font-family: 'Inter',sans-serif; font-size: 17px; font-weight: 700;
+          display: block; font-family: 'Manrope',sans-serif; font-size: 17px; font-weight: 700;
           color: #0f1d3d; margin-bottom: 3px;
         }
         .cat-desc { display: block; font-family: 'Inter',sans-serif; font-size: 12.5px; color: #64748b; line-height: 1.5; }
@@ -1145,7 +1148,7 @@ export default function Training() {
         .cc-bar { width: 4px; height: 36px; border-radius: 0 2px 2px 0; flex-shrink: 0; margin-right: 14px; }
         .cc-content { flex: 1; min-width: 0; }
         .cc-title {
-          font-family: 'Inter',sans-serif; font-size: 12.5px; font-weight: 600;
+          font-family: 'Manrope',sans-serif; font-size: 12.5px; font-weight: 600;
           color: #0f1d3d; margin-bottom: 4px; line-height: 1.4;
         }
         .cc-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -1174,7 +1177,7 @@ export default function Training() {
           text-align: center;
         }
         .tp-header { margin-bottom: 24px; }
-        .tp-title { font-family: 'Inter',sans-serif; font-size: 20px; font-weight: 700; color: #0f1d3d; margin-bottom: 8px; }
+        .tp-title { font-family: 'Manrope',sans-serif; font-size: 20px; font-weight: 700; color: #0f1d3d; margin-bottom: 8px; }
         .tp-sub {
           font-family: 'Inter',sans-serif; font-size: 13.5px; color: #64748b;
           max-width: 580px; margin: 0 auto; line-height: 1.65;
@@ -1210,7 +1213,7 @@ export default function Training() {
           display: flex; align-items: center; justify-content: center; margin-bottom: 18px;
         }
         .cta-heading {
-          font-family: 'Inter',sans-serif; font-size: clamp(1.8rem,3vw,2.4rem);
+          font-family: 'Manrope',sans-serif; font-size: clamp(1.8rem,3vw,2.4rem);
           font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: -0.02em; line-height: 1.2;
         }
         .cta-sub {
@@ -1277,7 +1280,7 @@ export default function Training() {
           color: #fff;
         }
         .tf-heading {
-          font-family: 'Inter',sans-serif; font-size: clamp(1.4rem,3vw,2.2rem);
+          font-family: 'Manrope',sans-serif; font-size: clamp(1.4rem,3vw,2.2rem);
           font-weight: 800; letter-spacing: -0.02em; line-height: 1.22;
           color: #fff; margin-bottom: 14px;
         }
@@ -1519,7 +1522,7 @@ export default function Training() {
           display: flex; align-items: center; justify-content: center;
         }
         .tf-success-title {
-          font-family: 'Inter',sans-serif; font-size: clamp(18px, 2.5vw, 22px); 
+          font-family: 'Manrope',sans-serif; font-size: clamp(18px, 2.5vw, 22px); 
           font-weight: 800;
           color: #0f1d3d; letter-spacing: -0.01em;
         }
@@ -1545,7 +1548,7 @@ export default function Training() {
           background: #fff; border-radius: 20px;
           border: 1px solid rgba(0,0,0,0.06); color: #94a3b8;
         }
-        .tb-empty h3 { font-family:'Inter',sans-serif; font-size:18px; color:#0f1d3d; margin:14px 0 6px; }
+        .tb-empty h3 { font-family:'Manrope',sans-serif; font-size:18px; color:#0f1d3d; margin:14px 0 6px; }
         .tb-empty p  { font-family:'Inter',sans-serif; font-size:13px; }
 
         /* ── OPTIMIZED RESPONSIVE FOR MOBILE ── */

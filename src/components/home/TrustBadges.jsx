@@ -24,8 +24,7 @@ import {
 //   Only the marquee translateX runs — single compositor-thread transform,
 //   zero layout impact, smooth on every Android/iOS device.
 //
-// The isMobile JS checks are replaced with CSS @media throughout so the
-// correct behaviour is applied regardless of SSR or resize edge cases.
+// Fonts: Inter for all UI text (labels, badges) — consistent with app design system
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -181,7 +180,7 @@ const CSS = `
     }
   }
 
-  /* ── Label ── */
+  /* ── Label — Inter font for UI text (consistent with app design system) ── */
   .tb-label {
     font-family: 'Inter', sans-serif;
     font-weight: 600;

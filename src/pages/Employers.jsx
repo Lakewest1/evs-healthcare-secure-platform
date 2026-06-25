@@ -3,6 +3,7 @@
 // PoundSterling (not DollarSign), aria-describedby on all inputs, autocomplete attrs,
 // double-submit guard, dev-only console.error, useReducedMotion throughout.
 // Fully responsive for mobile devices with modern styling.
+// Fonts: Manrope (headings H1-H6), Inter (paragraphs, buttons, forms, navigation)
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
@@ -1644,7 +1645,7 @@ export default function Employers() {
           white-space: nowrap;
         }
         .section-heading {
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: 'Manrope', sans-serif;
           font-size: clamp(1.8rem, 3vw, 2.6rem);
           font-weight: 700; letter-spacing: -0.02em; line-height: 1.2;
           margin-bottom: 14px;
@@ -1793,9 +1794,9 @@ export default function Employers() {
         }
 
         .emp-hero-title {
-          font-family: 'Nunito Sans', sans-serif;
+          font-family: 'Manrope', sans-serif;
           font-size: clamp(1.8rem, 4.5vw, 3.6rem);
-          font-weight: 900;
+          font-weight: 800;
           letter-spacing: -0.02em;
           line-height: 1.1;
           margin-bottom: clamp(12px, 1.5vw, 16px);
@@ -1979,7 +1980,7 @@ export default function Employers() {
           color: #16a34a; margin: 0 auto 18px;
         }
         .rf-success-title {
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: 'Manrope', sans-serif;
           font-size: clamp(1.4rem, 2.5vw, 1.8rem); 
           font-weight: 700; color: #0f1d3d; margin-bottom: 10px;
         }

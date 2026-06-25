@@ -29,6 +29,7 @@ import {
 // UPDATED: React Router Links for all internal navigation
 // FIXED: Mobile responsive display issues
 // FIXED: Back-to-top z-index lowered to 98 so navbar overlay (500) covers it
+// Fonts: Manrope (headings, brand text), Inter (body, links, UI)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function Footer() {
@@ -316,8 +317,8 @@ export default function Footer() {
               <div>
                 <div
                   style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontWeight: 800,
+                    fontFamily: "'Manrope', sans-serif",
+                    fontWeight: 700,
                     fontSize: isMobile ? 13 : 15,
                     color: "#fff",
                     letterSpacing: "1.5px",
@@ -405,7 +406,7 @@ export default function Footer() {
           <motion.div variants={itemVariants}>
             <h3
               style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Manrope', sans-serif",
                 fontSize: isMobile ? 14 : 15,
                 fontWeight: 700,
                 color: "#fff",
@@ -472,7 +473,7 @@ export default function Footer() {
           <motion.div variants={itemVariants}>
             <h3
               style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Manrope', sans-serif",
                 fontSize: isMobile ? 14 : 15,
                 fontWeight: 700,
                 color: "#fff",
@@ -539,7 +540,7 @@ export default function Footer() {
           <motion.div variants={itemVariants}>
             <h3
               style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Manrope', sans-serif",
                 fontSize: isMobile ? 14 : 15,
                 fontWeight: 700,
                 color: "#fff",

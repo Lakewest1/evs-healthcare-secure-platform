@@ -24,6 +24,7 @@ import {
 //   pauses on hover, and uses native browser scrolling.
 //
 //   Desktop (≥ 768px) — original infinite marquee + float animations intact.
+// Fonts: Manrope (headings), Inter (body, buttons, UI)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -610,9 +611,9 @@ export default function Partners() {
             <motion.h2
               variants={childVariants}
               style={{
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Manrope', sans-serif",
                 fontSize: "clamp(1.5rem, 3.5vw, 2.4rem)",
-                fontWeight: 800,
+                fontWeight: 700,
                 color: "#0f1d3d",
                 letterSpacing: "-0.02em",
                 marginBottom: 16,

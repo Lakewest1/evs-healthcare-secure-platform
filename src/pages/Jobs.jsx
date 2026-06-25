@@ -1,6 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS Healthcare Solutions — Jobs Page
 // Merged: Jobs + Testimonials + Partners
+// Fonts: Manrope (headings H1-H6), Inter (paragraphs, buttons, forms, navigation)
 //
 // Fixes applied:
 //  1. Pay icon: £ text replaces dollar SVG on every job card
@@ -1040,7 +1041,7 @@ function TestimonialsSection() {
           <h2
             id="testimonials-heading"
             style={{
-              fontFamily:    "'Inter', sans-serif",
+              fontFamily:    "'Manrope', sans-serif",
               fontSize:      "clamp(1.8rem, 3.5vw, 2.8rem)",
               fontWeight:    800,
               color:         T.navy,
@@ -1589,7 +1590,7 @@ function PartnersSection() {
           <motion.h2
             variants={childVariants}
             style={{
-              fontFamily:    "'Inter', sans-serif",
+              fontFamily:    "'Manrope', sans-serif",
               fontSize:      "clamp(1.5rem, 3.5vw, 2.4rem)",
               fontWeight:    800,
               color:         T.navy,
@@ -1763,7 +1764,7 @@ export default function Jobs() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Manrope:wght@200..800&display=swap');
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1829,7 +1830,7 @@ export default function Jobs() {
           margin-bottom: 16px;
         }
         .jobs-banner-title {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Manrope', sans-serif;
           font-size: clamp(1.8rem, 3.5vw, 2.8rem);
           font-weight: 800;
           letter-spacing: -0.02em;
@@ -1853,7 +1854,7 @@ export default function Jobs() {
         .jobs-banner-stats { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
         .jobs-banner-stat  { display: flex; align-items: baseline; gap: 6px; }
         .jobs-banner-stat-number {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Manrope', sans-serif;
           font-size: clamp(20px, 2vw, 26px);
           font-weight: 800;
           color: #C4972A;
@@ -1954,7 +1955,7 @@ export default function Jobs() {
         .job-card-heading { flex: 1; min-width: 0; }
         .job-card-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .job-card-title {
-          font-family: 'Inter', sans-serif;
+          font-family: 'Manrope', sans-serif;
           font-size: 18px; font-weight: 700;
           color: #0f1d3d; margin: 0; letter-spacing: -0.005em;
         }
@@ -2024,7 +2025,7 @@ export default function Jobs() {
           background: #fff; border-radius: 20px;
           border: 1px solid rgba(0,0,0,0.06); color: #94a3b8;
         }
-        .jobs-empty h3 { font-family: 'Inter', sans-serif; font-size: 20px; color: #0f1d3d; margin: 16px 0 8px; }
+        .jobs-empty h3 { font-family: 'Manrope', sans-serif; font-size: 20px; color: #0f1d3d; margin: 16px 0 8px; }
         .jobs-empty p  { font-family: 'Inter', sans-serif; font-size: 14px; }
         .jobs-load-more-wrap { text-align: center; margin-top: 32px; }
         .jobs-load-more {

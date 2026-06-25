@@ -7,6 +7,7 @@ import { FileText, File, Handshake, ShieldCheck, Target, ChevronLeft, ChevronRig
 // Modern Recruitment Process — Clean White Background, Performance Optimized
 // Features: 5 steps side by side on desktop, responsive grid on tablet, 
 //           CAROUSEL/SLIDER on mobile (click to reveal other processes)
+// Fonts: Manrope (headings, step numbers), Inter (body, buttons, UI)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.2) {
@@ -168,7 +169,7 @@ function Step({ step, index, isInView, layoutType = "desktop", isActive = false 
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: "'Manrope', sans-serif",
           fontWeight: 800,
           fontSize: layoutType === "mobile" ? "18px" : "18px",
           color: (isActive && isMobile) ? "#ffffff" : step.accent,
@@ -204,7 +205,7 @@ function Step({ step, index, isInView, layoutType = "desktop", isActive = false 
         }}
         transition={{ duration: 0.3 }}
         style={{
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: "'Manrope', sans-serif",
           fontSize: getTitleSize(),
           fontWeight: 700,
           marginBottom: 8,
@@ -564,9 +565,9 @@ export default function RecruitmentProcess() {
           {/* Main Heading */}
           <h2
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Manrope', sans-serif",
               fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
-              fontWeight: 800,
+              fontWeight: 700,
               color: "#0f1d3d",
               letterSpacing: "-0.02em",
               marginBottom: 16,
@@ -695,7 +696,7 @@ export default function RecruitmentProcess() {
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Manrope:wght@400;500;600;700;800&display=swap');
 
         @media (max-width: 1024px) and (min-width: 768px) {
           .tablet-middle-row {

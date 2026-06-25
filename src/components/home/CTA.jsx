@@ -20,6 +20,7 @@ import {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Premium CTA Section — Enterprise-Grade Call to Action
+// Fonts: Manrope (headings), Inter (body, buttons, UI)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useReveal(threshold = 0.3) {
@@ -413,9 +414,9 @@ export default function CTA() {
           <motion.h2
             variants={itemVariants}
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Manrope', sans-serif",
               fontSize: "clamp(1.8rem, 4vw, 3.2rem)",
-              fontWeight: 800,
+              fontWeight: 700,
               color: "#fff",
               letterSpacing: "-0.03em",
               marginBottom: 20,
@@ -464,7 +465,7 @@ export default function CTA() {
               lineHeight: 1.7,
             }}
           >
-            Whether you're experienced or just starting out — at EVS Healthcare,
+            Whether you're experienced or just starting out - at EVS Healthcare,
             there's a chance for everyone. Join our growing team of healthcare
             professionals today.
           </motion.p>
