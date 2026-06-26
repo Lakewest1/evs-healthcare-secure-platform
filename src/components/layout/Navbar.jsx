@@ -70,24 +70,7 @@ const CSS = `
                 border-radius 0.35s ease, border-bottom 0.35s ease;
   }
 
-  /* Gold glow line — desktop only */
-  @media (hover: hover) {
-    .evs-navbar-inner.glow-active::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 6%; right: 6%;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(196,151,42,0.25) 30%,
-        rgba(196,151,42,0.5) 50%,
-        rgba(196,151,42,0.25) 70%,
-        transparent
-      );
-      pointer-events: none;
-    }
-  }
+  
 
   /* ── Desktop nav link ── */
   .evs-link {

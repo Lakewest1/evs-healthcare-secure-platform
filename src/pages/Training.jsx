@@ -1062,7 +1062,7 @@ export default function Training() {
           font-family: 'Manrope',sans-serif; font-size: clamp(20px,2vw,26px); font-weight: 800; color: #C4972A;
         }
         .tb-stat-lbl {
-          font-family: 'Inter',sans-serif; font-size: clamp(10px,0.9vw,12px);
+          font-family: 'Inter',sans-serif; font-size: clamp(11px,0.9vw,12px);
           color: rgba(255,255,255,0.7); font-weight: 500;
         }
         .tb-divider { width: 1px; height: 26px; background: rgba(255,255,255,0.18); }
@@ -1148,18 +1148,18 @@ export default function Training() {
         .cc-bar { width: 4px; height: 36px; border-radius: 0 2px 2px 0; flex-shrink: 0; margin-right: 14px; }
         .cc-content { flex: 1; min-width: 0; }
         .cc-title {
-          font-family: 'Manrope',sans-serif; font-size: 12.5px; font-weight: 600;
+          font-family: 'Manrope',sans-serif; font-size: 13px; font-weight: 600;
           color: #0f1d3d; margin-bottom: 4px; line-height: 1.4;
         }
         .cc-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .cc-meta-item {
           display: flex; align-items: center; gap: 4px;
-          font-family: 'Inter',sans-serif; font-size: 11px; color: #64748b;
+          font-family: 'Inter',sans-serif; font-size: 12px; color: #64748b;
         }
         .cc-enrol {
           flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
-          padding: 5px 13px; border-radius: 20px; border: none;
-          font-family: 'Inter',sans-serif; font-size: 11px; font-weight: 700;
+          padding: 6px 14px; border-radius: 20px; border: none;
+          font-family: 'Inter',sans-serif; font-size: 12px; font-weight: 700;
           color: #fff; cursor: pointer;
           transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
           white-space: nowrap; margin-right: 4px;
@@ -1179,17 +1179,17 @@ export default function Training() {
         .tp-header { margin-bottom: 24px; }
         .tp-title { font-family: 'Manrope',sans-serif; font-size: 20px; font-weight: 700; color: #0f1d3d; margin-bottom: 8px; }
         .tp-sub {
-          font-family: 'Inter',sans-serif; font-size: 13.5px; color: #64748b;
+          font-family: 'Inter',sans-serif; font-size: 14px; color: #64748b;
           max-width: 580px; margin: 0 auto; line-height: 1.65;
         }
         .tp-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 14px; }
         .tp-pill {
           padding: 9px 22px; border-radius: 40px;
-          font-family: 'Inter',sans-serif; font-size: 12.5px; font-weight: 600;
+          font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 600;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .tp-pill:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .tp-footer { font-family: 'Inter',sans-serif; font-size: 12px; color: #94a3b8; }
+        .tp-footer { font-family: 'Inter',sans-serif; font-size: 13px; color: #94a3b8; }
 
         /* ── CTA STRIP ── */
         .cta-strip {
@@ -1217,7 +1217,7 @@ export default function Training() {
           font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: -0.02em; line-height: 1.2;
         }
         .cta-sub {
-          font-family: 'Inter',sans-serif; font-size: 14px;
+          font-family: 'Inter',sans-serif; font-size: 15px;
           color: rgba(255,255,255,0.78); max-width: 500px; line-height: 1.7; margin-bottom: 30px;
         }
         .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
@@ -1225,7 +1225,7 @@ export default function Training() {
           display: inline-flex; align-items: center; gap: 8px;
           padding: 13px 32px; border-radius: 50px;
           background: linear-gradient(135deg,#C4972A,#8B6914);
-          color: #0f1d3d; font-family: 'Inter',sans-serif; font-weight: 700; font-size: 14px;
+          color: #0f1d3d; font-family: 'Inter',sans-serif; font-weight: 700; font-size: 15px;
           border: none; cursor: pointer; letter-spacing: 0.02em;
           box-shadow: 0 4px 16px rgba(196,151,42,0.32); transition: box-shadow 0.2s;
         }
@@ -1235,7 +1235,7 @@ export default function Training() {
           padding: 13px 28px; border-radius: 50px;
           background: rgba(255,255,255,0.08); backdrop-filter: blur(10px);
           border: 1px solid rgba(255,255,255,0.18); color: #fff;
-          font-family: 'Inter',sans-serif; font-weight: 600; font-size: 14px;
+          font-family: 'Inter',sans-serif; font-weight: 600; font-size: 15px;
           cursor: pointer; letter-spacing: 0.02em; transition: background 0.2s, transform 0.15s;
         }
         .cta-btn-secondary:hover { background: rgba(255,255,255,0.14); }
@@ -1246,7 +1246,7 @@ export default function Training() {
         }
         .cta-trust-item {
           display: flex; align-items: center; gap: 7px;
-          font-family: 'Inter',sans-serif; font-size: 12.5px; color: rgba(255,255,255,0.72);
+          font-family: 'Inter',sans-serif; font-size: 13px; color: rgba(255,255,255,0.72);
         }
 
         /* ── TRAINING FORM SECTION ── */
@@ -1285,31 +1285,25 @@ export default function Training() {
           color: #fff; margin-bottom: 14px;
         }
         .tf-sub {
-          font-family: 'Inter',sans-serif; font-size: clamp(13px, 1.2vw, 14px);
-          color: rgba(255,255,255,0.76); line-height: 1.68; margin-bottom: clamp(20px, 3vw, 32px);
-          word-wrap: break-word;
-          overflow-wrap: break-word;
-          max-width: 100%;
+          font-family: 'Inter',sans-serif; font-size: 14px;
+          color: rgba(255,255,255,0.76); line-height: 1.68; margin-bottom: clamp(20px,3vw,32px);
+          word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;
         }
-        .tf-info-list { 
-          display: flex; flex-direction: column; gap: clamp(14px, 2vw, 20px); 
-          margin-bottom: clamp(24px, 3vw, 36px); 
-          width: 100%;
+        .tf-info-list {
+          display: flex; flex-direction: column; gap: clamp(14px,2vw,20px);
+          margin-bottom: clamp(24px,3vw,36px); width: 100%;
         }
-        .tf-info-item { 
-          display: flex; align-items: flex-start; gap: clamp(10px, 1.5vw, 12px); 
-          width: 100%;
+        .tf-info-item {
+          display: flex; align-items: flex-start; gap: clamp(10px,1.5vw,12px); width: 100%;
         }
         .tf-info-heading {
-          font-family: 'Inter',sans-serif; font-size: clamp(13px, 1.2vw, 13.5px); 
-          font-weight: 700;
+          font-family: 'Inter',sans-serif; font-size: 14px; font-weight: 700;
           color: #fff; margin-bottom: 3px;
         }
         .tf-info-body {
-          font-family: 'Inter',sans-serif; font-size: clamp(11.5px, 1.1vw, 12.5px);
+          font-family: 'Inter',sans-serif; font-size: 13px;
           color: rgba(255,255,255,0.62); line-height: 1.58;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
+          word-wrap: break-word; overflow-wrap: break-word;
         }
         .tf-direct {
           margin-top: auto; padding-top: 24px;
@@ -1317,15 +1311,13 @@ export default function Training() {
           display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
         }
         .tf-direct-label {
-          font-family: 'Inter',sans-serif; font-size: clamp(11px, 1vw, 12px);
+          font-family: 'Inter',sans-serif; font-size: 13px;
           color: rgba(255,255,255,0.5);
         }
         .tf-direct-link {
           display: inline-flex; align-items: center; gap: 6px;
-          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.2vw, 13.5px); 
-          font-weight: 600;
-          color: #C4972A; text-decoration: none;
-          transition: color 0.2s;
+          font-family: 'Inter',sans-serif; font-size: 14px; font-weight: 600;
+          color: #C4972A; text-decoration: none; transition: color 0.2s;
         }
         .tf-direct-link:hover { color: #f0c060; }
         .tf-direct-link:focus-visible { outline: 2px solid #C4972A; outline-offset: 2px; border-radius: 4px; }
@@ -1335,98 +1327,56 @@ export default function Training() {
           padding: clamp(24px,5vw,56px) clamp(16px,4vw,52px);
           display: flex; flex-direction: column;
         }
-        .tf-form { display: flex; flex-direction: column; gap: clamp(14px, 2vw, 20px); }
+        .tf-form { display: flex; flex-direction: column; gap: clamp(14px,2vw,20px); }
         .tf-form-intro {
-          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.1vw, 13px); 
-          color: #64748b;
-          line-height: 1.6; padding: clamp(10px, 1.5vw, 12px) clamp(12px, 1.5vw, 14px);
+          font-family: 'Inter',sans-serif; font-size: 13px; color: #64748b;
+          line-height: 1.6; padding: 12px 14px;
           background: rgba(196,151,42,0.06); border-left: 3px solid #C4972A;
           border-radius: 0 8px 8px 0;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
+          word-wrap: break-word; overflow-wrap: break-word;
         }
         .tf-error-banner {
           background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
-          border-radius: 10px; padding: clamp(10px, 1.5vw, 12px) clamp(12px, 1.5vw, 16px);
-          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.1vw, 13px); 
-          font-weight: 500;
+          border-radius: 10px; padding: 12px 16px;
+          font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 500;
         }
-        .tf-row { 
-          display: grid; 
-          grid-template-columns: 1fr 1fr; 
-          gap: clamp(12px, 2vw, 16px); 
+        .tf-row {
+          display: grid; grid-template-columns: 1fr 1fr; gap: clamp(12px,2vw,16px);
         }
-        .tf-field { 
-          display: flex; 
-          flex-direction: column; 
-          gap: 6px; 
-          min-width: 0;
+        .tf-field {
+          display: flex; flex-direction: column; gap: 6px; min-width: 0;
         }
         .tf-label {
-          font-family: 'Inter',sans-serif; 
-          font-size: clamp(11.5px, 1.1vw, 12.5px); 
-          font-weight: 600;
-          color: #0f1d3d; 
-          display: flex; 
-          align-items: center; 
-          gap: 6px;
-          flex-wrap: wrap;
-          word-break: break-word;
+          font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 600;
+          color: #0f1d3d; display: flex; align-items: center; gap: 6px;
+          flex-wrap: wrap; word-break: break-word;
         }
         .tf-optional {
-          font-family: 'Inter',sans-serif; font-size: clamp(9px, 0.9vw, 10px); 
-          font-weight: 400;
+          font-family: 'Inter',sans-serif; font-size: 11px; font-weight: 400;
           color: #94a3b8; background: rgba(0,0,0,0.04);
-          padding: 1px 7px; border-radius: 20px;
-          white-space: nowrap;
+          padding: 1px 7px; border-radius: 20px; white-space: nowrap;
         }
         .tf-input-wrap {
-          display: flex; align-items: center; gap: clamp(8px, 1vw, 10px);
-          background: #f8fafc; border-radius: clamp(10px, 1.2vw, 12px); 
-          padding: 0 clamp(10px, 1.2vw, 14px);
-          transition: border 0.2s, box-shadow 0.2s;
-          min-width: 0;
-          width: 100%;
+          display: flex; align-items: center; gap: 10px;
+          background: #f8fafc; border-radius: 12px; padding: 0 14px;
+          transition: border 0.2s, box-shadow 0.2s; min-width: 0; width: 100%;
         }
-        .tf-input-icon { 
-          color: #94a3b8; 
-          flex-shrink: 0; 
-          min-width: 15px;
-        }
+        .tf-input-icon { color: #94a3b8; flex-shrink: 0; min-width: 15px; }
         .tf-input {
-          flex: 1; 
-          padding: clamp(10px, 1.2vw, 11px) 0; 
-          border: none; 
-          background: transparent;
-          font-family: 'Inter',sans-serif; 
-          font-size: clamp(13px, 1.1vw, 14px); 
-          color: #0f1d3d; 
-          outline: none;
-          min-width: 0;
-          width: 100%;
+          flex: 1; padding: 11px 0; border: none; background: transparent;
+          font-family: 'Inter',sans-serif; font-size: 14px; color: #0f1d3d; outline: none;
+          min-width: 0; width: 100%;
         }
         .tf-input::placeholder { color: #94a3b8; }
         .tf-input:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* Select inside input wrap */
-        .tf-select-wrap { 
-          cursor: pointer; 
-          width: 100%;
-        }
+        .tf-select-wrap { cursor: pointer; width: 100%; }
         .tf-select {
-          flex: 1; 
-          padding: clamp(10px, 1.2vw, 11px) 0; 
-          border: none; 
-          background: transparent;
-          font-family: 'Inter',sans-serif; 
-          font-size: clamp(13px, 1.1vw, 14px); 
-          color: #0f1d3d; 
-          outline: none;
-          cursor: pointer; 
-          min-width: 0;
-          width: 100%;
-          appearance: none; 
-          -webkit-appearance: none;
+          flex: 1; padding: 11px 0; border: none; background: transparent;
+          font-family: 'Inter',sans-serif; font-size: 14px; color: #0f1d3d; outline: none;
+          cursor: pointer; min-width: 0; width: 100%;
+          appearance: none; -webkit-appearance: none;
         }
         .tf-select:disabled { opacity: 0.6; cursor: not-allowed; }
         .tf-select:invalid, .tf-select option[value=""] { color: #94a3b8; }
@@ -1434,74 +1384,40 @@ export default function Training() {
 
         /* Textarea */
         .tf-textarea-wrap {
-          display: flex; align-items: flex-start; gap: clamp(8px, 1vw, 10px);
-          background: #f8fafc; border-radius: clamp(10px, 1.2vw, 12px); 
-          padding: clamp(10px, 1.2vw, 12px) clamp(10px, 1.2vw, 14px);
-          transition: border 0.2s, box-shadow 0.2s;
-          width: 100%;
+          display: flex; align-items: flex-start; gap: 10px;
+          background: #f8fafc; border-radius: 12px; padding: 12px 14px;
+          transition: border 0.2s, box-shadow 0.2s; width: 100%;
         }
-        .tf-textarea-icon { 
-          margin-top: 2px; 
-          flex-shrink: 0;
-          min-width: 15px;
-        }
+        .tf-textarea-icon { margin-top: 2px; flex-shrink: 0; min-width: 15px; }
         .tf-textarea {
-          flex: 1; 
-          border: none; 
-          background: transparent; 
-          resize: vertical;
-          font-family: 'Inter',sans-serif; 
-          font-size: clamp(13px, 1.1vw, 14px); 
-          color: #0f1d3d;
-          outline: none; 
-          line-height: 1.6; 
-          min-height: clamp(80px, 10vh, 100px);
-          width: 100%;
+          flex: 1; border: none; background: transparent; resize: vertical;
+          font-family: 'Inter',sans-serif; font-size: 14px; color: #0f1d3d;
+          outline: none; line-height: 1.6; min-height: 100px; width: 100%;
         }
         .tf-textarea::placeholder { color: #94a3b8; }
         .tf-textarea:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .tf-field-err {
-          font-family: 'Inter',sans-serif; 
-          font-size: clamp(10.5px, 1vw, 11.5px); 
-          font-weight: 500;
-          color: #ef4444; 
-          display: flex; 
-          align-items: center; 
-          gap: 4px;
+          font-family: 'Inter',sans-serif; font-size: 12px; font-weight: 500;
+          color: #ef4444; display: flex; align-items: center; gap: 4px;
           word-wrap: break-word;
         }
         .tf-privacy {
-          font-family: 'Inter',sans-serif; 
-          font-size: clamp(10.5px, 1vw, 11.5px); 
-          color: #94a3b8;
-          line-height: 1.55; 
-          text-align: center;
-          word-wrap: break-word;
-          padding: 0 4px;
+          font-family: 'Inter',sans-serif; font-size: 12px; color: #94a3b8;
+          line-height: 1.55; text-align: center;
+          word-wrap: break-word; padding: 0 4px;
         }
 
         /* Submit button */
         .tf-submit {
-          display: inline-flex; 
-          align-items: center; 
-          justify-content: center; 
-          gap: 8px;
-          padding: clamp(13px, 1.5vw, 14px) clamp(28px, 4vw, 36px); 
-          border-radius: 50px; 
-          border: none; 
-          cursor: pointer;
+          display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+          padding: 14px 36px; border-radius: 50px; border: none; cursor: pointer;
           background: linear-gradient(135deg,#C4972A,#8B6914);
-          color: #0f1d3d; 
-          font-family: 'Inter',sans-serif; 
-          font-weight: 700; 
-          font-size: clamp(13px, 1.2vw, 15px);
+          color: #0f1d3d; font-family: 'Inter',sans-serif; font-weight: 700; font-size: 15px;
           letter-spacing: 0.02em;
           box-shadow: 0 4px 16px rgba(196,151,42,0.3);
           transition: box-shadow 0.2s, opacity 0.2s;
-          align-self: stretch;
-          min-height: clamp(48px, 6vh, 54px);
-          width: 100%;
+          align-self: stretch; min-height: 52px; width: 100%;
         }
         .tf-submit:disabled { opacity: 0.65; cursor: not-allowed; }
         .tf-submit:focus-visible { outline: 2px solid #0f1d3d; outline-offset: 2px; }
@@ -1511,32 +1427,25 @@ export default function Training() {
         /* Success state */
         .tf-success {
           display: flex; flex-direction: column; align-items: center; text-align: center;
-          justify-content: center; padding: clamp(32px, 5vw, 40px) clamp(20px, 4vw, 24px); 
-          flex: 1;
-          gap: 14px;
+          justify-content: center; padding: 40px 24px; flex: 1; gap: 14px;
         }
         .tf-success-icon {
-          width: clamp(60px, 8vw, 72px); height: clamp(60px, 8vw, 72px); 
-          border-radius: 50%;
+          width: 72px; height: 72px; border-radius: 50%;
           background: rgba(196,151,42,0.1); border: 2px solid rgba(196,151,42,0.2);
           display: flex; align-items: center; justify-content: center;
         }
         .tf-success-title {
-          font-family: 'Manrope',sans-serif; font-size: clamp(18px, 2.5vw, 22px); 
-          font-weight: 800;
+          font-family: 'Manrope',sans-serif; font-size: 22px; font-weight: 800;
           color: #0f1d3d; letter-spacing: -0.01em;
         }
         .tf-success-body {
-          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.1vw, 14px); 
-          color: #64748b;
-          line-height: 1.68; max-width: 360px;
-          word-wrap: break-word;
+          font-family: 'Inter',sans-serif; font-size: 14px; color: #64748b;
+          line-height: 1.68; max-width: 360px; word-wrap: break-word;
         }
         .tf-success-reset {
           margin-top: 8px; background: none; border: 1px solid rgba(196,151,42,0.3);
-          color: #C4972A; border-radius: 40px; padding: clamp(6px, 0.8vw, 8px) clamp(18px, 2vw, 22px);
-          font-family: 'Inter',sans-serif; font-size: clamp(12px, 1.1vw, 13px); 
-          font-weight: 600;
+          color: #C4972A; border-radius: 40px; padding: 8px 22px;
+          font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 600;
           cursor: pointer; transition: background 0.2s, color 0.2s;
         }
         .tf-success-reset:hover { background: #C4972A; color: #fff; }
@@ -1549,21 +1458,18 @@ export default function Training() {
           border: 1px solid rgba(0,0,0,0.06); color: #94a3b8;
         }
         .tb-empty h3 { font-family:'Manrope',sans-serif; font-size:18px; color:#0f1d3d; margin:14px 0 6px; }
-        .tb-empty p  { font-family:'Inter',sans-serif; font-size:13px; }
+        .tb-empty p  { font-family:'Inter',sans-serif; font-size:14px; }
 
-        /* ── OPTIMIZED RESPONSIVE FOR MOBILE ── */
+        /* ── RESPONSIVE ── */
         @media (max-width: 960px) {
           .tf-container { grid-template-columns: 1fr; }
           .tf-left { border-radius: 28px 28px 0 0; }
           .tf-direct { padding-top: 20px; }
-          .tf-left .apply-now-btn { align-self: center; width: 100%; justify-content: center; }
-          
+
           .tb-banner-bg { height: 240px; }
           .tb-banner-content { padding: 28px 32px; }
-          .tb-banner-title { font-size: clamp(1.6rem, 3vw, 2.2rem); }
           .tb-banner-icon { width: 44px; height: 44px; }
           .tb-banner-stats { gap: 14px; }
-          .tb-stat-num { font-size: clamp(18px, 1.8vw, 22px); }
         }
 
         @media (max-width: 900px) {
@@ -1574,223 +1480,186 @@ export default function Training() {
           .tb-banner-bg { height: 300px; }
           .tb-banner-content { padding: 24px 20px; }
           .tb-banner-icon { width: 38px; height: 38px; }
-          .tb-banner-title { font-size: clamp(1.4rem, 4vw, 1.8rem); }
-          .tb-banner-subtitle { font-size: clamp(12px, 1.5vw, 13px); margin-bottom: 14px; }
+          .tb-banner-title { font-size: clamp(1.5rem,4vw,1.9rem); }
+          .tb-banner-subtitle { font-size: 13px; margin-bottom: 14px; }
           .tb-banner-stats { gap: 10px; }
-          .tb-stat-num { font-size: clamp(16px, 2.5vw, 20px); }
-          .tb-stat-lbl { font-size: clamp(9px, 1.2vw, 10px); }
-          
-          .tb-toolbar { 
-            position: static; 
-            padding: 10px 12px; 
-            flex-direction: column;
-            align-items: stretch;
+          .tb-stat-num { font-size: clamp(18px,2.5vw,22px); }
+          .tb-stat-lbl { font-size: 11px; }
+
+          .tb-toolbar {
+            position: static; padding: 10px 12px;
+            flex-direction: column; align-items: stretch;
           }
           .tb-search { min-width: unset; }
           .tb-select-wrap { justify-content: center; }
-          
+
           .cat-desc { display: none; }
           .cat-header { padding: 14px 16px; }
           .cat-icon { width: 38px; height: 38px; }
           .cat-title { font-size: 15px; }
-          .cat-count { font-size: 10px; padding: 2px 8px; }
+          .cat-count { font-size: 11px; padding: 2px 8px; }
           .cat-panel { padding: 0 16px 16px; }
-          
+
           .tp-block { padding: 24px 16px; margin-top: 32px; }
-          .tp-title { font-size: 17px; }
+          .tp-title { font-size: 18px; }
           .tp-pills { gap: 6px; }
-          .tp-pill { padding: 6px 14px; font-size: 11px; }
-          
+          .tp-pill { padding: 7px 16px; font-size: 12px; }
+
           .cta-trust { gap: 14px; }
-          .cta-inner { padding: clamp(30px, 4vw, 40px) clamp(20px, 3vw, 28px); }
-          .cta-heading { font-size: clamp(1.4rem, 3vw, 1.8rem); }
-          .cta-sub { font-size: 13px; margin-bottom: 20px; }
+          .cta-inner { padding: clamp(30px,4vw,40px) clamp(20px,3vw,28px); }
+          .cta-heading { font-size: clamp(1.5rem,3vw,1.9rem); }
+          .cta-sub { font-size: 14px; margin-bottom: 20px; }
           .cta-btns { flex-direction: column; align-items: center; }
           .cta-btn-primary, .cta-btn-secondary { width: 100%; justify-content: center; }
-          .cta-trust-item { font-size: 11px; }
-          
+          .cta-trust-item { font-size: 13px; }
+
           .tf-row { grid-template-columns: 1fr; }
-          .tf-left { padding: clamp(24px, 4vw, 40px) clamp(16px, 3vw, 28px); }
-          .tf-right { padding: clamp(20px, 3vw, 32px) clamp(14px, 2.5vw, 24px); }
-          .tf-info-item { flex-direction: row; }
+          .tf-left { padding: clamp(24px,4vw,40px) clamp(16px,3vw,28px); }
+          .tf-right { padding: clamp(20px,3vw,32px) clamp(14px,2.5vw,24px); }
           .tf-section { border-radius: 20px; margin-top: 40px; }
-          .tf-heading { font-size: clamp(1.3rem, 4vw, 1.6rem); }
-          .tf-sub { font-size: clamp(12px, 2.5vw, 13px); }
-          .tf-info-body { font-size: clamp(11px, 2.2vw, 12px); }
-          .tf-form-intro { font-size: clamp(11px, 2.2vw, 12px); padding: 8px 12px; }
         }
 
         @media (max-width: 600px) {
           .tb-banner-bg { height: 260px; }
-          .tb-banner-title { font-size: clamp(1.2rem, 4.5vw, 1.5rem); }
-          .tb-banner-subtitle { font-size: clamp(11px, 2vw, 12px); }
+          .tb-banner-title { font-size: clamp(1.3rem,4.5vw,1.6rem); }
+          .tb-banner-subtitle { font-size: 13px; }
           .tb-banner-stats { gap: 8px; }
-          .tb-stat-num { font-size: clamp(14px, 3vw, 18px); }
-          .tb-stat-lbl { font-size: clamp(8px, 1.5vw, 9px); }
-          
+          .tb-stat-num { font-size: clamp(16px,3vw,20px); }
+          .tb-stat-lbl { font-size: 11px; }
+          .tb-divider { height: 20px; }
+
           .tb-toolbar { padding: 8px 10px; gap: 8px; }
-          .tb-search input { font-size: 13px; padding: 8px 0; }
-          .tb-select-wrap select { font-size: 12px; padding: 8px 4px; }
-          
+          .tb-search input { font-size: 14px; padding: 9px 0; }
+          .tb-select-wrap select { font-size: 13px; padding: 9px 4px; }
+
           .cat-header { padding: 12px 12px; gap: 8px; }
           .cat-header-left { gap: 10px; }
-          .cat-icon { width: 34px; height: 34px; }
-          .cat-title { font-size: 13px; }
-          .cat-count { font-size: 9px; padding: 2px 6px; }
+          .cat-icon { width: 36px; height: 36px; }
+          .cat-title { font-size: 14px; }
+          .cat-count { font-size: 11px; padding: 2px 8px; }
           .cat-panel { padding: 0 12px 12px; }
-          .cat-grid { gap: 6px; padding-top: 10px; }
-          
-          .cc-card-inner { padding: 10px 10px 10px 0; }
-          .cc-bar { width: 3px; height: 28px; margin-right: 10px; }
-          .cc-title { font-size: 11px; }
-          .cc-meta-item { font-size: 10px; gap: 3px; }
-          .cc-enrol { padding: 4px 10px; font-size: 10px; gap: 3px; }
-          .cc-enrol svg { width: 9px; height: 9px; }
-          
-          .tp-block { padding: 20px 12px; }
-          .tp-title { font-size: 15px; }
-          .tp-sub { font-size: 12px; }
-          .tp-pill { padding: 5px 12px; font-size: 10px; }
-          
-          .cta-inner { padding: clamp(24px, 4vw, 32px) clamp(16px, 3vw, 20px); }
-          .cta-heading { font-size: clamp(1.2rem, 3.5vw, 1.5rem); }
-          .cta-sub { font-size: 12px; }
-          .cta-btn-primary, .cta-btn-secondary { font-size: 13px; padding: 11px 20px; }
-          
+          .cat-grid { gap: 8px; padding-top: 12px; }
+
+          .cc-card-inner { padding: 12px 10px 12px 0; }
+          .cc-bar { width: 3px; height: 30px; margin-right: 10px; }
+          .cc-title { font-size: 12px; }
+          .cc-meta-item { font-size: 11px; gap: 3px; }
+          .cc-enrol { padding: 5px 12px; font-size: 11px; gap: 4px; }
+
+          .tp-block { padding: 20px 14px; }
+          .tp-title { font-size: 17px; }
+          .tp-sub { font-size: 13px; }
+          .tp-pill { padding: 6px 14px; font-size: 12px; }
+
+          .cta-inner { padding: clamp(24px,4vw,32px) clamp(16px,3vw,20px); }
+          .cta-heading { font-size: clamp(1.3rem,3.5vw,1.6rem); }
+          .cta-sub { font-size: 13px; }
+          .cta-btn-primary, .cta-btn-secondary { font-size: 14px; padding: 12px 20px; }
+
           .tf-section { margin-top: 32px; border-radius: 16px; }
-          .tf-left { padding: clamp(20px, 3vw, 28px) clamp(14px, 2vw, 20px); }
-          .tf-right { padding: 16px 12px; }
-          .tf-submit { width: 100%; font-size: clamp(12px, 2.8vw, 13px); padding: 12px 20px; min-height: 44px; }
-          .tf-label { font-size: clamp(11px, 2.5vw, 12px); }
-          .tf-input { font-size: clamp(12px, 2.8vw, 13px); }
-          .tf-select { font-size: clamp(12px, 2.8vw, 13px); }
-          .tf-textarea { font-size: clamp(12px, 2.8vw, 13px); }
-          .tf-info-item { flex-direction: row; align-items: flex-start; gap: 8px; }
-          .tf-info-item svg { min-width: 16px; }
-          .tf-info-body { font-size: clamp(10.5px, 2.5vw, 11.5px); }
-          .tf-privacy { font-size: clamp(10px, 2.2vw, 11px); }
-          .tf-success-title { font-size: clamp(16px, 4vw, 18px); }
-          .tf-success-body { font-size: clamp(11px, 2.5vw, 12px); }
-          .tf-field-err { font-size: clamp(10px, 2.2vw, 11px); }
+          .tf-left { padding: clamp(20px,3vw,28px) clamp(14px,2vw,20px); }
+          .tf-right { padding: 18px 14px; }
+          .tf-submit { font-size: 14px; padding: 13px 20px; min-height: 48px; }
+          .tf-sub { font-size: 13px; }
+          .tf-info-heading { font-size: 13px; }
+          .tf-info-body { font-size: 12px; }
+          .tf-form-intro { font-size: 13px; padding: 10px 12px; }
+          .tf-label { font-size: 13px; }
+          .tf-input { font-size: 14px; }
+          .tf-select { font-size: 14px; }
+          .tf-textarea { font-size: 14px; }
+          .tf-privacy { font-size: 12px; }
+          .tf-success-title { font-size: 20px; }
+          .tf-success-body { font-size: 13px; }
+          .tf-field-err { font-size: 12px; }
         }
 
         @media (max-width: 480px) {
-          .tb-banner-bg { height: 220px; }
+          .tb-banner-bg { height: 240px; }
           .tb-banner-content { padding: 18px 16px; }
-          .tb-banner-icon { width: 32px; height: 32px; }
-          .tb-banner-icon svg { width: 18px; height: 18px; }
-          .tb-banner-title { font-size: clamp(1rem, 4vw, 1.3rem); margin-bottom: 4px; }
-          .tb-banner-subtitle { font-size: clamp(10px, 2.2vw, 11px); margin-bottom: 10px; line-height: 1.5; }
-          .tb-banner-stats { gap: 6px; }
-          .tb-stat { gap: 3px; }
-          .tb-stat-num { font-size: clamp(12px, 3vw, 16px); }
-          .tb-stat-lbl { font-size: clamp(7px, 1.5vw, 8px); }
-          .tb-divider { height: 16px; }
-          
-          .tb-toolbar { 
-            padding: 6px 8px; 
-            border-radius: 12px;
-            gap: 6px;
-          }
-          .tb-search { 
-            padding: 0 10px; 
-            border-radius: 8px;
-            min-width: unset;
-          }
-          .tb-search input { 
-            font-size: 12px; 
-            padding: 6px 0; 
-          }
-          .tb-search svg { width: 14px; height: 14px; }
-          .tb-select-wrap { 
-            padding: 0 10px; 
-            border-radius: 8px;
-          }
-          .tb-select-wrap select { 
-            font-size: 11px; 
-            padding: 6px 4px; 
-          }
-          .tb-select-wrap svg { width: 12px; height: 12px; }
-          .tb-count { font-size: 11px; margin-bottom: 12px; }
-          
+          .tb-banner-icon { width: 36px; height: 36px; }
+          .tb-banner-title { font-size: clamp(1.2rem,4.5vw,1.45rem); margin-bottom: 6px; }
+          .tb-banner-subtitle { font-size: 12px; margin-bottom: 12px; line-height: 1.55; }
+          .tb-banner-stats { gap: 8px; }
+          .tb-stat { gap: 4px; }
+          .tb-stat-num { font-size: clamp(14px,3.5vw,18px); }
+          .tb-stat-lbl { font-size: 11px; }
+          .tb-divider { height: 18px; }
+
+          .tb-toolbar { padding: 8px 10px; border-radius: 12px; gap: 6px; }
+          .tb-search { padding: 0 10px; border-radius: 8px; }
+          .tb-search input { font-size: 13px; padding: 8px 0; }
+          .tb-select-wrap { padding: 0 10px; border-radius: 8px; }
+          .tb-select-wrap select { font-size: 13px; padding: 8px 4px; }
+          .tb-count { font-size: 13px; margin-bottom: 12px; }
+
           .cat-block { border-radius: 14px; }
-          .cat-header { padding: 10px 10px; }
+          .cat-header { padding: 12px 12px; }
           .cat-header-left { gap: 8px; }
-          .cat-icon { width: 30px; height: 30px; border-radius: 10px; }
-          .cat-icon svg { width: 16px; height: 16px; }
-          .cat-title { font-size: 12px; }
-          .cat-count { font-size: 8px; padding: 2px 6px; }
+          .cat-icon { width: 32px; height: 32px; border-radius: 10px; }
+          .cat-title { font-size: 13px; }
+          .cat-count { font-size: 11px; padding: 2px 7px; }
           .cat-header-right { gap: 6px; padding-left: 8px; }
-          .cat-header-right svg { width: 14px; height: 14px; }
           .cat-panel { padding: 0 8px 10px; }
-          .cat-grid { gap: 4px; padding-top: 8px; }
-          
+          .cat-grid { gap: 6px; padding-top: 8px; }
+
           .cc-card { border-radius: 10px; }
-          .cc-card-inner { padding: 8px 8px 8px 0; }
-          .cc-bar { width: 3px; height: 24px; margin-right: 8px; }
-          .cc-title { font-size: 10px; margin-bottom: 2px; }
-          .cc-meta { gap: 6px; }
-          .cc-meta-item { font-size: 9px; gap: 2px; }
-          .cc-meta-item svg { width: 9px; height: 9px; }
-          .cc-enrol { padding: 3px 8px; font-size: 9px; gap: 2px; }
-          .cc-enrol svg { width: 8px; height: 8px; }
-          
-          .tp-block { padding: 16px 10px; border-radius: 14px; margin-top: 24px; }
-          .tp-title { font-size: 14px; margin-bottom: 4px; }
-          .tp-sub { font-size: 11px; }
-          .tp-pills { gap: 4px; }
-          .tp-pill { padding: 4px 10px; font-size: 9px; border-radius: 30px; }
-          .tp-footer { font-size: 10px; }
-          
+          .cc-card-inner { padding: 10px 8px 10px 0; }
+          .cc-bar { width: 3px; height: 26px; margin-right: 8px; }
+          .cc-title { font-size: 12px; margin-bottom: 3px; }
+          .cc-meta { gap: 8px; }
+          .cc-meta-item { font-size: 11px; gap: 3px; }
+          .cc-enrol { padding: 4px 10px; font-size: 11px; gap: 3px; }
+
+          .tp-block { padding: 18px 12px; border-radius: 14px; margin-top: 24px; }
+          .tp-title { font-size: 16px; margin-bottom: 6px; }
+          .tp-sub { font-size: 13px; }
+          .tp-pills { gap: 6px; }
+          .tp-pill { padding: 6px 12px; font-size: 12px; border-radius: 30px; }
+          .tp-footer { font-size: 12px; }
+
           .cta-strip { border-radius: 16px; margin-top: 32px; }
-          .cta-inner { padding: clamp(20px, 3vw, 28px) clamp(14px, 2vw, 18px); }
-          .cta-icon { width: 40px; height: 40px; margin-bottom: 12px; }
-          .cta-icon svg { width: 18px; height: 18px; }
-          .cta-heading { font-size: clamp(1rem, 3vw, 1.3rem); margin-bottom: 8px; }
-          .cta-sub { font-size: 11px; margin-bottom: 16px; }
+          .cta-inner { padding: clamp(20px,3vw,28px) clamp(14px,2vw,18px); }
+          .cta-icon { width: 44px; height: 44px; margin-bottom: 12px; }
+          .cta-heading { font-size: clamp(1.1rem,3.5vw,1.35rem); margin-bottom: 8px; }
+          .cta-sub { font-size: 13px; margin-bottom: 16px; }
           .cta-btns { gap: 8px; }
-          .cta-btn-primary, .cta-btn-secondary { font-size: 12px; padding: 10px 16px; }
+          .cta-btn-primary, .cta-btn-secondary { font-size: 13px; padding: 11px 18px; }
           .cta-trust { gap: 10px; padding-top: 14px; }
-          .cta-trust-item { font-size: 10px; gap: 4px; }
-          .cta-trust-item svg { width: 11px; height: 11px; }
-          
+          .cta-trust-item { font-size: 12px; gap: 5px; }
+
           .tf-section { margin-top: 24px; border-radius: 14px; }
-          .tf-left { padding: clamp(16px, 2vw, 24px) clamp(12px, 1.5vw, 16px); }
-          .tf-heading { font-size: clamp(1.1rem, 3.5vw, 1.3rem); margin-bottom: 8px; }
-          .tf-sub { font-size: clamp(11px, 2.2vw, 12px); margin-bottom: 16px; line-height: 1.5; }
-          .tf-info-list { gap: 10px; margin-bottom: 16px; }
-          .tf-info-item { gap: 6px; }
-          .tf-info-item svg { width: 14px; height: 14px; min-width: 14px; }
-          .tf-info-heading { font-size: clamp(11px, 2.2vw, 12px); }
-          .tf-info-body { font-size: clamp(10px, 2vw, 11px); }
+          .tf-left { padding: clamp(16px,2vw,24px) clamp(12px,1.5vw,18px); }
+          .tf-heading { font-size: clamp(1.2rem,4vw,1.4rem); margin-bottom: 10px; }
+          .tf-sub { font-size: 13px; margin-bottom: 16px; line-height: 1.6; }
+          .tf-info-list { gap: 12px; margin-bottom: 18px; }
+          .tf-info-item { gap: 8px; }
+          .tf-info-heading { font-size: 13px; }
+          .tf-info-body { font-size: 12px; }
           .tf-direct { padding-top: 14px; gap: 8px; }
-          .tf-direct-label { font-size: 10px; }
-          .tf-direct-link { font-size: clamp(11px, 2.5vw, 12px); gap: 4px; }
-          .tf-direct-link svg { width: 12px; height: 12px; }
-          
-          .tf-right { padding: 14px 10px; }
-          .tf-form { gap: 12px; }
-          .tf-form-intro { font-size: clamp(10px, 2vw, 11px); padding: 6px 10px; }
+          .tf-direct-label { font-size: 13px; }
+          .tf-direct-link { font-size: 13px; gap: 5px; }
+
+          .tf-right { padding: 16px 12px; }
+          .tf-form { gap: 13px; }
+          .tf-form-intro { font-size: 12px; padding: 8px 12px; }
           .tf-row { gap: 10px; }
-          .tf-field { gap: 4px; }
-          .tf-label { font-size: clamp(10px, 2.2vw, 11px); gap: 4px; }
-          .tf-optional { font-size: 8px; padding: 1px 5px; }
-          .tf-input-wrap { border-radius: 8px; padding: 0 8px; gap: 6px; }
-          .tf-input-icon { width: 12px; height: 12px; min-width: 12px; }
-          .tf-input { font-size: clamp(11px, 2.5vw, 12px); padding: 8px 0; }
-          .tf-select { font-size: clamp(11px, 2.5vw, 12px); padding: 8px 0; }
-          .tf-textarea-wrap { border-radius: 8px; padding: 8px 10px; gap: 6px; }
-          .tf-textarea { font-size: clamp(11px, 2.5vw, 12px); min-height: 60px; }
-          .tf-textarea-icon { width: 12px; height: 12px; min-width: 12px; }
-          .tf-privacy { font-size: clamp(9px, 2vw, 10px); margin: 0; }
-          .tf-submit { font-size: clamp(11px, 2.5vw, 12px); padding: 10px 16px; min-height: 40px; border-radius: 40px; gap: 6px; }
-          .tf-submit svg { width: 14px; height: 14px; }
-          .tf-success { padding: clamp(20px, 3vw, 28px) clamp(14px, 2vw, 18px); gap: 10px; }
-          .tf-success-icon { width: 48px; height: 48px; }
-          .tf-success-icon svg { width: 24px; height: 24px; }
-          .tf-success-title { font-size: clamp(14px, 3.5vw, 16px); }
-          .tf-success-body { font-size: clamp(11px, 2.2vw, 12px); }
-          .tf-success-reset { font-size: clamp(11px, 2.2vw, 12px); padding: 6px 16px; }
+          .tf-field { gap: 5px; }
+          .tf-label { font-size: 12px; gap: 5px; }
+          .tf-optional { font-size: 11px; padding: 1px 6px; }
+          .tf-input-wrap { border-radius: 9px; padding: 0 10px; gap: 8px; }
+          .tf-input { font-size: 13px; padding: 10px 0; }
+          .tf-select { font-size: 13px; padding: 10px 0; }
+          .tf-textarea-wrap { border-radius: 9px; padding: 10px 12px; gap: 8px; }
+          .tf-textarea { font-size: 13px; min-height: 80px; }
+          .tf-privacy { font-size: 11px; margin: 0; }
+          .tf-submit { font-size: 13px; padding: 12px 18px; min-height: 46px; border-radius: 40px; gap: 6px; }
+          .tf-success { padding: clamp(24px,3vw,32px) clamp(14px,2vw,20px); gap: 12px; }
+          .tf-success-icon { width: 56px; height: 56px; }
+          .tf-success-title { font-size: 18px; }
+          .tf-success-body { font-size: 13px; }
+          .tf-success-reset { font-size: 12px; padding: 7px 18px; }
+          .tf-field-err { font-size: 12px; }
         }
       `}</style>
 
