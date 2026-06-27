@@ -541,9 +541,9 @@ function TrainingCTA() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// TRAINING ENQUIRY FORM — Formspree integration
+// TRAINING ENQUIRY FORM — Formspree integration via .env
 // ─────────────────────────────────────────────────────────────────────────────
-const FORMSPREE_ID = import.meta.env.VITE_FORMSPREE_TRAINING_ID || "YOUR_FORMSPREE_ID";
+const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_TRAINING_URL;
 
 const INITIAL_FORM = {
   name:    "",
@@ -621,7 +621,7 @@ function TrainingForm() {
 
     setStatus("submitting");
     try {
-      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      const res = await fetch(FORMSPREE_URL, {
         method:  "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body:    JSON.stringify({

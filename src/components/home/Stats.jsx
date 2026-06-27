@@ -2,15 +2,25 @@ import { useRef, useEffect, useState, useCallback, memo } from "react";
 import { Stethoscope, Building2, Star, Phone } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// EVS Healthcare — Stats Section (Mobile Optimized)
+// EVS Healthcare — Stats Section
 //
-// Animation: Cards slide in alternating left ↔ right, one after another,
-// driven by the existing useSequentialReveal stagger hook.
-//   - Even index (0, 2): slide in from LEFT  → translateX(-80px → 0)
-//   - Odd  index (1, 3): slide in from RIGHT → translateX(+80px → 0)
-//   - Mobile: opacity fade only (no directional shift) for performance
+// SCROLL REVEAL (CSS KEYFRAMES — matches WhyChooseUs.jsx pattern):
 //
-// Fonts: Manrope (headings, counter numbers), Inter (body, labels, descriptions)
+//   @keyframes statsSlide uses a single `--slide-dir` CSS custom property
+//   injected per card so one keyframe rule covers both directions:
+//     --slide-dir: -1  → slides from LEFT  (index 0, 2)
+//     --slide-dir:  1  → slides from RIGHT (index 1, 3)
+//     --slide-dir:  0  → pure fade, no horizontal shift (mobile)
+//
+//   Stagger: provided free by useSequentialReveal — each card's `isVisible`
+//   prop flips 600ms after the previous one (300ms on mobile). When isVisible
+//   flips, the `.stats-card-revealed` class is added and the keyframe fires.
+//   No --delay var needed; the JS stagger IS the stagger.
+//
+//   Performance: only `opacity` + `transform` animated — compositor-only,
+//   zero layout/paint on the main thread. Identical rule to WhyChooseUs.
+//
+//   Existing hover, counter, parallax, icon animations: unchanged.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const isMobile = () => {
@@ -24,11 +34,9 @@ const isMobile = () => {
 
 const mobile = isMobile();
 
-// ── How far cards travel before snapping into place ──────────────────────────
-// Increase this value for a more dramatic sweep; decrease for subtlety.
-const SLIDE_DISTANCE = 80; // px
+const SLIDE_DISTANCE = 80; // px — kept for reference; keyframe uses this value
 
-// ── Hook: IntersectionObserver, fires once ────────────────────────────────
+// ── useInView ─────────────────────────────────────────────────────────────────
 function useInView(threshold = 0.15) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
@@ -50,13 +58,11 @@ function useInView(threshold = 0.15) {
   return [ref, inView];
 }
 
-// ── Hook: Sequential card reveal ─────────────────────────────────────────────
-// Returns the number of cards that should currently be visible.
-// Cards are revealed one after the other with `interval` ms between each.
+// ── useSequentialReveal ───────────────────────────────────────────────────────
 function useSequentialReveal(enabled, total, interval = 600) {
   const [revealed, setRevealed] = useState(0);
   const intervalRef = useRef(null);
-  const timeoutRef = useRef(null);
+  const timeoutRef  = useRef(null);
 
   useEffect(() => {
     if (!enabled) return;
@@ -82,12 +88,12 @@ function useSequentialReveal(enabled, total, interval = 600) {
   return revealed;
 }
 
-// ── Hook: rAF-based counter with easeOutExpo ─────────────────────────────────
+// ── useCounter ────────────────────────────────────────────────────────────────
 function useCounter(target, duration = 2200, enabled = false) {
   const [count, setCount] = useState(0);
-  const [done, setDone] = useState(false);
-  const rafRef = useRef(null);
-  const started = useRef(false);
+  const [done,  setDone]  = useState(false);
+  const rafRef    = useRef(null);
+  const started   = useRef(false);
 
   const prefersReduced =
     typeof window !== "undefined" &&
@@ -105,7 +111,7 @@ function useCounter(target, duration = 2200, enabled = false) {
       return;
     }
 
-    const t0 = performance.now();
+    const t0   = performance.now();
     const tick = (now) => {
       const p = Math.min((now - t0) / animDuration, 1);
       const e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
@@ -123,7 +129,7 @@ function useCounter(target, duration = 2200, enabled = false) {
   return { count, done };
 }
 
-// ── Hook: rAF-throttled scroll parallax (disabled on mobile) ─────────────────
+// ── useScrollParallax ─────────────────────────────────────────────────────────
 function useScrollParallax(speed = 0.3) {
   const sectionRef = useRef(null);
   const [offset, setOffset] = useState(0);
@@ -137,7 +143,7 @@ function useScrollParallax(speed = 0.3) {
       rafRef.current = requestAnimationFrame(() => {
         const el = sectionRef.current;
         if (el) {
-          const rect = el.getBoundingClientRect();
+          const rect   = el.getBoundingClientRect();
           const scrolled = window.innerHeight - rect.top;
           setOffset(scrolled * speed);
         }
@@ -191,12 +197,16 @@ const STATS = [
 
 // ─────────────────────────────────────────────────────────────────────────────
 // StatCard
-//
-// NEW PROP: `fromLeft` (boolean)
-//   true  → hidden state is translateX(-SLIDE_DISTANCE px)  [cards 0, 2]
-//   false → hidden state is translateX(+SLIDE_DISTANCE px)  [cards 1, 3]
-//
-// On mobile: no directional transform — opacity fade only (performance).
+// ─────────────────────────────────────────────────────────────────────────────
+// CSS KEYFRAME REVEAL CHANGES (only):
+//   • Added `className` prop to the root div:
+//       `stats-card` (always) + `stats-card-revealed` (when isVisible)
+//   • Injected `--slide-dir` CSS custom property on the root div style:
+//       -1 = slides from left, +1 = slides from right, 0 = fade only (mobile)
+//   • Removed the inline opacity/transform/transition that drove the
+//     entrance animation (hiddenTranslate / visibleTranslate / cardTransition).
+//     The keyframe now owns the entrance; inline styles still own hover.
+//   • All other markup, hover, counter, icon, separator logic: UNCHANGED.
 // ─────────────────────────────────────────────────────────────────────────────
 function StatCard({ stat, isVisible, index, fromLeft }) {
   const { count, done } = useCounter(stat.value, 2200, isVisible);
@@ -205,16 +215,16 @@ function StatCard({ stat, isVisible, index, fromLeft }) {
 
   const StatIcon = stat.icon;
 
-  const iconSize     = mobile ? 22 : 28;
-  const iconBoxSize  = mobile ? "clamp(44px, 8vw, 54px)" : "clamp(50px, 7vw, 64px)";
-  const fontSize     = mobile ? "clamp(1.5rem, 4vw, 2.2rem)" : "clamp(1.9rem, 3.5vw, 3.4rem)";
-  const padding      = mobile
+  const iconSize    = mobile ? 22 : 28;
+  const iconBoxSize = mobile ? "clamp(44px, 8vw, 54px)" : "clamp(50px, 7vw, 64px)";
+  const fontSize    = mobile ? "clamp(1.5rem, 4vw, 2.2rem)" : "clamp(1.9rem, 3.5vw, 3.4rem)";
+  const padding     = mobile
     ? "clamp(20px, 4vw, 32px) clamp(14px, 3vw, 24px) clamp(18px, 3vw, 28px)"
     : "clamp(28px, 4vw, 44px) clamp(20px, 3vw, 32px) clamp(24px, 3vw, 38px)";
 
   const handleMouseEnter = () => !mobile && setHovered(true);
   const handleMouseLeave = () => !mobile && setHovered(false);
-  const handleMouseMove = useCallback((e) => {
+  const handleMouseMove  = useCallback((e) => {
     if (mobile || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width  * 100).toFixed(1);
@@ -229,60 +239,46 @@ function StatCard({ stat, isVisible, index, fromLeft }) {
       ? "scale(1.08) rotate(2deg)"
       : "scale(1) rotate(0deg)";
 
-  // ── Directional hidden-state transform ──────────────────────────────────
-  // Mobile: pure opacity fade (translateX(0) always) — avoids layout thrash.
-  // Desktop: slide in from the side that matches fromLeft.
-  const hiddenTranslate = mobile
-    ? "translateX(0)"
-    : fromLeft
-      ? `translateX(-${SLIDE_DISTANCE}px)`
-      : `translateX(${SLIDE_DISTANCE}px)`;
-
-  // Visible state: always centred. On hover add the lift.
-  const visibleTranslate =
-    hovered && !mobile ? "translateY(-4px) scale(1.01)" : "translateX(0) scale(1)";
-
-  const cardTransform = isVisible ? visibleTranslate : hiddenTranslate;
-
-  // ── Transition timing ────────────────────────────────────────────────────
-  // When isVisible flips to true: use the entrance easing (long, smooth).
-  // When hovered (isVisible already true): snap to hover state quickly.
-  // Mobile: shorter transition, no spring.
-  const cardTransition = mobile
-    ? "opacity 0.55s ease, transform 0.55s ease"
-    : isVisible && hovered
-      ? "transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease"
-      : `opacity 1.1s cubic-bezier(0.16,1,0.3,1),
-         transform 1.1s cubic-bezier(0.16,1,0.3,1),
-         border-color 0.3s ease,
-         box-shadow 0.3s ease`;
+  // ── --slide-dir CSS custom property ──────────────────────────────────────
+  //   -1 → card starts translateX(-80px) — slides from LEFT
+  //    1 → card starts translateX(+80px) — slides from RIGHT
+  //    0 → no horizontal shift on mobile (pure fade via keyframe)
+  const slideDir = mobile ? 0 : fromLeft ? -1 : 1;
 
   return (
     <div
       ref={cardRef}
+      // ── CSS keyframe reveal ───────────────────────────────────────────────
+      // `stats-card` keeps the card invisible until isVisible fires.
+      // `stats-card-revealed` triggers the @keyframes statsSlide animation.
+      // The keyframe reads --slide-dir to pick the direction automatically.
+      className={`stats-card${isVisible ? " stats-card-revealed" : ""}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}
       style={{
+        // ── CSS var for the directional keyframe ──────────────────────────
+        "--slide-dir": slideDir,
         "--tilt-x": "50%",
         "--tilt-y": "50%",
-        position: "relative",
-        background: "#ffffff",
-        border: `1px solid ${hovered && !mobile ? "rgba(196,151,42,0.45)" : "rgba(0,0,0,0.06)"}`,
+        // ── Static layout & hover styles ──────────────────────────────────
+        // (Entrance opacity/transform is now owned by the keyframe, not here)
+        position:     "relative",
+        background:   "#ffffff",
+        border:       `1px solid ${hovered && !mobile ? "rgba(196,151,42,0.45)" : "rgba(0,0,0,0.06)"}`,
         borderRadius: mobile ? 16 : 20,
         padding,
-        boxShadow:
-          hovered && !mobile
-            ? "0 20px 50px rgba(0,0,0,0.1), 0 4px 15px rgba(196,151,42,0.1)"
-            : "0 2px 12px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)",
-        textAlign: "center",
-        cursor: "default",
-        // ── Core animation values ──
-        opacity:   isVisible ? 1 : 0,
-        transform: cardTransform,
-        transition: cardTransition,
-        willChange: "opacity, transform",
-        overflow: "hidden",
+        boxShadow:    hovered && !mobile
+          ? "0 20px 50px rgba(0,0,0,0.1), 0 4px 15px rgba(196,151,42,0.1)"
+          : "0 2px 12px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)",
+        textAlign:    "center",
+        cursor:       "default",
+        overflow:     "hidden",
+        // Hover lift — only active after the card is fully revealed
+        transform:    hovered && !mobile && isVisible ? "translateY(-4px) scale(1.01)" : undefined,
+        transition:   hovered && !mobile
+          ? "transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease"
+          : "border-color 0.3s ease, box-shadow 0.3s ease",
       }}
       aria-label={`${stat.label}: ${stat.value}${stat.suffix}`}
     >
@@ -459,12 +455,12 @@ function StatCard({ stat, isVisible, index, fromLeft }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Stats Section
+// Stats — root export
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Stats() {
-  const [sectionRef, inView]      = useInView(0.15);
-  const [parallaxRef,  dotOffset] = useScrollParallax(0.18);
-  const [parallaxRef2, orbOffset] = useScrollParallax(0.09);
+  const [sectionRef, inView]       = useInView(0.15);
+  const [parallaxRef,  dotOffset]  = useScrollParallax(0.18);
+  const [parallaxRef2, orbOffset]  = useScrollParallax(0.09);
   const [lineRevealed, setLineRevealed] = useState(false);
 
   const setRefs = useCallback((el) => {
@@ -473,7 +469,6 @@ export default function Stats() {
     parallaxRef2.current = el;
   }, []);
 
-  // Stagger interval: 600ms desktop, 300ms mobile
   const revealedCount = useSequentialReveal(
     inView,
     STATS.length,
@@ -493,6 +488,66 @@ export default function Stats() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        /* ═══════════════════════════════════════════════════════════════════
+           CSS SCROLL REVEAL KEYFRAMES — matches WhyChooseUs.jsx pattern
+           Only opacity + transform animated (compositor-only, zero main thread).
+           animation-fill-mode: both ensures cards stay invisible before play
+           and visible after, preventing any flash of unstyled content.
+
+           SINGLE KEYFRAME — direction driven by --slide-dir CSS custom prop:
+             -1  → translateX(-80px) — LEFT entry
+             +1  → translateX(+80px) — RIGHT entry
+              0  → translateX(0)     — pure fade (mobile, no horizontal shift)
+
+           calc(var(--slide-dir) * 80px) computes to the correct start offset
+           per card with zero extra CSS rules.
+        ═══════════════════════════════════════════════════════════════════ */
+
+        @keyframes statsSlide {
+          from {
+            opacity: 0;
+            transform: translateX(calc(var(--slide-dir, 0) * 80px));
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        /* ── Card base: invisible until .stats-card-revealed is added ────── */
+        .stats-card {
+          opacity: 0;
+          /* No transform here — the keyframe from-state controls the start */
+        }
+
+        /* ── Revealed: fire the directional keyframe ─────────────────────── */
+        /* Duration 0.7s — slightly longer than WhyChooseUs (0.6s) because
+           stat cards are wider/heavier-feeling elements.
+           cubic-bezier(0.16,1,0.3,1) = same spring easing as WhyChooseUs.   */
+        .stats-card.stats-card-revealed {
+          animation: statsSlide 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           ACCESSIBILITY — honour prefers-reduced-motion.
+           Jump straight to final visible state; skip the reveal entirely.
+        ═══════════════════════════════════════════════════════════════════ */
+        @media (prefers-reduced-motion: reduce) {
+          .stats-card,
+          .stats-card.stats-card-revealed {
+            opacity: 1 !important;
+            animation: none !important;
+          }
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           EXISTING KEYFRAMES (unchanged)
+        ═══════════════════════════════════════════════════════════════════ */
 
         @keyframes evsCounterGlow {
           0%   { text-shadow: none; }
@@ -520,6 +575,10 @@ export default function Stats() {
           50%      { box-shadow: 0 0 14px rgba(196,151,42,0.5); }
         }
 
+        /* ═══════════════════════════════════════════════════════════════════
+           LAYOUT (unchanged)
+        ═══════════════════════════════════════════════════════════════════ */
+
         .evs-stats-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
@@ -543,19 +602,19 @@ export default function Stats() {
         @media (hover: none) {
           .evs-counter-glow { animation: none !important; }
         }
-        @media (prefers-reduced-motion: reduce) {
-          *, *::before, *::after {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
       `}</style>
 
       <section
         ref={setRefs}
         className="evs-stats-section"
         aria-label="EVS Healthcare key statistics"
-        style={{ position: "relative", background: "#ffffff", overflow: "hidden" }}
+        style={{
+          position: "relative",
+          background: "#ffffff",
+          // overflow:hidden clips the off-screen translateX start positions,
+          // preventing horizontal scrollbar flash on Android during animation.
+          overflow: "hidden",
+        }}
       >
         {/* Parallax dot grid — desktop only */}
         {!mobile && (
@@ -612,7 +671,7 @@ export default function Stats() {
         {/* Content */}
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto" }}>
 
-          {/* Section header */}
+          {/* Section header — existing inline-transition reveal (unchanged) */}
           <div
             style={{
               textAlign: "center",
@@ -786,12 +845,15 @@ export default function Stats() {
 
           {/* ── Cards grid ────────────────────────────────────────────────────
               fromLeft = index % 2 === 0
-                index 0 → fromLeft=true  → slides from LEFT
-                index 1 → fromLeft=false → slides from RIGHT
-                index 2 → fromLeft=true  → slides from LEFT
-                index 3 → fromLeft=false → slides from RIGHT
-              Each card only becomes visible when revealedCount > index,
-              so the slide-ins fire one after another (600ms apart on desktop).
+                index 0 → fromLeft=true  → --slide-dir: -1 → slides from LEFT
+                index 1 → fromLeft=false → --slide-dir:  1 → slides from RIGHT
+                index 2 → fromLeft=true  → --slide-dir: -1 → slides from LEFT
+                index 3 → fromLeft=false → --slide-dir:  1 → slides from RIGHT
+
+              Stagger timing: useSequentialReveal flips each card's isVisible
+              600ms after the previous (300ms on mobile). When isVisible flips,
+              `stats-card-revealed` is added and the CSS keyframe fires.
+              No JS scroll listener, no rAF loop — just one class toggle.
           ──────────────────────────────────────────────────────────────────── */}
           <div className="evs-stats-grid">
             {STATS.map((s, i) => (
@@ -800,7 +862,7 @@ export default function Stats() {
                 stat={s}
                 isVisible={i < revealedCount}
                 index={i}
-                fromLeft={i % 2 === 0}   // ← the only new prop
+                fromLeft={i % 2 === 0}
               />
             ))}
           </div>

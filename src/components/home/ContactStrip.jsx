@@ -27,6 +27,11 @@ import {
 // Fonts: Manrope (headings), Inter (body, buttons, UI)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Form endpoint — set VITE_FORMSPREE_CONTACT_URL in your .env file.
+// ─────────────────────────────────────────────────────────────────────────────
+const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_CONTACT_URL;
+
 function useReveal(threshold = 0.3) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: threshold });
@@ -364,7 +369,7 @@ function UnifiedContactInfo({ isInView }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Contact Form Component - UPDATED with correct Formspree endpoint
+// Contact Form Component - UPDATED with env-var Formspree endpoint
 // ─────────────────────────────────────────────────────────────────────────────
 function ContactForm() {
   const [formData, setFormData] = useState({
@@ -379,9 +384,6 @@ function ContactForm() {
   const [isHovered, setIsHovered] = useState(false);
   const { isMobile } = useScreenSize();
 
-  // ── UPDATED: Correct Formspree endpoint ──
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xpqeeloy";
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -391,11 +393,16 @@ function ContactForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!FORMSPREE_URL) {
+      setError("Form endpoint not configured. Please contact us directly.");
+      return;
+    }
+    
     setIsSubmitting(true);
     setError(null);
 
     try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
+      const response = await fetch(FORMSPREE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

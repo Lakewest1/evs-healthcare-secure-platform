@@ -72,7 +72,7 @@ const SOCIAL_LINKS = [
   { icon: FaTelegram, label: "Telegram", url: "https://t.me/+447466999218", color: "#26A5E4", username: "+447466999218" },
 ];
 
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/xpqeeloy";
+const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_CONTACT_URL;
 
 const FIELD_LIMITS = { name: 100, email: 150, phone: 20, message: 1000 };
 
@@ -405,7 +405,7 @@ function ContactForm({ isInView }) {
     };
 
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch(FORMSPREE_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(payload),

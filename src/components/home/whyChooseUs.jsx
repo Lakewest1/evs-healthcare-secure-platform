@@ -1,12 +1,32 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom"; // ← Added
+import { useNavigate } from "react-router-dom";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCROLL REVEAL ARCHITECTURE
+// ─────────────────────────────────────────────────────────────────────────────
+// Strategy: Pure CSS keyframes executed on the GPU compositor thread.
+// Only `opacity` and `transform` are animated — zero layout/paint triggers.
+// JS (Framer Motion's existing useInView) only adds a CSS class once.
+// No scroll listeners. No rAF loops. No new dependencies.
+//
+// Card directions per grid column:
+//   Desktop 3-col: nth-child(3n+1)=LEFT · nth-child(3n+2)=UP · nth-child(3n+3)=RIGHT
+//   Tablet  2-col: nth-child(odd)=LEFT  · nth-child(even)=RIGHT
+//   Mobile  1-col: ALL=UP (horizontal slides on a single column cause
+//                  Android scrollbar flash)
+//
+// Stagger: --delay CSS custom property set per card via inline style.
+//   This avoids generating N individual CSS rules for N stagger offsets.
+// ─────────────────────────────────────────────────────────────────────────────
 
 const EASE = {
   smooth: [0.16, 1, 0.3, 1],
   snappy: [0.25, 0.1, 0.25, 1],
 };
 
+// Framer Motion variants — kept only for elements that already used them
+// (HeroBanner, SectionHeader). Cards now use CSS keyframes.
 const fadeUp = (delay = 0) => ({
   hidden: { opacity: 0, y: 24 },
   visible: {
@@ -16,17 +36,8 @@ const fadeUp = (delay = 0) => ({
   },
 });
 
-const cardVariant = (delay = 0) => ({
-  hidden: { opacity: 0, y: 32 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, delay, ease: EASE.smooth },
-  },
-});
-
 const barVariant = {
-  hidden: { scaleX: 0, originX: 0 },
+  hidden:  { scaleX: 0, originX: 0 },
   visible: {
     scaleX: 1,
     originX: 0,
@@ -34,13 +45,12 @@ const barVariant = {
   },
 };
 
-// ─── FIX #9-A: Uniform icon token constants ────────────────────────────────
+// ─── Icon token constants ──────────────────────────────────────────────────
 const ICON_BG     = "#FDF6E3";
 const ICON_BORDER = "rgba(196,151,42,0.18)";
 const ICON_COLOR  = "#8B6914";
 const ICON_SIZE   = 52;
 const ICON_RADIUS = 14;
-// ──────────────────────────────────────────────────────────────────────────
 
 const FEATURES = [
   {
@@ -88,18 +98,22 @@ const FEATURES = [
     accent: "#C4972A",
     accentRgb: "196,151,42",
     img: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=900&q=80",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <line x1="12" y1="1" x2="12" y2="23"/>
-        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-      </svg>
-    ),
+   icon: (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {/* Curved stem: arc from top-right, curving over to left, then down */}
+    <path d="M15.5 6.5a4 4 0 00-7 2.5V18"/>
+    {/* Crossbar through the stem */}
+    <line x1="6" y1="13" x2="14" y2="13"/>
+    {/* Base stroke */}
+    <line x1="6" y1="18" x2="18" y2="18"/>
+  </svg>
+),
   },
   {
     id: 4,
     number: "04",
     title: "NHS Opportunities",
-    desc: "Roles in NHS trusts and leading private healthcare providers Situated in Nort West England.",
+    desc: "Roles in NHS trusts and leading private healthcare providers situated in North West England.",
     stat: "150+",
     statLabel: "NHS partner sites",
     accent: "#C4972A",
@@ -183,87 +197,91 @@ const FEATURES = [
   },
 ];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FeatureCard — CSS keyframe scroll reveal
+// ─────────────────────────────────────────────────────────────────────────────
+// The card starts invisible via the `.wcu-card` base class.
+// When useInView fires, we add `.wcu-revealed` which plays the keyframe.
+// WHICH keyframe plays is controlled purely by CSS nth-child selectors —
+// no JS needs to know the card's column position.
+// ─────────────────────────────────────────────────────────────────────────────
 function FeatureCard({ feature, index }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.15 });
-  const [hovered, setHovered] = useState(false);
+  const ref           = useRef(null);
+  const inView        = useInView(ref, { once: true, amount: 0.12 });
+  const [hovered,  setHovered]  = useState(false);
   const [expanded, setExpanded] = useState(false);
   const isMobileRef = useRef(false);
 
   useEffect(() => {
     const check = () => { isMobileRef.current = window.innerWidth < 768; };
     check();
-    window.addEventListener("resize", check);
+    window.addEventListener("resize", check, { passive: true });
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const onEnter = useCallback(() => { if (!isMobileRef.current) setHovered(true); }, []);
+  const onEnter = useCallback(() => { if (!isMobileRef.current) setHovered(true);  }, []);
   const onLeave = useCallback(() => { if (!isMobileRef.current) setHovered(false); }, []);
-  const onFocus = useCallback(() => { if (!isMobileRef.current) setHovered(true); }, []);
+  const onFocus = useCallback(() => { if (!isMobileRef.current) setHovered(true);  }, []);
   const onBlur  = useCallback(() => { if (!isMobileRef.current) setHovered(false); }, []);
-  const onTap   = useCallback(() => { if (isMobileRef.current) setExpanded(v => !v); }, []);
+  const onTap   = useCallback(() => { if (isMobileRef.current)  setExpanded(v => !v); }, []);
 
-  const variants = cardVariant(index * 0.08);
+  // CSS custom property drives the stagger delay — one rule covers all cards.
+  // Cap at 0.4s so cards deep in the list don't wait too long on slow scroll.
+  const delayS = `${Math.min(index * 0.08, 0.4)}s`;
 
   return (
     <motion.article
       ref={ref}
-      variants={variants}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
+      // ── CSS reveal: class toggled by inView, keyframe does the work ──────
+      className={`wcu-card${inView ? " wcu-revealed" : ""}`}
+      style={{
+        // Stagger injected as a CSS custom property, consumed in @keyframes rule
+        "--wcu-delay": delayS,
+        // ── Hover interaction (kept on inline style — these are dynamic) ──
+        position:    "relative",
+        borderRadius: 20,
+        overflow:    "hidden",
+        background:  "#ffffff",
+        border:      `1px solid ${hovered ? `rgba(${feature.accentRgb},0.28)` : "rgba(0,0,0,0.06)"}`,
+        boxShadow:   hovered
+          ? `0 20px 40px rgba(15,29,61,0.12), 0 4px 12px rgba(15,29,61,0.06)`
+          : `0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)`,
+        transition:  "box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease",
+        cursor:      "pointer",
+        display:     "flex",
+        flexDirection: "column",
+        height:      "100%",
+        transform:   hovered ? "translateY(-4px)" : "translateY(0)",
+      }}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
       onFocus={onFocus}
       onBlur={onBlur}
       onClick={onTap}
       aria-label={feature.title}
-      className="why-choose-card"
-      style={{
-        position: "relative",
-        borderRadius: 20,
-        overflow: "hidden",
-        background: "#ffffff",
-        border: `1px solid ${hovered ? `rgba(${feature.accentRgb},0.28)` : "rgba(0,0,0,0.06)"}`,
-        boxShadow: hovered
-          ? `0 20px 40px rgba(15,29,61,0.12), 0 4px 12px rgba(15,29,61,0.06)`
-          : `0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)`,
-        transition: "box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease",
-        cursor: "pointer",
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        transform: hovered ? "translateY(-4px)" : "translateY(0)",
-      }}
     >
-      {/* Image overlay on hover */}
+      {/* ── Image overlay on hover (Framer Motion — desktop only) ────────── */}
       <motion.div
         aria-hidden="true"
         animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 10 }}
         transition={{ duration: 0.38, ease: EASE.smooth }}
         style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 10,
-          pointerEvents: "none",
-          borderRadius: 20,
-          overflow: "hidden",
+          position: "absolute", inset: 0, zIndex: 10,
+          pointerEvents: "none", borderRadius: 20, overflow: "hidden",
         }}
       >
         <div
           style={{
-            position: "absolute",
-            inset: 0,
+            position: "absolute", inset: 0,
             backgroundImage: `url(${feature.img})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            transform: hovered ? "scale(1)" : "scale(1.04)",
+            backgroundSize: "cover", backgroundPosition: "center",
+            transform:  hovered ? "scale(1)" : "scale(1.04)",
             transition: "transform 0.55s ease",
           }}
         />
         <div
           style={{
-            position: "absolute",
-            inset: 0,
+            position: "absolute", inset: 0,
             background: `linear-gradient(160deg, rgba(${feature.accentRgb},0.88) 0%, rgba(${feature.accentRgb},0.72) 100%)`,
           }}
         />
@@ -271,48 +289,21 @@ function FeatureCard({ feature, index }) {
           animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 10 }}
           transition={{ duration: 0.3, delay: hovered ? 0.06 : 0, ease: EASE.smooth }}
           style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-end",
-            padding: 28,
-            color: "#fff",
+            position: "absolute", inset: 0,
+            display: "flex", flexDirection: "column", justifyContent: "flex-end",
+            padding: 28, color: "#fff",
           }}
         >
-          <div
-            style={{
-              width: ICON_SIZE,
-              height: ICON_SIZE,
-              borderRadius: ICON_RADIUS,
-              background: "rgba(255,255,255,0.18)",
-              backdropFilter: "blur(8px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 16,
-              color: "#fff",
-            }}
-          >
+          <div style={{ width: ICON_SIZE, height: ICON_SIZE, borderRadius: ICON_RADIUS, background: "rgba(255,255,255,0.18)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16, color: "#fff" }}>
             {feature.icon}
           </div>
-          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", marginBottom: 5 }}>
-            EVS Healthcare
-          </div>
-          <h3 style={{ fontFamily: "'Manrope', sans-serif", fontSize: 20, fontWeight: 700, lineHeight: 1.25, marginBottom: 8, color: "#fff" }}>
-            {feature.title}
-          </h3>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.65)", marginBottom: 5 }}>EVS Healthcare</div>
+          <h3 style={{ fontFamily: "'Manrope', sans-serif", fontSize: 20, fontWeight: 700, lineHeight: 1.25, marginBottom: 8, color: "#fff" }}>{feature.title}</h3>
           <div style={{ display: "flex", alignItems: "baseline", gap: 7, marginBottom: 10 }}>
-            <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: "#fff", lineHeight: 1 }}>
-              {feature.stat}
-            </span>
-            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.72)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              {feature.statLabel}
-            </span>
+            <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: "#fff", lineHeight: 1 }}>{feature.stat}</span>
+            <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: "rgba(255,255,255,0.72)", textTransform: "uppercase", letterSpacing: "0.06em" }}>{feature.statLabel}</span>
           </div>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, lineHeight: 1.65, color: "rgba(255,255,255,0.88)", marginBottom: 18 }}>
-            {feature.desc}
-          </p>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, lineHeight: 1.65, color: "rgba(255,255,255,0.88)", marginBottom: 18 }}>{feature.desc}</p>
           <motion.div
             animate={{ width: hovered ? 36 : 0 }}
             transition={{ duration: 0.4, delay: 0.14, ease: EASE.smooth }}
@@ -321,77 +312,26 @@ function FeatureCard({ feature, index }) {
         </motion.div>
       </motion.div>
 
-      {/* Default card face */}
-      <div style={{
-        padding: "24px 24px 20px",
-        display: "flex",
-        flexDirection: "column",
-        flex: 1,
-        position: "relative",
-        zIndex: 2,
-      }}>
+      {/* ── Default card face ─────────────────────────────────────────────── */}
+      <div style={{ padding: "24px 24px 20px", display: "flex", flexDirection: "column", flex: 1, position: "relative", zIndex: 2 }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 18 }}>
-          <div
-            style={{
-              width: ICON_SIZE,
-              height: ICON_SIZE,
-              borderRadius: ICON_RADIUS,
-              background: ICON_BG,
-              border: `1px solid ${ICON_BORDER}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: ICON_COLOR,
-              flexShrink: 0,
-            }}
-          >
+          <div style={{ width: ICON_SIZE, height: ICON_SIZE, borderRadius: ICON_RADIUS, background: ICON_BG, border: `1px solid ${ICON_BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", color: ICON_COLOR, flexShrink: 0 }}>
             {feature.icon}
           </div>
-          <span
-            aria-hidden="true"
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              color: "rgba(15,29,61,0.15)",
-            }}
-          >
+          <span aria-hidden="true" style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", color: "rgba(15,29,61,0.15)" }}>
             {feature.number}
           </span>
         </div>
 
-        <h3 style={{
-          fontFamily: "'Manrope', sans-serif",
-          fontSize: 18,
-          fontWeight: 700,
-          color: "#0f1d3d",
-          marginBottom: 6,
-          lineHeight: 1.3,
-          letterSpacing: "-0.01em",
-        }}>
+        <h3 style={{ fontFamily: "'Manrope', sans-serif", fontSize: 18, fontWeight: 700, color: "#0f1d3d", marginBottom: 6, lineHeight: 1.3, letterSpacing: "-0.01em" }}>
           {feature.title}
         </h3>
 
         <div style={{ display: "flex", alignItems: "baseline", gap: 7, margin: "10px 0 6px" }}>
-          <span style={{
-            fontFamily: "'Manrope', sans-serif",
-            fontSize: 26,
-            fontWeight: 700,
-            letterSpacing: "-0.03em",
-            color: feature.accent,
-            lineHeight: 1,
-          }}>
+          <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.03em", color: feature.accent, lineHeight: 1 }}>
             {feature.stat}
           </span>
-          <span style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 11,
-            fontWeight: 500,
-            color: "#64748b",
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
-          }}>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 500, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em" }}>
             {feature.statLabel}
           </span>
         </div>
@@ -400,25 +340,12 @@ function FeatureCard({ feature, index }) {
           variants={barVariant}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          style={{
-            height: 2,
-            width: 52,
-            background: `linear-gradient(90deg, ${feature.accent}, rgba(${feature.accentRgb},0.15))`,
-            borderRadius: 999,
-            marginBottom: 14,
-          }}
+          style={{ height: 2, width: 52, background: `linear-gradient(90deg, ${feature.accent}, rgba(${feature.accentRgb},0.15))`, borderRadius: 999, marginBottom: 14 }}
         />
 
         <div style={{ height: 1, background: "rgba(15,29,61,0.06)", marginBottom: 14 }} />
 
-        <p style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 13.5,
-          fontWeight: 400,
-          color: "#4a5568",
-          lineHeight: 1.65,
-          flex: 1,
-        }}>
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 13.5, fontWeight: 400, color: "#4a5568", lineHeight: 1.65, flex: 1 }}>
           {feature.desc}
         </p>
 
@@ -426,29 +353,10 @@ function FeatureCard({ feature, index }) {
           onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
           aria-expanded={expanded}
           className="evs-expand-btn"
-          style={{
-            display: "none",
-            alignItems: "center",
-            gap: 5,
-            marginTop: 14,
-            background: "none",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-            color: feature.accent,
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 12,
-            fontWeight: 600,
-          }}
+          style={{ display: "none", alignItems: "center", gap: 5, marginTop: 14, background: "none", border: "none", padding: 0, cursor: "pointer", color: feature.accent, fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 600 }}
         >
           <span>{expanded ? "Show less" : "Read more"}</span>
-          <svg
-            width="13" height="13" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" strokeWidth="2.5"
-            strokeLinecap="round"
-            style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s ease" }}
-            aria-hidden="true"
-          >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.25s ease" }} aria-hidden="true">
             <path d="M6 9l6 6 6-6"/>
           </svg>
         </button>
@@ -457,8 +365,11 @@ function FeatureCard({ feature, index }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// HeroBanner — unchanged Framer Motion (already animates correctly)
+// ─────────────────────────────────────────────────────────────────────────────
 function HeroBanner() {
-  const ref = useRef(null);
+  const ref    = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
 
   return (
@@ -467,28 +378,13 @@ function HeroBanner() {
       variants={fadeUp(0)}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
-      style={{
-        position: "relative",
-        width: "100%",
-        borderRadius: 24,
-        overflow: "hidden",
-        marginBottom: 64,
-        boxShadow: "0 20px 40px -12px rgba(15,29,61,0.15)",
-        aspectRatio: "21 / 7",
-        minHeight: 220,
-      }}
+      style={{ position: "relative", width: "100%", borderRadius: 24, overflow: "hidden", marginBottom: 64, boxShadow: "0 20px 40px -12px rgba(15,29,61,0.15)", aspectRatio: "21 / 7", minHeight: 220 }}
     >
       <motion.div
         initial={{ scale: 1.06 }}
         animate={inView ? { scale: 1 } : {}}
         transition={{ duration: 1.2, ease: EASE.smooth }}
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: "url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1600&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        style={{ position: "absolute", inset: 0, backgroundImage: "url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1600&q=80')", backgroundSize: "cover", backgroundPosition: "center" }}
       />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,29,61,0.88) 0%, rgba(15,29,61,0.60) 100%)" }} />
       <div aria-hidden="true" style={{ position: "absolute", left: 0, top: "15%", bottom: "15%", width: 4, background: "linear-gradient(180deg, transparent, #C4972A, transparent)", borderRadius: "0 4px 4px 0" }} />
@@ -519,8 +415,11 @@ function HeroBanner() {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SectionHeader — unchanged Framer Motion
+// ─────────────────────────────────────────────────────────────────────────────
 function SectionHeader() {
-  const ref = useRef(null);
+  const ref    = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
 
   return (
@@ -532,9 +431,7 @@ function SectionHeader() {
         style={{ display: "inline-flex", alignItems: "center", gap: 12, marginBottom: 18 }}
       >
         <motion.div initial={{ scaleX: 0, originX: 0 }} animate={inView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay: 0.2, ease: EASE.smooth }} style={{ width: 32, height: 2, background: "#C4972A", borderRadius: 999 }} />
-        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", color: "#C4972A" }}>
-          Why Choose Us
-        </span>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", color: "#C4972A" }}>Why Choose Us</span>
         <motion.div initial={{ scaleX: 0, originX: 1 }} animate={inView ? { scaleX: 1 } : {}} transition={{ duration: 0.6, delay: 0.2, ease: EASE.smooth }} style={{ width: 32, height: 2, background: "#C4972A", borderRadius: 999 }} />
       </motion.div>
 
@@ -570,14 +467,16 @@ function SectionHeader() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UPDATED: CtaStrip with useNavigate
+// CtaStrip — left/right split CSS reveals
+// ─────────────────────────────────────────────────────────────────────────────
+// The single fadeUp wrapper is replaced with two CSS-revealed children so
+// the text panel slides in from the left and the buttons from the right.
 // ─────────────────────────────────────────────────────────────────────────────
 function CtaStrip() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, amount: 0.4 });
-  const navigate = useNavigate(); // ← Added
+  const ref    = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.35 });
+  const navigate = useNavigate();
 
-  // ── Navigate to Jobs Page ──
   const goToJobs = (e) => {
     e.preventDefault();
     navigate("/jobs");
@@ -585,15 +484,24 @@ function CtaStrip() {
   };
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      variants={fadeUp(0)}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      style={{ marginTop: 64, borderRadius: 24, background: "linear-gradient(135deg, #0f1d3d 0%, #1a2a50 100%)", padding: "clamp(36px, 5vw, 52px) clamp(28px, 5vw, 52px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 28, flexWrap: "wrap", position: "relative", overflow: "hidden" }}
+      style={{
+        marginTop: 64, borderRadius: 24,
+        background: "linear-gradient(135deg, #0f1d3d 0%, #1a2a50 100%)",
+        padding: "clamp(36px, 5vw, 52px) clamp(28px, 5vw, 52px)",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        gap: 28, flexWrap: "wrap", position: "relative", overflow: "hidden",
+      }}
     >
+      {/* Decorative circle */}
       <div aria-hidden="true" style={{ position: "absolute", top: -60, right: -60, width: 240, height: 240, borderRadius: "50%", border: "36px solid rgba(196,151,42,0.07)", pointerEvents: "none" }} />
-      <div style={{ position: "relative", zIndex: 1 }}>
+
+      {/* Left text — slides in from the left */}
+      <div
+        className={`wcu-cta-left${inView ? " wcu-revealed" : ""}`}
+        style={{ position: "relative", zIndex: 1 }}
+      >
         <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#C4972A", marginBottom: 8 }}>
           Ready to get started?
         </div>
@@ -601,57 +509,28 @@ function CtaStrip() {
           Join hundreds of healthcare<br />professionals placed by EVS.
         </h3>
       </div>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", position: "relative", zIndex: 1 }}>
-        {/* ── UPDATED: Apply Now button with navigate ── */}
+
+      {/* Right buttons — slides in from the right */}
+      <div
+        className={`wcu-cta-right${inView ? " wcu-revealed" : ""}`}
+        style={{ display: "flex", gap: 12, flexWrap: "wrap", position: "relative", zIndex: 1 }}
+      >
         <motion.a
           href="/jobs"
           whileHover={{ scale: 1.04, boxShadow: "0 10px 28px rgba(196,151,42,0.45)" }}
           whileTap={{ scale: 0.97 }}
           onClick={goToJobs}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            background: "linear-gradient(135deg, #C4972A, #8B6914)",
-            color: "#0f1d3d",
-            padding: "13px 30px",
-            borderRadius: 50,
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 700,
-            fontSize: 14,
-            textDecoration: "none",
-            letterSpacing: "0.03em",
-            boxShadow: "0 4px 16px rgba(196,151,42,0.3)",
-            whiteSpace: "nowrap",
-            cursor: "pointer",
-          }}
+          style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "linear-gradient(135deg, #C4972A, #8B6914)", color: "#0f1d3d", padding: "13px 30px", borderRadius: 50, fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 14, textDecoration: "none", letterSpacing: "0.03em", boxShadow: "0 4px 16px rgba(196,151,42,0.3)", whiteSpace: "nowrap", cursor: "pointer" }}
         >
           Apply Now
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </motion.a>
 
         <motion.a
           href="tel:+441772379989"
           whileHover={{ scale: 1.03, background: "rgba(255,255,255,0.13)" }}
           whileTap={{ scale: 0.97 }}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            background: "rgba(255,255,255,0.08)",
-            color: "#ffffff",
-            padding: "13px 26px",
-            borderRadius: 50,
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 600,
-            fontSize: 14,
-            textDecoration: "none",
-            letterSpacing: "0.02em",
-            border: "1px solid rgba(255,255,255,0.15)",
-            whiteSpace: "nowrap",
-          }}
+          style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.08)", color: "#ffffff", padding: "13px 26px", borderRadius: 50, fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 14, textDecoration: "none", letterSpacing: "0.02em", border: "1px solid rgba(255,255,255,0.15)", whiteSpace: "nowrap" }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .12h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
@@ -659,20 +538,23 @@ function CtaStrip() {
           01772288307
         </motion.a>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// HorizontalScroll — unchanged
+// ─────────────────────────────────────────────────────────────────────────────
 function HorizontalScroll({ children }) {
   const containerRef = useRef(null);
   const [isMobileView, setIsMobileView] = useState(false);
-  const [showLeft, setShowLeft] = useState(false);
+  const [showLeft,  setShowLeft]  = useState(false);
   const [showRight, setShowRight] = useState(true);
 
   useEffect(() => {
     const check = () => setIsMobileView(window.innerWidth < 768);
     check();
-    window.addEventListener("resize", check);
+    window.addEventListener("resize", check, { passive: true });
     return () => window.removeEventListener("resize", check);
   }, []);
 
@@ -729,28 +611,161 @@ function HorizontalScroll({ children }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// WhyChooseUs — root export
+// ─────────────────────────────────────────────────────────────────────────────
 export default function WhyChooseUs() {
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Manrope:wght@400;500;600;700;800&display=swap');
 
-        *, *::before, *::after {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           CSS SCROLL REVEAL KEYFRAMES
+           Only opacity + transform are animated.
+           Both are compositor-only — zero layout/paint on main thread.
+           animation-fill-mode: both keeps elements invisible until they
+           play, then keeps them visible after — prevents FOUC.
+        ═══════════════════════════════════════════════════════════════════ */
+
+        @keyframes wcuSlideLeft {
+          from { opacity: 0; transform: translateX(-44px); }
+          to   { opacity: 1; transform: translateX(0); }
         }
 
+        @keyframes wcuSlideRight {
+          from { opacity: 0; transform: translateX(44px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes wcuFadeUp {
+          from { opacity: 0; transform: translateY(28px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Card base: hidden until .wcu-revealed is added by inView ────── */
+        .wcu-card {
+          opacity: 0;
+          /* No transform here — the keyframe sets the start state */
+        }
+
+        /* ── Revealed: play the right keyframe based on column position ─────
+           Desktop 3-column grid:
+             nth-child(3n+1) = col 1 → slide from LEFT
+             nth-child(3n+2) = col 2 → fade UP
+             nth-child(3n+3) = col 3 → slide from RIGHT
+
+           The animation-delay is driven by --wcu-delay CSS custom property
+           injected per card via inline style. One rule covers all 8 stagger
+           values — no N-class explosion.
+
+           animation-duration: 0.6s — fast enough to feel snappy, long enough
+           to feel intentional. Slower than 0.8s feels sluggish on mobile.
+        ─────────────────────────────────────────────────────────────────── */
+
+        /* Desktop 3-col */
+        .evs-why-grid .wcu-card.wcu-revealed:nth-child(3n+1) {
+          animation: wcuSlideLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1)
+                     var(--wcu-delay, 0s) both;
+        }
+        .evs-why-grid .wcu-card.wcu-revealed:nth-child(3n+2) {
+          animation: wcuFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)
+                     var(--wcu-delay, 0s) both;
+        }
+        .evs-why-grid .wcu-card.wcu-revealed:nth-child(3n+3) {
+          animation: wcuSlideRight 0.6s cubic-bezier(0.16, 1, 0.3, 1)
+                     var(--wcu-delay, 0s) both;
+        }
+
+        /* ── CTA Strip left/right ─────────────────────────────────────────── */
+        .wcu-cta-left {
+          opacity: 0;
+        }
+        .wcu-cta-left.wcu-revealed {
+          animation: wcuSlideLeft 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0s both;
+        }
+
+        .wcu-cta-right {
+          opacity: 0;
+        }
+        .wcu-cta-right.wcu-revealed {
+          animation: wcuSlideRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           TABLET — 2-column grid (≤1050px ≥768px)
+           Column directions change: odd=LEFT, even=RIGHT
+           Override the nth-child(3n) rules above.
+        ═══════════════════════════════════════════════════════════════════ */
+        @media (max-width: 1050px) and (min-width: 768px) {
+          .evs-why-grid .wcu-card.wcu-revealed:nth-child(3n+1),
+          .evs-why-grid .wcu-card.wcu-revealed:nth-child(3n+2),
+          .evs-why-grid .wcu-card.wcu-revealed:nth-child(3n+3) {
+            animation: none; /* reset */
+          }
+          /* Re-apply with 2-col logic */
+          .evs-why-grid .wcu-card.wcu-revealed:nth-child(odd) {
+            animation: wcuSlideLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1)
+                       var(--wcu-delay, 0s) both;
+          }
+          .evs-why-grid .wcu-card.wcu-revealed:nth-child(even) {
+            animation: wcuSlideRight 0.6s cubic-bezier(0.16, 1, 0.3, 1)
+                       var(--wcu-delay, 0s) both;
+          }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           MOBILE — single-column horizontal scroll carousel (< 768px)
+           No left/right slides: translateX on a single column causes
+           Android to flash a horizontal scrollbar. All cards fade up.
+           Horizontal scroll cards use .evs-why-hscroll parent, NOT .evs-why-grid,
+           so the .evs-why-grid selectors don't apply anyway — but we add
+           an explicit fade-up for the wcu-card wrapper inside the carousel.
+        ═══════════════════════════════════════════════════════════════════ */
+        @media (max-width: 767px) {
+          /* Cards in the horizontal scroll carousel */
+          .wcu-card.wcu-revealed {
+            animation: wcuFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)
+                       var(--wcu-delay, 0s) both;
+          }
+          /* CTA strip: stack, both panels fade-up (no horizontal clips) */
+          .wcu-cta-left.wcu-revealed,
+          .wcu-cta-right.wcu-revealed {
+            animation: wcuFadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0s both;
+          }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           ACCESSIBILITY — honour prefers-reduced-motion.
+           Skip ALL animations; elements jump straight to final visible state.
+        ═══════════════════════════════════════════════════════════════════ */
         @media (prefers-reduced-motion: reduce) {
+          .wcu-card,
+          .wcu-cta-left,
+          .wcu-cta-right {
+            opacity: 1 !important;
+            animation: none !important;
+            transition-duration: 0.01ms !important;
+          }
+          /* Also covers Framer Motion transitions inside cards */
           *, *::before, *::after {
             animation-duration: 0.01ms !important;
             transition-duration: 0.01ms !important;
           }
         }
 
+        /* ═══════════════════════════════════════════════════════════════════
+           LAYOUT
+        ═══════════════════════════════════════════════════════════════════ */
+
         .evs-why-section {
           padding: 72px 5% 88px;
           background: #ffffff;
+          /* Clip the off-screen translateX start positions to prevent
+             horizontal scrollbar flash during animation on any browser */
+          overflow-x: hidden;
         }
 
         .evs-why-grid {
@@ -772,17 +787,13 @@ export default function WhyChooseUs() {
         }
 
         @media (max-width: 767px) {
-          .evs-why-section {
-            padding: 52px 5% 68px;
-          }
-          .evs-expand-btn {
-            display: flex !important;
-          }
+          .evs-why-section { padding: 52px 5% 68px; }
+          .evs-expand-btn  { display: flex !important; }
         }
 
-        .evs-why-hscroll::-webkit-scrollbar { height: 3px; }
-        .evs-why-hscroll::-webkit-scrollbar-track { background: rgba(196,151,42,0.08); border-radius: 3px; }
-        .evs-why-hscroll::-webkit-scrollbar-thumb { background: #C4972A; border-radius: 3px; }
+        .evs-why-hscroll::-webkit-scrollbar        { height: 3px; }
+        .evs-why-hscroll::-webkit-scrollbar-track  { background: rgba(196,151,42,0.08); border-radius: 3px; }
+        .evs-why-hscroll::-webkit-scrollbar-thumb  { background: #C4972A; border-radius: 3px; }
       `}</style>
 
       <section className="evs-why-section" aria-labelledby="why-evs-heading" id="why">

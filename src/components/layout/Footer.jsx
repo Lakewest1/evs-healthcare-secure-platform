@@ -44,8 +44,8 @@ export default function Footer() {
   const [currentYear] = useState(new Date().getFullYear());
   const [isMobile, setIsMobile] = useState(false);
 
-  // Formspree endpoint - Replace with your own endpoint ID
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xqapvgwk";
+  // Formspree endpoint - set VITE_FORMSPREE_NEWSLETTER_URL in your .env file
+  const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_NEWSLETTER_URL;
 
   // Check mobile screen size
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function Footer() {
     setError(null);
 
     try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
+      const response = await fetch(FORMSPREE_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
