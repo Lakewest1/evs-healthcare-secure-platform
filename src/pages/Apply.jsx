@@ -33,11 +33,11 @@ import {
 // ── Cloudinary Configuration (from .env) ──
 // These are safe to expose in the browser (public keys/presets)
 const CLOUDINARY_CONFIG = {
-  CLOUD_NAME: import.meta.env.CLOUDINARY_CLOUD_NAME,
-  UPLOAD_PRESET: import.meta.env.CLOUDINARY_UPLOAD_PRESET,
+  CLOUD_NAME: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
+  UPLOAD_PRESET: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
 };
 
-const ADMIN_EMAIL = import.meta.env.ADMIN_EMAIL;
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 if (!ADMIN_EMAIL && import.meta.env.DEV) {
   console.error("ADMIN_EMAIL is not set. Submissions will fail until this is configured.");
