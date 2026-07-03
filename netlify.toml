@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "npx vite build"
   publish = "dist"
 
 [build.environment]
@@ -22,9 +22,8 @@
   status = 301
   force = true
 
-# ✅ FIXED: This rule only applies to paths that aren't real files
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false  # ← This prevents the loop
+  force = false
