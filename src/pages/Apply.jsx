@@ -293,94 +293,104 @@ export default function Apply() {
   };
 
   // ── Cloudinary Upload Widget ──
-  const openUploadWidget = () => {
-    if (!window.cloudinary) {
-      setError("Upload widget is loading. Please try again in a moment.");
-      const script = document.createElement('script');
-      script.src = 'https://upload-widget.cloudinary.com/global/all.js';
-      script.async = true;
-      script.onload = () => {
-        setTimeout(openUploadWidget, 500);
-      };
-      document.body.appendChild(script);
-      return;
+const openUploadWidget = () => {
+  // Wait for Cloudinary to be available
+  if (!window.cloudinary) {
+    setError("Upload widget is loading. Please try again in a moment.");
+    
+    // Force reload the script if it's missing
+    const existingScript = document.getElementById('cloudinary-widget-script');
+    if (existingScript) {
+      existingScript.remove();
     }
+    
+    const script = document.createElement('script');
+    script.id = 'cloudinary-widget-script';
+    script.src = 'https://upload-widget.cloudinary.com/global/all.js';
+    script.async = true;
+    script.onload = () => {
+      // Retry after script loads
+      setTimeout(openUploadWidget, 500);
+    };
+    document.body.appendChild(script);
+    return;
+  }
 
-    if (!CLOUDINARY_CONFIG.CLOUD_NAME || !CLOUDINARY_CONFIG.UPLOAD_PRESET) {
-      setError("Upload is temporarily unavailable. Please try again later.");
-      return;
-    }
+  if (!CLOUDINARY_CONFIG.CLOUD_NAME || !CLOUDINARY_CONFIG.UPLOAD_PRESET) {
+    setError("Upload is temporarily unavailable. Please try again later.");
+    return;
+  }
 
-    setIsUploading(true);
-    setError(null);
+  setIsUploading(true);
+  setError(null);
 
-    try {
-      const widget = window.cloudinary.createUploadWidget(
-        {
-          cloudName: CLOUDINARY_CONFIG.CLOUD_NAME,
-          uploadPreset: CLOUDINARY_CONFIG.UPLOAD_PRESET,
-          sources: ['local', 'camera', 'url', 'google_drive', 'dropbox'],
-          multiple: false,
-          clientAllowedFormats: ['pdf', 'doc', 'docx', 'txt', 'rtf'],
-          maxFileSize: 5000000,
-          showAdvancedOptions: false,
-          cropping: false,
-          styles: {
-            palette: {
-              window: "#FFFFFF",
-              windowBorder: "#C4972A",
-              tabIcon: "#C4972A",
-              menuIcons: "#C4972A",
-              textDark: "#0f1d3d",
-              textLight: "#64748b",
-              link: "#C4972A",
-              action: "#C4972A",
-              inactiveTabIcon: "#e2e8f0",
-              error: "#F44235",
-              inProgress: "#C4972A",
-              complete: "#20B832",
-              sourceBg: "#f8fafc",
-            },
-            fonts: {
-              default: {
-                active: true,
-              },
+  try {
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: CLOUDINARY_CONFIG.CLOUD_NAME,
+        uploadPreset: CLOUDINARY_CONFIG.UPLOAD_PRESET,
+        sources: ['local', 'camera', 'url', 'google_drive', 'dropbox'],
+        multiple: false,
+        clientAllowedFormats: ['pdf', 'doc', 'docx', 'txt', 'rtf'],
+        maxFileSize: 5000000,
+        showAdvancedOptions: false,
+        cropping: false,
+        styles: {
+          palette: {
+            window: "#FFFFFF",
+            windowBorder: "#C4972A",
+            tabIcon: "#C4972A",
+            menuIcons: "#C4972A",
+            textDark: "#0f1d3d",
+            textLight: "#64748b",
+            link: "#C4972A",
+            action: "#C4972A",
+            inactiveTabIcon: "#e2e8f0",
+            error: "#F44235",
+            inProgress: "#C4972A",
+            complete: "#20B832",
+            sourceBg: "#f8fafc",
+          },
+          fonts: {
+            default: {
+              active: true,
             },
           },
         },
-        (widgetError, result) => {
-          setIsUploading(false);
+      },
+      (widgetError, result) => {
+        setIsUploading(false);
 
-          if (widgetError) {
-            setError("Failed to upload CV. Please try again.");
+        if (widgetError) {
+          setError("Failed to upload CV. Please try again.");
+          return;
+        }
+
+        if (result && result.event === 'success') {
+          const allowed = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+          const format = (result.info.format || '').toLowerCase();
+          if (format && !allowed.includes(format)) {
+            setError("That file type isn't supported. Please upload a PDF or Word document.");
             return;
           }
 
-          if (result && result.event === 'success') {
-            const allowed = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
-            const format = (result.info.format || '').toLowerCase();
-            if (format && !allowed.includes(format)) {
-              setError("That file type isn't supported. Please upload a PDF or Word document.");
-              return;
-            }
-
-            const fileData = {
-              url: result.info.secure_url,
-              filename: sanitizeInput(result.info.original_filename, 150),
-              public_id: result.info.public_id,
-            };
-            setCvData(fileData);
-            setCvPreview(fileData.filename);
-            setError(null);
-          }
+          const fileData = {
+            url: result.info.secure_url,
+            filename: sanitizeInput(result.info.original_filename, 150),
+            public_id: result.info.public_id,
+          };
+          setCvData(fileData);
+          setCvPreview(fileData.filename);
+          setError(null);
         }
-      );
-      widget.open();
-    } catch (err) {
-      setIsUploading(false);
-      setError("Failed to open upload widget. Please try again.");
-    }
-  };
+      }
+    );
+    widget.open();
+  } catch (err) {
+    setIsUploading(false);
+    setError("Failed to open upload widget. Please try again.");
+  }
+};
 
   const removeCV = () => {
     setCvData(null);
