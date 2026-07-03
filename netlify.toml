@@ -2,11 +2,13 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  NODE_ENV = "production"
+  GENERATE_SOURCEMAP = "false"
+
 [dev]
-  # This is the port where Netlify Dev will run its proxy server
   port = 8888
-  # This is the port where your Vite dev server runs
-  targetPort = 5174
+  targetPort = 5173
 
 [[redirects]]
   from = "https://evshealthcare.co.uk/*"
@@ -20,7 +22,9 @@
   status = 301
   force = true
 
+# ✅ FIXED: This rule only applies to paths that aren't real files
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false  # ← This prevents the loop
