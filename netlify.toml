@@ -6,10 +6,6 @@
   NODE_ENV = "production"
   GENERATE_SOURCEMAP = "false"
 
-[dev]
-  port = 8888
-  targetPort = 5173
-
 [[redirects]]
   from = "https://evshealthcare.co.uk/*"
   to = "https://www.evshealthcare.co.uk/:splat"
@@ -20,10 +16,4 @@
   from = "http://evshealthcare.co.uk/*"
   to = "https://www.evshealthcare.co.uk/:splat"
   status = 301
-  force = true
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
   force = true
