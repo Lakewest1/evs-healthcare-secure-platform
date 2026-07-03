@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
-import emailjs from '@emailjs/browser';
 import {
   ArrowLeft,
   Send,
@@ -26,31 +25,25 @@ import {
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// EVS Healthcare — Job Application Page (FREE with EmailJS)
-// Features: CV upload to Cloudinary, email notifications, auto-reply via linked template
+// EVS Healthcare — Job Application Page (FREE with EmailJS via Netlify Function)
+// Architecture: React Frontend → Netlify Function → EmailJS API
+// Keys are stored securely on the server, never exposed to the browser.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// ── EmailJS Configuration (from .env) ──
-const EMAILJS_CONFIG = {
-  SERVICE_ID: import.meta.env.VITE_EMAILJS_SERVICE_ID,
-  TEMPLATE_ID: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-  PUBLIC_KEY: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-};
-
 // ── Cloudinary Configuration (from .env) ──
+// These are safe to expose in the browser (public keys/presets)
 const CLOUDINARY_CONFIG = {
-  CLOUD_NAME: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
-  UPLOAD_PRESET: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
+  CLOUD_NAME: import.meta.env.CLOUDINARY_CLOUD_NAME,
+  UPLOAD_PRESET: import.meta.env.CLOUDINARY_UPLOAD_PRESET,
 };
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+const ADMIN_EMAIL = import.meta.env.ADMIN_EMAIL;
 
 if (!ADMIN_EMAIL && import.meta.env.DEV) {
-  console.error("VITE_ADMIN_EMAIL is not set. Submissions will fail until this is configured.");
+  console.error("ADMIN_EMAIL is not set. Submissions will fail until this is configured.");
 }
 
 if (import.meta.env.DEV) {
-  console.log("[dev] EmailJS service configured:", Boolean(EMAILJS_CONFIG.SERVICE_ID));
   console.log("[dev] Cloudinary cloud configured:", Boolean(CLOUDINARY_CONFIG.CLOUD_NAME));
 }
 
@@ -179,23 +172,6 @@ export default function Apply() {
   // ── Rate limiting ──
   const lastSubmitRef = useRef(0);
   const SUBMIT_COOLDOWN_MS = 15000;
-
-  // ── Initialize EmailJS ──
-  useEffect(() => {
-    if (!EMAILJS_CONFIG.PUBLIC_KEY) {
-      if (import.meta.env.DEV) {
-        console.error("EmailJS Public Key is missing. Check your .env file.");
-      }
-      return;
-    }
-    try {
-      emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
-    } catch (err) {
-      if (import.meta.env.DEV) {
-        console.error("Failed to initialize EmailJS:", err);
-      }
-    }
-  }, []);
 
   // ── Load Cloudinary Widget Script ──
   useEffect(() => {
@@ -411,12 +387,12 @@ export default function Apply() {
     setCvPreview(null);
   };
 
-  // ── Send Email using EmailJS ──
+  // ── Send Email via Netlify Function (SECURE) ──
+  // All EmailJS keys are stored on the server in Netlify environment variables.
+  // This function sends the form data to your Netlify Function, which then
+  // securely calls the EmailJS API. No API keys are exposed to the browser.
   const sendEmail = useCallback(async () => {
-    if (!EMAILJS_CONFIG.SERVICE_ID || !EMAILJS_CONFIG.TEMPLATE_ID) {
-      throw new Error("Application service is temporarily unavailable. Please try again later.");
-    }
-
+    // Build the template parameters exactly as before
     const templateParams = {
       to_email: ADMIN_EMAIL,
       to_name: "EVS Healthcare Recruitment",
@@ -442,25 +418,27 @@ export default function Apply() {
     };
 
     try {
-      const response = await emailjs.send(
-        EMAILJS_CONFIG.SERVICE_ID,
-        EMAILJS_CONFIG.TEMPLATE_ID,
-        templateParams
-      );
-      return response;
+      // Call your secure Netlify Function instead of EmailJS directly
+      const response = await fetch('/.netlify/functions/submit-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(templateParams),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit application');
+      }
+
+      return result;
     } catch (err) {
       if (import.meta.env.DEV) {
-        console.error("EmailJS send failed:", err);
+        console.error("Submission error:", err);
       }
-      if (err?.text) {
-        try {
-          const errorData = JSON.parse(err.text);
-          throw new Error(errorData.message || "Could not send your application. Please try again.");
-        } catch {
-          throw new Error("Could not send your application. Please try again.");
-        }
-      }
-      throw new Error("Could not send your application. Please try again.");
+      throw new Error(err.message || 'Could not send your application. Please try again.');
     }
   }, [formData, selectedJob, cvData]);
 

@@ -1,6 +1,12 @@
 [build]
   command = "npm run build"
-  publish = "dist"  # or "build" depending on your setup
+  publish = "dist"
+
+[dev]
+  # This is the port where Netlify Dev will run its proxy server
+  port = 8888
+  # This is the port where your Vite dev server runs
+  targetPort = 5174
 
 [[redirects]]
   from = "https://evshealthcare.co.uk/*"
@@ -14,7 +20,6 @@
   status = 301
   force = true
 
-# This is the critical new rule for your SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"
