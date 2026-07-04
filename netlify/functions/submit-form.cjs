@@ -87,12 +87,10 @@ exports.handler = async (event, context) => {
     console.log('Admin email sent');
 
     const userParams = {
-      to_email: formData.from_email,
-      from_name: formData.from_name,
-      job_title: formData.job_title || 'Not specified',
-      job_location: formData.job_location || 'Not specified',
-      submitted_at: submittedAt,
-    };
+  from_email: formData.from_email,
+  from_name: formData.from_name,
+  job_title: formData.job_title,
+};
 
     const userResponse = await emailjs.send(serviceId, userTemplateId, userParams);
     console.log('User confirmation email sent');
