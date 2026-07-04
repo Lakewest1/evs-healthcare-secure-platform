@@ -90,6 +90,8 @@ const userParams = {
   from_email: formData.from_email,
   from_name: formData.from_name,
   job_title: formData.job_title,
+  job_location: formData.job_location,
+  submitted_at: submittedAt,
 };
 
     const userResponse = await emailjs.send(serviceId, userTemplateId, userParams);
