@@ -1,4 +1,4 @@
-// netlify/functions/upload-file.js
+// netlify/functions/upload-file.cjs
 const cloudinary = require('cloudinary').v2;
 
 exports.handler = async (event, context) => {
