@@ -28,7 +28,7 @@ exports.handler = async (event, context) => {
     const submissionId = `${formData.from_email}_${formData.from_name}_${formData.submitted_at || Date.now()}`;
     
     if (recentSubmissions.has(submissionId)) {
-      console.warn('Duplicate submission detected');
+      console.warn('Duplicate submission detected:', submissionId);
       return {
         statusCode: 200,
         body: JSON.stringify({ 
@@ -58,8 +58,13 @@ exports.handler = async (event, context) => {
     emailjs.init({ publicKey, privateKey });
 
     const submittedAt = formData.submitted_at || new Date().toLocaleString('en-GB', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+      year: 'numeric', 
+      month: '2-digit', 
+      day: '2-digit',
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit', 
+      hour12: false,
     });
 
     const adminParams = {
@@ -83,30 +88,44 @@ exports.handler = async (event, context) => {
       submitted_at: submittedAt,
     };
 
+    console.log('Sending admin email...');
     const adminResponse = await emailjs.send(serviceId, adminTemplateId, adminParams);
-    console.log('Admin email sent');
+    console.log('Admin email sent successfully:', adminResponse.$id);
 
-const userParams = {
-  from_email: formData.from_email,
-  from_name: formData.from_name,
-  job_title: formData.job_title,
-  job_location: formData.job_location,
-  submitted_at: submittedAt,
-};
+    const userParams = {
+      from_email: formData.from_email,
+      from_name: formData.from_name || 'Applicant',
+      job_title: formData.job_title || 'Not specified',
+      job_location: formData.job_location || 'Not specified',
+      submitted_at: submittedAt,
+    };
 
+    console.log('Sending user email with params:', userParams);
     const userResponse = await emailjs.send(serviceId, userTemplateId, userParams);
-    console.log('User confirmation email sent');
+    console.log('User confirmation email sent successfully:', userResponse.$id);
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
-      body: JSON.stringify({ success: true, message: 'Your application was submitted successfully!' }),
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Cache-Control': 'no-store' 
+      },
+      body: JSON.stringify({ 
+        success: true, 
+        message: 'Your application was submitted successfully!' 
+      }),
     };
+
   } catch (error) {
     console.error('EmailJS Function Error:', error.message);
+    console.error('Error stack:', error.stack);
+    
     return {
       statusCode: 500,
-      body: JSON.stringify({ success: false, error: 'An error occurred' }),
+      body: JSON.stringify({ 
+        success: false, 
+        error: 'An error occurred while processing your application.' 
+      }),
     };
   }
 };
