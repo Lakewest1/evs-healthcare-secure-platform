@@ -5,3 +5,22 @@
 [build.environment]
   NODE_ENV = "production"
   GENERATE_SOURCEMAP = "false"
+
+# Redirect domain to www (optional, but good for SEO)
+[[redirects]]
+  from = "https://evshealthcare.co.uk/*"
+  to = "https://www.evshealthcare.co.uk/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://evshealthcare.co.uk/*"
+  to = "https://www.evshealthcare.co.uk/:splat"
+  status = 301
+  force = true
+
+# THIS IS THE CRITICAL RULE FOR YOUR REACT APP
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
