@@ -46,7 +46,7 @@ exports.handler = async (event, context) => {
 
     // ── 1. Send Admin Email ──
     const adminParams = {
-      to_email: 'admin_1@evshealthcare.co.uk',
+      to_email: 'olamilake95@gmail.com',
       to_name: 'EVS Healthcare Recruitment',
       from_name: formData.from_name || 'Website Visitor',
       from_email: formData.from_email || 'no-reply@evshealthcare.co.uk',
