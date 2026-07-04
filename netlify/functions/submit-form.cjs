@@ -1,3 +1,4 @@
+// netlify/functions/submit-form.cjs
 const emailjs = require('@emailjs/nodejs');
 
 const recentSubmissions = new Map();
@@ -86,9 +87,8 @@ exports.handler = async (event, context) => {
     console.log('Admin email sent');
 
     const userParams = {
-      to_email: formData.from_email || 'no-reply@evshealthcare.co.uk',
-      to_name: formData.from_name || 'Applicant',
-      from_name: 'EVS Healthcare Recruitment',
+      to_email: formData.from_email,
+      from_name: formData.from_name,
       job_title: formData.job_title || 'Not specified',
       job_location: formData.job_location || 'Not specified',
       submitted_at: submittedAt,
