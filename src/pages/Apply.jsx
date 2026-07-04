@@ -455,26 +455,32 @@ const openUploadWidget = () => {
   // ── Main Submit Handler ──
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+ 
     if (hp) {
       setError("Something went wrong. Please refresh and try again.");
       return;
     }
-
+ 
     if (!validateStep()) return;
-
+ 
+    // ✅ FIX 1: Check AND update rate limit BEFORE submitting
     const now = Date.now();
     if (now - lastSubmitRef.current < SUBMIT_COOLDOWN_MS) {
       setError("Please wait a moment before submitting again.");
       return;
     }
-
+    lastSubmitRef.current = now; // ← Mark as submitted IMMEDIATELY
+ 
+    // ✅ FIX 2: Double-check isSubmitting (extra safety)
+    if (isSubmitting) {
+      return;
+    }
+ 
     setIsSubmitting(true);
     setError(null);
-
+ 
     try {
       await sendEmail();
-      lastSubmitRef.current = now;
       setIsSubmitted(true);
     } catch (err) {
       setError(
