@@ -86,14 +86,10 @@ exports.handler = async (event, context) => {
     const adminResponse = await emailjs.send(serviceId, adminTemplateId, adminParams);
     console.log('Admin email sent');
 
- const userParams = {
+const userParams = {
   from_email: formData.from_email,
   from_name: formData.from_name,
-  job_title: formData.job_title || '',
-  job_location: formData.job_location || '',
-  job_pay: formData.job_pay || '',
-  job_type: formData.job_type || '',
-  submitted_at: submittedAt || '',
+  job_title: formData.job_title,
 };
 
     const userResponse = await emailjs.send(serviceId, userTemplateId, userParams);
