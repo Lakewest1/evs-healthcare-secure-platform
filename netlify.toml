@@ -18,20 +18,7 @@
   to = "/robots.txt"
   status = 200
 
-# ── Domain Redirects (evshealthcare.co.uk → www) ──
-[[redirects]]
-  from = "https://evshealthcare.co.uk/*"
-  to = "https://www.evshealthcare.co.uk/:splat"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "http://evshealthcare.co.uk/*"
-  to = "https://www.evshealthcare.co.uk/:splat"
-  status = 301
-  force = true
-
-# ── SPA Catch-All Redirect (MUST be last) ──
+# ── SPA Catch-All Redirect ──
 [[redirects]]
   from = "/*"
   to = "/index.html"
