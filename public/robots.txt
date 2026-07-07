@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and internal paths
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /.netlify/
+Disallow: /config/
+Disallow: /private/
+
+# Sitemap location
+Sitemap: https://www.evshealthcare.co.uk/sitemap.xml
