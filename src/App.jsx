@@ -23,6 +23,11 @@ import Accessibility from "./pages/Accessibility";
 import FAQ from "./components/home/FAQ";
 import Testimonials from "./components/home/Testimonials";
 
+//Location SEO//
+import LocationPage from "./pages/LocationPage";
+import BlogNHSShortage from "./pages/BlogNHSShortage";
+import BlogHowToPassNMCInterview from "./pages/BlogHowToPassNMCInterview";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ScrollToTop Component — Automatically scrolls to top on route change
 // ─────────────────────────────────────────────────────────────────────────────
@@ -114,6 +119,9 @@ export default function App() {
               <Route path="/about" element={<About />} />
               <Route path="/training" element={<Training />} />
               <Route path="/employers" element={<Employers />} />
+              <Route path="/healthcare-recruitment-agency-:citySlug" element={<LocationPage />} />
+              <Route path="/blog/nhs-staffing-shortages-2026" element={<BlogNHSShortage />} />
+              <Route path="/blog/how-to-pass-nmc-interview" element={<BlogHowToPassNMCInterview />} />
               
               {/* Legal & Compliance Pages */}
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
