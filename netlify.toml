@@ -7,7 +7,35 @@
   NODE_ENV = "production"
   GENERATE_SOURCEMAP = "false"
 
+# ── Allow sitemap.xml and robots.txt to be served directly ──
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/sitemap.xml"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+  force = false
+
+# ── Domain Redirects (evshealthcare.co.uk → www) ──
+[[redirects]]
+  from = "https://evshealthcare.co.uk/*"
+  to = "https://www.evshealthcare.co.uk/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://evshealthcare.co.uk/*"
+  to = "https://www.evshealthcare.co.uk/:splat"
+  status = 301
+  force = true
+
+# ── SPA Catch-All Redirect (MUST be last) ──
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
