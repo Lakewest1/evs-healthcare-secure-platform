@@ -119,7 +119,11 @@ export default function App() {
               <Route path="/about" element={<About />} />
               <Route path="/training" element={<Training />} />
               <Route path="/employers" element={<Employers />} />
-              <Route path="/healthcare-recruitment-agency-:citySlug" element={<LocationPage />} />
+              <Route path="/healthcare-recruitment-agency-london" element={<LocationPage cityKey="london" />} />
+<Route path="/healthcare-recruitment-agency-preston" element={<LocationPage cityKey="preston" />} />
+<Route path="/healthcare-recruitment-agency-manchester" element={<LocationPage cityKey="manchester" />} />
+<Route path="/healthcare-recruitment-agency-liverpool" element={<LocationPage cityKey="liverpool" />} />
+<Route path="/healthcare-recruitment-agency-north-west" element={<LocationPage cityKey="north-west" />} />
               <Route path="/blog/nhs-staffing-shortages-2026" element={<BlogNHSShortage />} />
               <Route path="/blog/how-to-pass-nmc-interview" element={<BlogHowToPassNMCInterview />} />
               

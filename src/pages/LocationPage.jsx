@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
-import { useParams, Link, Navigate } from "react-router-dom";
-import { MapPin, ArrowRight, ShieldCheck, Clock, Award } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MapPin, ArrowRight } from "lucide-react";
 import { cityData } from "../data/cityData";
 
 const stats = [
@@ -11,11 +11,16 @@ const stats = [
   { value: "24/7", label: "Support Available", sub: "Always here when you need us" },
 ];
 
-const LocationPage = () => {
-  const { citySlug } = useParams();
-  const data = Object.values(cityData).find((c) => c.slug === citySlug || c.city.toLowerCase().replace(/\s+/g, "-") === citySlug);
+const LocationPage = ({ cityKey }) => {
+  const data = cityData[cityKey];
 
-  if (!data) return <Navigate to="/404" replace />;
+  if (!data) {
+    return (
+      <div style={{ padding: "80px 20px", textAlign: "center" }}>
+        <h1>Page Not Found</h1>
+      </div>
+    );
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",
