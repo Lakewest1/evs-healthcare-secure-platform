@@ -22,7 +22,7 @@ import { Menu, X, Phone, Mail } from "lucide-react";
 // Other mobile pages: White bg + navy text always
 // ─────────────────────────────────────────────────────────────────────────────
 
-const NAV_LINKS = ["About", "Jobs", "Training", "Employers", "Contact"];
+const NAV_LINKS = ["About Us", "Jobs", "Training", "Employers", "Contact"];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Z-INDEX SCALE
@@ -515,16 +515,21 @@ export default function Navbar() {
   useEffect(() => {
     const path = location.pathname;
     const routeMap = {
-      "/about": "About", "/jobs": "Jobs", "/training": "Training",
-      "/employers": "Employers", "/contact": "Contact",
+      "/about": "About Us",
+      "/jobs": "Jobs", 
+      "/training": "Training",
+      "/employers": "Employers", 
+      "/contact": "Contact",
     };
     if (routeMap[path]) { setActiveLink(routeMap[path]); return; }
 
     const onScrollHighlight = () => {
       const pos = window.scrollY + 100;
       const sections = [
-        { id: "about", link: "About" }, { id: "jobs", link: "Jobs" },
-        { id: "training", link: "Training" }, { id: "for-employers", link: "Employers" },
+        { id: "about", link: "About Us" },
+        { id: "jobs", link: "Jobs" },
+        { id: "training", link: "Training" }, 
+        { id: "for-employers", link: "Employers" },
         { id: "contact", link: "Contact" },
       ];
       for (const { id, link } of sections) {
@@ -584,8 +589,11 @@ export default function Navbar() {
   // ── Navigation ───────────────────────────────────────────────────────────
   const goTo = useCallback((section) => {
     const routes = {
-      About: "/about", Jobs: "/jobs", Training: "/training",
-      Employers: "/employers", Contact: "/contact",
+      "About Us": "/about",
+      Jobs: "/jobs", 
+      Training: "/training",
+      Employers: "/employers", 
+      Contact: "/contact",
     };
     setActiveLink(section);
     setMenuOpen(false);
@@ -671,7 +679,13 @@ export default function Navbar() {
     : (isWhiteText ? "rgba(255,255,255,0.6)" : "rgba(15,29,61,0.5)");
 
   const isLinkActive = (link) => {
-    const routeMap = { About: "/about", Jobs: "/jobs", Training: "/training", Employers: "/employers", Contact: "/contact" };
+    const routeMap = { 
+      "About Us": "/about", 
+      Jobs: "/jobs", 
+      Training: "/training", 
+      Employers: "/employers", 
+      Contact: "/contact" 
+    };
     return routeMap[link] ? location.pathname === routeMap[link] : activeLink === link;
   };
 
@@ -711,7 +725,7 @@ export default function Navbar() {
             {/* ── Logo ── */}
             <button
               onClick={goHome}
-              aria-label="EVS Healthcare Solutions — return to home"
+              aria-label="EVS Healthcare Solution — return to home"
               style={{
                 display: "flex", alignItems: "center",
                 gap: "clamp(10px, 1.4vw, 16px)",
@@ -734,7 +748,7 @@ export default function Navbar() {
                     fontFamily: "'Manrope', sans-serif", fontWeight: 700,
                     fontSize: isMobile ? "11px" : "clamp(12px,1.2vw,16px)",
                     color: textColor, letterSpacing: "0.06em", transition: "color 0.3s ease", whiteSpace: "nowrap",
-                  }}>HEALTHCARE SOLUTIONS</span>
+                  }}>HEALTHCARE SOLUTION</span>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>

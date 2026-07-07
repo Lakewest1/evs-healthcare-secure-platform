@@ -350,7 +350,7 @@ export default function Footer() {
                 maxWidth: 280,
               }}
             >
-              Providing quality healthcare staffing solutions across North-West England.
+              Providing quality healthcare staffing solution across North-West England.
               Your trusted partner in care excellence.
             </p>
             
@@ -814,7 +814,7 @@ export default function Footer() {
               lineHeight: 1.6,
             }}
           >
-            © {currentYear} EVS Healthcare Solutions Limited. All rights reserved.
+            © {currentYear} EVS Healthcare Solution Limited. All rights reserved.
             <br />
             <span style={{ fontSize: isMobile ? 10 : 11, opacity: 0.7 }}>
               Company registered in England & Wales. GDPR Compliant.
