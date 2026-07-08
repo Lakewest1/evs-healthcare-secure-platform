@@ -422,9 +422,9 @@ function HeroSection() {
               lineHeight: 1.8,
             }}
           >
-            A client-centred agency with a network of {" "}
+            A client-centred agency with a network of{" "}
             <strong style={{ color: "rgba(255,255,255,0.96)", fontWeight: 600 }}>
-              Many healthcare professionals
+              numerous healthcare professionals
             </strong>{" "}
             across the UK, delivering high-quality staffing solutions for NHS trusts,
             private hospitals, and care homes.
@@ -691,9 +691,9 @@ function WhoWeAreSection() {
               marginBottom: "1.5rem",
             }}
           >
-            With a growing network of {" "}
+            With a growing network of{" "}
             <strong style={{ color: T.navy, fontWeight: 600 }}>
-              Many healthcare professionals
+              numerous healthcare professionals
             </strong>{" "}
             across the UK, we place skilled, fully vetted staff into NHS trusts,
             private hospitals, and residential care homes at competitive, transparent rates.
@@ -781,7 +781,7 @@ function WhoWeAreSection() {
                 color: T.white,
               }}
             >
-              Trusted by 500+ organisations
+              Trusted by numerous organisations
             </span>
           </div>
         </motion.div>
