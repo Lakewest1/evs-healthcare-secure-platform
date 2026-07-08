@@ -28,6 +28,7 @@ import LocationPage from "./pages/LocationPage";
 import BlogNHSShortage from "./pages/BlogNHSShortage";
 import BlogHowToPassNMCInterview from "./pages/BlogHowToPassNMCInterview";
 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ScrollToTop Component — Automatically scrolls to top on route change
 // ─────────────────────────────────────────────────────────────────────────────
@@ -120,10 +121,12 @@ export default function App() {
               <Route path="/training" element={<Training />} />
               <Route path="/employers" element={<Employers />} />
               <Route path="/healthcare-recruitment-agency-london" element={<LocationPage cityKey="london" />} />
-<Route path="/healthcare-recruitment-agency-preston" element={<LocationPage cityKey="preston" />} />
-<Route path="/healthcare-recruitment-agency-manchester" element={<LocationPage cityKey="manchester" />} />
-<Route path="/healthcare-recruitment-agency-liverpool" element={<LocationPage cityKey="liverpool" />} />
-<Route path="/healthcare-recruitment-agency-north-west" element={<LocationPage cityKey="north-west" />} />
+              <Route path="/healthcare-recruitment-agency-preston" element={<LocationPage cityKey="preston" />} />
+              <Route path="/healthcare-recruitment-agency-manchester" element={<LocationPage cityKey="manchester" />} />
+              <Route path="/healthcare-recruitment-agency-liverpool" element={<LocationPage cityKey="liverpool" />} />
+              <Route path="/healthcare-recruitment-agency-north-west" element={<LocationPage cityKey="north-west" />} />
+              
+              {/* Blog Pages */}
               <Route path="/blog/nhs-staffing-shortages-2026" element={<BlogNHSShortage />} />
               <Route path="/blog/how-to-pass-nmc-interview" element={<BlogHowToPassNMCInterview />} />
               

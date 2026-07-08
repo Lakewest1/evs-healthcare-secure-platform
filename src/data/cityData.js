@@ -4,14 +4,14 @@ export const cityData = {
     city: "London",
     metaTitle: "Healthcare Recruitment Agency London | EVS Healthcare",
     metaDescription: "NHS-approved healthcare recruitment agency serving London. Nurses, carers & support staff placements across all London boroughs.",
-    intro: "London's healthcare system is one of the most complex in the UK — spanning inner and outer boroughs, multiple NHS integrated care systems, and a dense private care home network. Demand for flexible, compliant staffing is highest in acute wards, mental health services, and elderly care, where shift-cover gaps are felt fastest.",
+    intro: "London's healthcare system is one of the most complex in the UK - spanning inner and outer boroughs, multiple NHS integrated care systems, and a dense private care home network. Demand for flexible, compliant staffing is highest in acute wards, mental health services, and elderly care, where shift-cover gaps are felt fastest.",
     localContext: [
       "London's NHS trusts operate across several Integrated Care Systems, each covering multiple boroughs with distinct staffing pressures — from central acute hospitals to outer-borough community and mental health services.",
       "Private care homes in London face some of the highest competition for qualified carers and RGNs in the country, driven by cost of living and commuting patterns unique to the capital.",
       "We place candidates across Central, North, South, East and West London, matching commute preferences with shift patterns."
     ],
     roleFocus: ["Registered Nurse (RGN)", "RMN Mental Health Nurse", "Healthcare Assistant", "Senior Carer"],
-    payBand: "£13–£40/hr depending on role and shift type",
+    payBand: "£13–£45/hr depending on role and shift type",
   },
   preston: {
     slug: "healthcare-recruitment-agency-preston",
@@ -67,6 +67,6 @@ export const cityData = {
       "We coordinate placements across Greater Manchester, Merseyside, and Lancashire from a single regional team."
     ],
     roleFocus: ["Registered Nurse (RGN)", "RMN Mental Health Nurse", "Healthcare Assistant", "Senior Carer", "Support Worker"],
-    payBand: "£13–£40/hr depending on role and shift type",
+    payBand: "£13–£45/hr depending on role and shift type",
   },
 };

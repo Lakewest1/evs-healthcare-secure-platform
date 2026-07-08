@@ -1,0 +1,198 @@
+.location-page {
+  padding-top: 90px; /* clears the fixed navbar — adjust to match your Navbar's actual height */
+  font-family: 'Inter', sans-serif;
+}
+
+.location-hero {
+  background: linear-gradient(135deg, #1a2d5a, #2c4478);
+  color: #fff;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.location-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.location-hero .accent {
+  color: #C4972A;
+}
+
+.location-hero p {
+  font-size: 1.15rem;
+  color: #d4d9e6;
+  max-width: 700px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+.location-hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #C4972A, #a67c1f);
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 16px rgba(196, 151, 42, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #fff;
+  color: #1a2d5a;
+}
+
+.location-stats {
+  background: #f8fafc;
+  padding: 48px 20px;
+}
+
+.location-stats-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .location-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.location-stats-grid .stat-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #C4972A;
+}
+
+.location-stats-grid .stat-label {
+  color: #475569;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.location-stats-grid .stat-sub {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.location-context {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 64px 20px;
+}
+
+.location-context h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a2d5a;
+  margin-bottom: 32px;
+}
+
+.location-context p {
+  color: #475569;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.location-roles {
+  background: #f8fafc;
+  padding: 64px 20px;
+}
+
+.location-roles-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.location-roles h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a2d5a;
+  margin-bottom: 32px;
+}
+
+.roles-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .roles-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .roles-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.role-card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 4px solid #C4972A;
+}
+
+.role-card h3 {
+  font-weight: 700;
+  color: #1a2d5a;
+  margin-top: 8px;
+}
+
+.pay-band {
+  text-align: center;
+  color: #64748b;
+  margin-top: 24px;
+}
+
+.location-cta {
+  background: #1a2d5a;
+  color: #fff;
+  padding: 64px 20px;
+  text-align: center;
+}
+
+.location-cta h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+}
+
+.location-cta-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+}

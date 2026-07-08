@@ -101,7 +101,7 @@ const fadeRight = (delay = 0) => ({
 // Data
 // ─────────────────────────────────────────────────────────────────────────────
 const STATS = [
-  { value: "5,000+", label: "Healthcare professionals in our network",     icon: Users      },
+  { value: "Several", label: "Healthcare professionals in our network",     icon: Users      },
   { value: "98%",    label: "Client satisfaction verified post-placement", icon: Star       },
   { value: "24/7",   label: "Support, every day of the year",              icon: Clock3     },
   { value: "500+",   label: "Partner organisations across the UK",         icon: Building2  },
@@ -146,7 +146,7 @@ const MISSION_POINTS = [
 const TEAM = [
   { name: "Sir Wizzy Ummah",   role: "CEO & Founder",           icon: Briefcase,  bio: "20+ years in healthcare recruitment. Sir Wizzy founded EVS on a single principle: every placement should feel like a partnership, not a transaction."  },
   { name: "Michael Roberts", role: "Operations Director",     icon: ShieldCheck, bio: "Former NHS operations lead. Michael ensures same-day cover, watertight compliance, and seamless handovers across all our partner sites."              },
-  { name: "Emma Thompson",   role: "Head of Compliance",      icon: BadgeCheck,  bio: "DBS, NMC, NVQ, manual handling - Emma's team manages 100% of regulatory paperwork so our clients never have to chase a document."                  },
+  { name: "Emmanuel Thompson",   role: "Head of Compliance",      icon: BadgeCheck,  bio: "DBS, NMC, NVQ, manual handling - Emma's team manages 100% of regulatory paperwork so our clients never have to chase a document."                  },
   { name: "James Wilson",    role: "Business Development",    icon: TrendingUp,  bio: "James builds the relationships that let us move fast. His network spans NHS procurement, private healthcare groups, and independent care providers." },
 ];
 
@@ -422,9 +422,9 @@ function HeroSection() {
               lineHeight: 1.8,
             }}
           >
-            A client-centred agency with a network of over{" "}
+            A client-centred agency with a network of {" "}
             <strong style={{ color: "rgba(255,255,255,0.96)", fontWeight: 600 }}>
-              5,000 healthcare professionals
+              Many healthcare professionals
             </strong>{" "}
             across the UK, delivering high-quality staffing solutions for NHS trusts,
             private hospitals, and care homes.
@@ -691,9 +691,9 @@ function WhoWeAreSection() {
               marginBottom: "1.5rem",
             }}
           >
-            With a growing network of over{" "}
+            With a growing network of {" "}
             <strong style={{ color: T.navy, fontWeight: 600 }}>
-              5,000 healthcare professionals
+              Many healthcare professionals
             </strong>{" "}
             across the UK, we place skilled, fully vetted staff into NHS trusts,
             private hospitals, and residential care homes at competitive, transparent rates.

@@ -9,7 +9,8 @@ import {
   FaSnapchat, 
   FaTiktok, 
   FaTwitter, 
-  FaTelegram 
+  FaTelegram,
+  FaGoogle 
 } from "react-icons/fa";
 import {
   Phone,
@@ -20,7 +21,8 @@ import {
   ArrowUp,
   ChevronRight,
   Shield,
-  Heart
+  Heart,
+  MapPin
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -29,6 +31,7 @@ import {
 // UPDATED: React Router Links for all internal navigation
 // FIXED: Mobile responsive display issues
 // FIXED: Back-to-top z-index lowered to 98 so navbar overlay (500) covers it
+// ADDED: Google Business Profile link for local SEO
 // Fonts: Manrope (headings, brand text), Inter (body, links, UI)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -400,6 +403,75 @@ export default function Footer() {
                 );
               })}
             </div>
+
+            {/* ── Google Business Profile Link ── */}
+            <motion.a
+              href="https://www.google.com/search?q=EVS+Healthcare+Solution+Ltd+Preston"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Visit us on Google"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                marginTop: 20,
+                padding: "10px 18px",
+                borderRadius: 12,
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(196,151,42,0.2)",
+                textDecoration: "none",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(196,151,42,0.1)";
+                e.currentTarget.style.borderColor = "rgba(196,151,42,0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                e.currentTarget.style.borderColor = "rgba(196,151,42,0.2)";
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: "rgba(66,133,244,0.15)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <FaGoogle size={14} style={{ color: "#4285F4" }} />
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#4285F4",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Visit us on Google
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 10,
+                    color: "rgba(255,255,255,0.4)",
+                    marginTop: 1,
+                  }}
+                >
+                  See reviews & directions
+                </div>
+              </div>
+              <ChevronRight size={12} style={{ color: "rgba(255,255,255,0.3)", marginLeft: "auto" }} />
+            </motion.a>
           </motion.div>
 
           {/* ── UPDATED: Quick Links with React Router Link ── */}
@@ -870,7 +942,7 @@ export default function Footer() {
               alignItems: "center",
               justifyContent: "center",
               boxShadow: "0 6px 16px rgba(196,151,42,0.3)",
-              zIndex: 98, // ← FIXED: Was 1000, now below overlay (500) and drawer (600)
+              zIndex: 98,
               transition: "all 0.3s ease",
             }}
             aria-label="Scroll to top"
