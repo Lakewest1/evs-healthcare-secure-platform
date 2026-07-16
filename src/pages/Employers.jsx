@@ -69,7 +69,7 @@ const EASE = [0.16, 1, 0.3, 1];
 // ─────────────────────────────────────────────────────────────────────────────
 // Form endpoint — set VITE_FORMSPREE_EMPLOYERS_URL in your .env file.
 // ─────────────────────────────────────────────────────────────────────────────
-const FORMSPREE_URL = import.meta.env.FORMSPREE_EMPLOYERS_URL;
+const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_EMPLOYERS_URL;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared reveal hook — per-section so each section animates independently

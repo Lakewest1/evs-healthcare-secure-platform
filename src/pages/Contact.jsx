@@ -72,7 +72,7 @@ const SOCIAL_LINKS = [
   { icon: FaTelegram, label: "Telegram", url: "https://t.me/+447466999218", color: "#26A5E4", username: "+447466999218" },
 ];
 
-const FORMSPREE_URL = import.meta.env.FORMSPREE_CONTACT_URL;
+const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_CONTACT_PAGE_URL;
 
 const FIELD_LIMITS = { name: 100, email: 150, phone: 20, message: 1000 };
 

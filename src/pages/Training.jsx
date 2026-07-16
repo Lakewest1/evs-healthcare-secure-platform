@@ -543,7 +543,7 @@ function TrainingCTA() {
 // ─────────────────────────────────────────────────────────────────────────────
 // TRAINING ENQUIRY FORM — Formspree integration via .env
 // ─────────────────────────────────────────────────────────────────────────────
-const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_TRAINING_URL;
+const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_TRAINING_URL || "";
 
 const INITIAL_FORM = {
   name:    "",
@@ -616,6 +616,13 @@ function TrainingForm() {
       setErrors(errs);
       const first = Object.keys(errs)[0];
       document.getElementById(`tf-${first}`)?.focus();
+      return;
+    }
+
+    // ── Check if FORMSPREE_URL is configured ──
+    if (!FORMSPREE_URL) {
+      setStatus("error");
+      console.error("Formspree URL is not configured. Please check environment variables.");
       return;
     }
 
