@@ -543,7 +543,7 @@ function TrainingCTA() {
 // ─────────────────────────────────────────────────────────────────────────────
 // TRAINING ENQUIRY FORM — Formspree integration via .env
 // ─────────────────────────────────────────────────────────────────────────────
-const FORMSPREE_URL = import.meta.env.FORMSPREE_TRAINING_URL;
+const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_TRAINING_URL;
 
 const INITIAL_FORM = {
   name:    "",

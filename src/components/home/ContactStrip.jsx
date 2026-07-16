@@ -638,7 +638,7 @@ function ContactForm() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                placeholder="john@example.com"
+                placeholder="lakewest@example.com"
                 style={{
                   width: "100%",
                   padding: inputPadding,
