@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Briefcase, 
@@ -23,33 +23,45 @@ import {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EVS Healthcare Hero — Professional Clean Design
-// PERFORMANCE FIXES:
-//   - Replaced isMobile() calls with a single useMemo hook (no regex on every render)
-//   - Removed backdrop-filter from animated elements (GPU killer)
-//   - Reduced particle count significantly
-//   - Added will-change only where needed, removed from heavy elements
-//   - Throttled mousemove handler with requestAnimationFrame
-//   - Removed unused imports (Zap, Award)
-//   - Replaced inline animation styles with CSS classes where possible
-//   - Video poster loads instantly, video plays on user interaction ready
-//   - Curtain panels use transform: translate3d for GPU acceleration
+// PERFORMANCE FIXES (this pass):
+//   - Curtain/mobile background images converted from CSS background-image to
+//     real <img fetchpriority="high"> so the browser's preload scanner can
+//     discover and prioritize them without waiting on JS execution.
+//   - Cloudinary URLs now request f_auto,q_auto + a sane width instead of the
+//     full 1920px original — same visual result, far smaller payload.
+//   - useIsMobile now resolves synchronously on first render (lazy useState
+//     initializer) instead of defaulting to desktop and correcting after
+//     mount — mobile no longer briefly renders/loads the desktop video.
+//   - Google Fonts @import removed from the runtime <style> tag (moved to
+//     static <link> tags in index.html/Helmet) so font loading isn't gated
+//     behind JS parse+execute+commit — this was the primary CLS source.
+// Previous pass fixes (retained):
+//   - Single useMemo/useIsMobile hook (no regex on every render)
+//   - No backdrop-filter on animated elements
+//   - Reduced particle count
+//   - Throttled mousemove with requestAnimationFrame
+//   - translate3d curtain transforms for GPU acceleration
 // ─────────────────────────────────────────────────────────────────────────────
 
+function getIsMobileSync() {
+  if (typeof window === "undefined") return false;
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    window.innerWidth < 768
+  );
+}
+
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  
+  // Lazy initializer resolves synchronously on first render, so mobile
+  // devices never briefly render/paint the desktop video branch.
+  const [isMobile, setIsMobile] = useState(getIsMobileSync);
+
   useEffect(() => {
-    const check = () => {
-      setIsMobile(
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-        window.innerWidth < 768
-      );
-    };
-    check();
+    const check = () => setIsMobile(getIsMobileSync());
     window.addEventListener("resize", check, { passive: true });
     return () => window.removeEventListener("resize", check);
   }, []);
-  
+
   return isMobile;
 }
 
@@ -78,6 +90,17 @@ const JOBS = [
 
 const LEFT_CURTAIN_ICONS = [UserRound, Handshake, GraduationCap];
 const RIGHT_CURTAIN_ICONS = [Hospital, Stethoscope, ClipboardList];
+
+// Cloudinary transformation helper — f_auto/q_auto keep visual quality
+// effectively identical while cutting payload size substantially; width
+// is capped per breakpoint since these never render larger than viewport.
+function cld(baseUrl, width) {
+  return baseUrl.replace("/upload/", `/upload/f_auto,q_auto,w_${width}/`);
+}
+
+const LEFT_IMG_BASE = "https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786625/mathekame-hospital-5765027_1920_tklbds.jpg";
+const RIGHT_IMG_BASE = "https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786463/mathekame-hospital-5765027_1920_ojwyi1.jpg";
+const VIDEO_SRC = "https://res.cloudinary.com/dbqdgvvgq/video/upload/v1780785467/148756-794599376_medium_hpciyw.mp4";
 
 function TestimonialCarousel({ contentVisible }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -308,8 +331,6 @@ export default function Hero() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap');
-
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { overflow-x: hidden; width: 100%; }
 
@@ -366,16 +387,14 @@ export default function Hero() {
           transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
         }
 
-        .mobile-bg-image {
+        .curtain-bg-img,
+        .mobile-bg-img {
           position: absolute;
-          top: 0;
-          left: 0;
           width: 100%;
           height: 100%;
-          background-image: url('https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786625/mathekame-hospital-5765027_1920_tklbds.jpg');
-          background-size: cover;
-          background-position: center;
-          z-index: 1;
+          object-fit: cover;
+          object-position: center;
+          display: block;
         }
 
         @media (max-width: 1200px) {
@@ -431,9 +450,18 @@ export default function Hero() {
           textAlign: "center",
         }}
       >
-        {/* Mobile: Static image background */}
+        {/* Mobile: Static image background — real <img>, fetchpriority high, right-sized */}
         {mobile ? (
-          <div className="mobile-bg-image" />
+          <img
+            className="mobile-bg-img"
+            src={cld(LEFT_IMG_BASE, 960)}
+            alt=""
+            aria-hidden="true"
+            fetchPriority="high"
+            decoding="async"
+            loading="eager"
+            style={{ top: 0, left: 0, zIndex: 1 }}
+          />
         ) : (
           /* Desktop: Video background */
           <video
@@ -443,7 +471,7 @@ export default function Hero() {
             playsInline
             preload="auto"
             aria-hidden="true"
-            poster="https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786463/mathekame-hospital-5765027_1920_ojwyi1.jpg"
+            poster={cld(RIGHT_IMG_BASE, 1920)}
             style={{
               position: "absolute",
               top: 0,
@@ -462,10 +490,7 @@ export default function Hero() {
               filter: "brightness(1.05) contrast(1.02)",
             }}
           >
-            <source
-              src="https://res.cloudinary.com/dbqdgvvgq/video/upload/v1780785467/148756-794599376_medium_hpciyw.mp4"
-              type="video/mp4"
-            />
+            <source src={VIDEO_SRC} type="video/mp4" />
           </video>
         )}
 
@@ -530,14 +555,15 @@ export default function Hero() {
           className={`curtain-panel curtain-left ${panelOpen ? (mobile ? "curtain-open-left-mobile" : "curtain-open-left") : (mobile ? "curtain-closed-mobile" : "curtain-closed")}`}
         >
           <div style={{ position: "absolute", inset: 0, zIndex: 2, background: "linear-gradient(to right, rgba(5,14,48,0.96) 0%, rgba(10,30,80,0.88) 100%)" }} />
-          <div
-            style={{
-              position: "absolute",
-              top: "-8%", left: "-8%", right: "-8%", bottom: "-8%",
-              backgroundImage: "url('https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786625/mathekame-hospital-5765027_1920_tklbds.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
+          <img
+            className="curtain-bg-img"
+            src={cld(LEFT_IMG_BASE, mobile ? 960 : 1920)}
+            alt=""
+            aria-hidden="true"
+            fetchPriority="high"
+            decoding="async"
+            loading="eager"
+            style={{ top: "-8%", left: "-8%", right: "-8%", bottom: "-8%", width: "116%", height: "116%" }}
           />
           <div style={{ position: "absolute", inset: 0, zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: mobile ? 8 : 16 }}>
             <div style={{ display: "flex", gap: mobile ? 10 : 16, marginBottom: mobile ? 0 : 4 }}>
@@ -571,7 +597,6 @@ export default function Hero() {
             style={{
               position: "absolute", top: 0, right: 0, bottom: 0, width: 3, zIndex: 5,
               background: "linear-gradient(to bottom, transparent, rgba(196,151,42,0.95) 35%, rgba(255,215,70,1) 50%, rgba(196,151,42,0.95) 65%, transparent)",
-              animation: mobile ? "none" : undefined,
             }}
           />
         </div>
@@ -581,14 +606,15 @@ export default function Hero() {
           className={`curtain-panel curtain-right ${panelOpen ? (mobile ? "curtain-open-right-mobile" : "curtain-open-right") : (mobile ? "curtain-closed-mobile" : "curtain-closed")}`}
         >
           <div style={{ position: "absolute", inset: 0, zIndex: 2, background: "linear-gradient(to left, rgba(4,4,14,0.96) 0%, rgba(18,24,52,0.88) 100%)" }} />
-          <div
-            style={{
-              position: "absolute",
-              top: "-8%", left: "-8%", right: "-8%", bottom: "-8%",
-              backgroundImage: "url('https://res.cloudinary.com/dbqdgvvgq/image/upload/v1780786463/mathekame-hospital-5765027_1920_ojwyi1.jpg')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
+          <img
+            className="curtain-bg-img"
+            src={cld(RIGHT_IMG_BASE, mobile ? 960 : 1920)}
+            alt=""
+            aria-hidden="true"
+            fetchPriority="high"
+            decoding="async"
+            loading="eager"
+            style={{ top: "-8%", left: "-8%", right: "-8%", bottom: "-8%", width: "116%", height: "116%" }}
           />
           <div style={{ position: "absolute", inset: 0, zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: mobile ? 8 : 16 }}>
             <div style={{ display: "flex", gap: mobile ? 10 : 16, marginBottom: mobile ? 0 : 4 }}>
@@ -622,7 +648,6 @@ export default function Hero() {
             style={{
               position: "absolute", top: 0, left: 0, bottom: 0, width: 3, zIndex: 5,
               background: "linear-gradient(to bottom, transparent, rgba(196,151,42,0.95) 35%, rgba(255,215,70,1) 50%, rgba(196,151,42,0.95) 65%, transparent)",
-              animation: mobile ? "none" : undefined,
             }}
           />
         </div>

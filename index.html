@@ -7,11 +7,41 @@
     <title>EVS Healthcare | Healthcare Staffing Solutions</title>
     <meta name="description" content="EVS Healthcare Solutions - Quality healthcare staffing across North-West England. NHS-approved professionals, 24/7 support." />
 
-    <!-- ─── Cloudinary Upload Widget ─────────────────────────────────────── -->
-    <!-- Preload the script for faster loading -->
-    <link rel="preload" href="https://upload-widget.cloudinary.com/global/all.js" as="script" />
-    <!-- Load the script without SRI (to avoid hash mismatch errors) -->
-    <script src="https://upload-widget.cloudinary.com/global/all.js" crossorigin="anonymous" defer></script>
+
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+<link rel="dns-prefetch" href="https://images.unsplash.com" />
+    <!-- ─── Cloudinary image CDN: preconnect so DNS/TLS is warm before the
+         hero image is even requested ─────────────────────────────────── -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+    <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+
+    <!-- ─── LCP image preload — starts the fetch at HTML-parse time,
+         not after React mounts. Matches Hero.jsx's curtain images exactly,
+         per breakpoint, so the browser doesn't fetch a size it won't use. ── -->
+    <!-- Mobile: matches cld(LEFT_IMG_BASE, 960) exactly -->
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      media="(max-width: 767px)"
+      href="https://res.cloudinary.com/dbqdgvvgq/image/upload/f_auto,q_auto,w_960/v1780786625/mathekame-hospital-5765027_1920_tklbds.jpg"
+    />
+
+    <!-- Desktop: matches cld(LEFT_IMG_BASE, 1920) / cld(RIGHT_IMG_BASE, 1920) exactly -->
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      media="(min-width: 768px)"
+      href="https://res.cloudinary.com/dbqdgvvgq/image/upload/f_auto,q_auto,w_1920/v1780786625/mathekame-hospital-5765027_1920_tklbds.jpg"
+    />
+    <link
+      rel="preload"
+      as="image"
+      fetchpriority="high"
+      media="(min-width: 768px)"
+      href="https://res.cloudinary.com/dbqdgvvgq/image/upload/f_auto,q_auto,w_1920/v1780786463/mathekame-hospital-5765027_1920_ojwyi1.jpg"
+    />
 
     <!-- ─── Google Analytics Consent Mode ────────────────────────────────── -->
     <!-- Default to denied until consent is given via cookie banner -->
@@ -29,13 +59,12 @@
     </script>
 
     <!-- ─── Google Analytics 4 ───────────────────────────────────────────── -->
-    <!-- ⚠️ REPLACE G-XXXXXXXXXX WITH YOUR ACTUAL GA4 MEASUREMENT ID -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N4CS0MD2XY"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
       gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX');
+      gtag('config', 'G-N4CS0MD2XY');
     </script>
   </head>
 

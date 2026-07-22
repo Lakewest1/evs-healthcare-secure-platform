@@ -1,33 +1,32 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { Component, useEffect } from "react";
+import { Component, useEffect, Suspense, lazy } from "react";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import CookieConsent from "./components/CookieConsent";
 import Home from "./pages/Home";
-import Apply from "./pages/Apply";
-import Jobs from "./pages/Jobs";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
-import Training from "./pages/Training";
-import Employers from "./pages/Employers";
 
-// Legal Pages
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import GDPRCompliance from "./pages/GDPRCompliance";
-import TermsOfService from "./pages/TermsOfService";
-import CookiePolicy from "./pages/CookiePolicy";
-import Accessibility from "./pages/Accessibility";
+// Every other route is code-split: none of this JS is needed to paint "/",
+// so it shouldn't be part of the bundle that gates the homepage's LCP.
+const Apply = lazy(() => import("./pages/Apply"));
+const Jobs = lazy(() => import("./pages/Jobs"));
+const Contact = lazy(() => import("./pages/Contact"));
+const About = lazy(() => import("./pages/About"));
+const Training = lazy(() => import("./pages/Training"));
+const Employers = lazy(() => import("./pages/Employers"));
 
-// Quick Links Pages
-import FAQ from "./components/home/FAQ";
-import Testimonials from "./components/home/Testimonials";
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const GDPRCompliance = lazy(() => import("./pages/GDPRCompliance"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
+const Accessibility = lazy(() => import("./pages/Accessibility"));
 
-//Location SEO//
-import LocationPage from "./pages/LocationPage";
-import BlogNHSShortage from "./pages/BlogNHSShortage";
-import BlogHowToPassNMCInterview from "./pages/BlogHowToPassNMCInterview";
+const FAQ = lazy(() => import("./components/home/FAQ"));
+const Testimonials = lazy(() => import("./components/home/Testimonials"));
 
+const LocationPage = lazy(() => import("./pages/LocationPage"));
+const BlogNHSShortage = lazy(() => import("./pages/BlogNHSShortage"));
+const BlogHowToPassNMCInterview = lazy(() => import("./pages/BlogHowToPassNMCInterview"));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ScrollToTop Component — Automatically scrolls to top on route change
@@ -66,6 +65,19 @@ function ScrollToTop() {
 // 3. Routes here are fully static (no `:id`-style dynamic segments reading
 //    directly into a fetch or redirect), so there's no open-redirect or
 //    route-injection risk in this file as written.
+//
+// 4. PERFORMANCE: all routes other than Home are now React.lazy. This means
+//    in-app navigation to a not-yet-visited route triggers a network fetch
+//    for that route's chunk. The Suspense fallback below is `null`, matching
+//    the "no visual change" brief for the pages that already render —
+//    but it does mean a brief blank instant on FIRST navigation to each
+//    lazy route (chunk not yet cached). This wasn't present before (routes
+//    were pre-bundled) and is a deliberate trade-off: it moves cost from
+//    "every homepage visitor, every time" to "each route, once, on first
+//    visit." If that blank instant is ever noticeable/undesirable, wrapping
+//    navigation triggers in React's startTransition, or adding a minimal
+//    inline loading indicator to the fallback, are the two ways to smooth
+//    it further — flagging rather than silently deciding for you.
 
 class RouteErrorBoundary extends Component {
   constructor(props) {
@@ -111,106 +123,108 @@ export default function App() {
         <Navbar />
         <main>
           <RouteErrorBoundary>
-            <Routes>
-              {/* Main Pages */}
-              <Route path="/" element={<Home />} />
-              <Route path="/apply" element={<Apply />} />
-              <Route path="/jobs" element={<Jobs />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/training" element={<Training />} />
-              <Route path="/employers" element={<Employers />} />
-              <Route path="/healthcare-recruitment-agency-london" element={<LocationPage cityKey="london" />} />
-              <Route path="/healthcare-recruitment-agency-preston" element={<LocationPage cityKey="preston" />} />
-              <Route path="/healthcare-recruitment-agency-manchester" element={<LocationPage cityKey="manchester" />} />
-              <Route path="/healthcare-recruitment-agency-liverpool" element={<LocationPage cityKey="liverpool" />} />
-              <Route path="/healthcare-recruitment-agency-north-west" element={<LocationPage cityKey="north-west" />} />
-              
-              {/* Blog Pages */}
-              <Route path="/blog/nhs-staffing-shortages-2026" element={<BlogNHSShortage />} />
-              <Route path="/blog/how-to-pass-nmc-interview" element={<BlogHowToPassNMCInterview />} />
-              
-              {/* Legal & Compliance Pages */}
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/gdpr-compliance" element={<GDPRCompliance />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/cookie-policy" element={<CookiePolicy />} />
-              <Route path="/accessibility" element={<Accessibility />} />
-              
-              {/* Quick Links Pages */}
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/testimonials" element={<Testimonials />} />
-              
-              {/* 404 Catch-All Route (Optional but recommended) */}
-              <Route path="*" element={
-                <div style={{ 
-                  padding: "120px 20px", 
-                  textAlign: "center", 
-                  fontFamily: "'Inter', sans-serif",
-                  minHeight: "60vh",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "#f8fafc"
-                }}>
-                  <h1 style={{ 
-                    fontSize: "clamp(3rem, 8vw, 6rem)", 
-                    fontWeight: 900, 
-                    color: "#C4972A",
-                    marginBottom: 8,
-                    lineHeight: 1
+            <Suspense fallback={null}>
+              <Routes>
+                {/* Main Pages */}
+                <Route path="/" element={<Home />} />
+                <Route path="/apply" element={<Apply />} />
+                <Route path="/jobs" element={<Jobs />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/training" element={<Training />} />
+                <Route path="/employers" element={<Employers />} />
+                <Route path="/healthcare-recruitment-agency-london" element={<LocationPage cityKey="london" />} />
+                <Route path="/healthcare-recruitment-agency-preston" element={<LocationPage cityKey="preston" />} />
+                <Route path="/healthcare-recruitment-agency-manchester" element={<LocationPage cityKey="manchester" />} />
+                <Route path="/healthcare-recruitment-agency-liverpool" element={<LocationPage cityKey="liverpool" />} />
+                <Route path="/healthcare-recruitment-agency-north-west" element={<LocationPage cityKey="north-west" />} />
+
+                {/* Blog Pages */}
+                <Route path="/blog/nhs-staffing-shortages-2026" element={<BlogNHSShortage />} />
+                <Route path="/blog/how-to-pass-nmc-interview" element={<BlogHowToPassNMCInterview />} />
+
+                {/* Legal & Compliance Pages */}
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/gdpr-compliance" element={<GDPRCompliance />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/cookie-policy" element={<CookiePolicy />} />
+                <Route path="/accessibility" element={<Accessibility />} />
+
+                {/* Quick Links Pages */}
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/testimonials" element={<Testimonials />} />
+
+                {/* 404 Catch-All Route (Optional but recommended) */}
+                <Route path="*" element={
+                  <div style={{ 
+                    padding: "120px 20px", 
+                    textAlign: "center", 
+                    fontFamily: "'Inter', sans-serif",
+                    minHeight: "60vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "#f8fafc"
                   }}>
-                    404
-                  </h1>
-                  <h2 style={{ 
-                    fontSize: "clamp(1.2rem, 2vw, 1.5rem)", 
-                    fontWeight: 700, 
-                    color: "#0f1d3d",
-                    marginBottom: 12
-                  }}>
-                    Page Not Found
-                  </h2>
-                  <p style={{ 
-                    fontSize: 14, 
-                    color: "#64748b",
-                    maxWidth: 400,
-                    marginBottom: 24,
-                    lineHeight: 1.6
-                  }}>
-                    The page you're looking for doesn't exist or has been moved.
-                  </p>
-                  <a 
-                    href="/"
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "14px 32px",
-                      borderRadius: "50px",
-                      background: "linear-gradient(135deg, #C4972A, #8B6914)",
-                      color: "#fff",
-                      fontFamily: "'Inter', sans-serif",
-                      fontSize: 14,
-                      fontWeight: 700,
-                      textDecoration: "none",
-                      transition: "all 0.2s ease",
-                      boxShadow: "0 2px 8px rgba(196,151,42,0.25)"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = "0 4px 16px rgba(196,151,42,0.4)";
-                      e.currentTarget.style.transform = "translateY(-2px)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(196,151,42,0.25)";
-                      e.currentTarget.style.transform = "translateY(0)";
-                    }}
-                  >
-                    Back to Home
-                  </a>
-                </div>
-              } />
-            </Routes>
+                    <h1 style={{ 
+                      fontSize: "clamp(3rem, 8vw, 6rem)", 
+                      fontWeight: 900, 
+                      color: "#C4972A",
+                      marginBottom: 8,
+                      lineHeight: 1
+                    }}>
+                      404
+                    </h1>
+                    <h2 style={{ 
+                      fontSize: "clamp(1.2rem, 2vw, 1.5rem)", 
+                      fontWeight: 700, 
+                      color: "#0f1d3d",
+                      marginBottom: 12
+                    }}>
+                      Page Not Found
+                    </h2>
+                    <p style={{ 
+                      fontSize: 14, 
+                      color: "#64748b",
+                      maxWidth: 400,
+                      marginBottom: 24,
+                      lineHeight: 1.6
+                    }}>
+                      The page you're looking for doesn't exist or has been moved.
+                    </p>
+                    <a 
+                      href="/"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "14px 32px",
+                        borderRadius: "50px",
+                        background: "linear-gradient(135deg, #C4972A, #8B6914)",
+                        color: "#fff",
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: 14,
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        transition: "all 0.2s ease",
+                        boxShadow: "0 2px 8px rgba(196,151,42,0.25)"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = "0 4px 16px rgba(196,151,42,0.4)";
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = "0 2px 8px rgba(196,151,42,0.25)";
+                        e.currentTarget.style.transform = "translateY(0)";
+                      }}
+                    >
+                      Back to Home
+                    </a>
+                  </div>
+                } />
+              </Routes>
+            </Suspense>
           </RouteErrorBoundary>
         </main>
         <Footer />

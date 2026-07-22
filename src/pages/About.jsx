@@ -2,6 +2,16 @@
 // Production-ready: semantic HTML, per-section IntersectionObserver, no RTL tricks,
 // GPU-only animations, lazy images, WCAG AA, SSR-safe, mobile-first.
 // Fonts: Manrope (headings H1-H6), Inter (paragraphs, buttons, forms, navigation)
+//
+// PERFORMANCE FIX (this pass):
+//   - HeroSection background converted from CSS background-image div to a real
+//     <img fetchpriority="high"> so the browser's preload scanner can discover
+//     and prioritize it without waiting for React to mount. This was the LCP
+//     element on this page. Pair with a matching <link rel="preload"> for this
+//     same URL in index.html, plus a preconnect to images.unsplash.com.
+//   - Removed the redundant Google Fonts @import from the runtime <style> tag
+//     (fonts are already linked/preloaded in index.html; a second JS-gated
+//     @import for the same fonts is pure waste and reintroduces CLS risk).
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
@@ -285,17 +295,23 @@ function HeroSection() {
         paddingTop: 80,
       }}
     >
-      {/* Background */}
-      <div
+      {/* Background — real <img> instead of CSS background-image, so the
+          preload scanner can discover and prioritize it without waiting
+          for React to mount. This was the LCP element on this page. Pair
+          with a matching <link rel="preload"> for this URL in index.html. */}
+      <img
+        src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1600&q=80"
+        alt=""
         aria-hidden="true"
+        fetchPriority="high"
+        decoding="async"
+        loading="eager"
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1600&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "local",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
         }}
       />
       {/* Overlay */}
@@ -1785,8 +1801,6 @@ export default function About() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&family=Manrope:wght@200..800&display=swap');
-
         *, *::before, *::after {
           box-sizing: border-box;
           margin: 0;
