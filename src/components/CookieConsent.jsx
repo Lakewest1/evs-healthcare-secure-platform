@@ -1,46 +1,174 @@
-import { useState, useEffect } from "react";
+// src/components/common/CookieConsent.jsx
+// ─────────────────────────────────────────────────────────────────────────────
+// RASOAF TRAVELS — Cookie Consent Banner · UK GDPR Compliant
+// Fully responsive 320px→2560px · Centered · Scrollable on small devices
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { useState, useEffect, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Cookie, Shield, Settings, X, CheckCircle } from "lucide-react";
+import { Cookie, Shield, Settings, X } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Cookie Consent Banner — UK GDPR Compliant
-// ─────────────────────────────────────────────────────────────────────────────
-
+// ══════════════════════════════════════════════════════════════════════════
+// Constants — Module scope
+// ══════════════════════════════════════════════════════════════════════════
 const COOKIE_CONSENT_KEY = "evs-cookie-consent";
+const BANNER_DELAY_MS = 1500;
 
+// ══════════════════════════════════════════════════════════════════════════
+// Animation Variants — Module scope, stable references
+// ══════════════════════════════════════════════════════════════════════════
+const BANNER_VARIANTS = Object.freeze({
+  hidden: { y: 40, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+  },
+  exit: {
+    y: 30,
+    opacity: 0,
+    transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] },
+  },
+});
+
+const OVERLAY_VARIANTS = Object.freeze({
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+});
+
+const PANEL_VARIANTS = Object.freeze({
+  hidden: { scale: 0.95, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
+  },
+  exit: {
+    scale: 0.95,
+    opacity: 0,
+    transition: { duration: 0.15 },
+  },
+});
+
+// ══════════════════════════════════════════════════════════════════════════
+// Default consent state
+// ══════════════════════════════════════════════════════════════════════════
+const DEFAULT_PREFERENCES = Object.freeze({
+  essential: true,
+  analytics: false,
+  marketing: false,
+  preferences: false,
+});
+
+// ══════════════════════════════════════════════════════════════════════════
+// Cookie Option Sub-Component — Memoized
+// ══════════════════════════════════════════════════════════════════════════
+const CookieOption = memo(function CookieOption({
+  icon,
+  title,
+  description,
+  enabled,
+  onToggle,
+}) {
+  return (
+    <div
+      className={`cc-option${enabled ? " cc-option--enabled" : ""}`}
+      onClick={onToggle}
+      role="checkbox"
+      aria-checked={enabled}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onToggle();
+        }
+      }}
+    >
+      <div className={`cc-option-icon${enabled ? " cc-option-icon--active" : ""}`}>
+        {icon}
+      </div>
+      <div className="cc-option-content">
+        <div className="cc-option-header">
+          <span className="cc-option-title">{title}</span>
+          <div
+            className={`cc-toggle${enabled ? " cc-toggle--active" : ""}`}
+            aria-hidden="true"
+          >
+            <div className="cc-toggle-knob" />
+          </div>
+        </div>
+        <p className="cc-option-desc">{description}</p>
+      </div>
+    </div>
+  );
+});
+CookieOption.displayName = "CookieOption";
+
+// ══════════════════════════════════════════════════════════════════════════
+// Main Component
+// ══════════════════════════════════════════════════════════════════════════
 export default function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
-  const [preferences, setPreferences] = useState({
-    essential: true, // Always enabled - required for site functionality
-    analytics: false,
-    marketing: false,
-    preferences: false,
-  });
+  const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
+  const [hasExistingConsent, setHasExistingConsent] = useState(false);
 
-  // Check if user has already made a choice
+  // ── Check for existing consent on mount ──────────────────────────────
   useEffect(() => {
     const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
     if (!consent) {
-      // No choice made yet — show banner after a short delay
-      const timer = setTimeout(() => {
-        setShowBanner(true);
-      }, 1500);
+      const timer = setTimeout(() => setShowBanner(true), BANNER_DELAY_MS);
       return () => clearTimeout(timer);
-    } else {
-      // Load saved preferences
-      try {
-        const savedPreferences = JSON.parse(consent);
-        setPreferences(savedPreferences);
-      } catch (e) {
-        // Invalid stored data, show banner
+    }
+
+    try {
+      const saved = JSON.parse(consent);
+      if (saved && typeof saved.essential === "boolean") {
+        setPreferences({
+          essential: true,
+          analytics: saved.analytics ?? false,
+          marketing: saved.marketing ?? false,
+          preferences: saved.preferences ?? false,
+        });
+        setHasExistingConsent(true);
+        applyConsent(saved);
+      } else {
         setShowBanner(true);
       }
+    } catch {
+      setShowBanner(true);
     }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Save consent to localStorage ─────────────────────────────────────
+  const saveConsent = useCallback((prefs) => {
+    localStorage.setItem(
+      COOKIE_CONSENT_KEY,
+      JSON.stringify({
+        ...prefs,
+        timestamp: new Date().toISOString(),
+      })
+    );
+    setHasExistingConsent(true);
   }, []);
 
-  // Accept all cookies
-  const acceptAll = () => {
+  // ── Apply consent ────────────────────────────────────────────────────
+  const applyConsent = useCallback((prefs) => {
+    if (typeof window.gtag === "function") {
+      window.gtag("consent", "update", {
+        analytics_storage: prefs.analytics ? "granted" : "denied",
+        ad_storage: prefs.marketing ? "granted" : "denied",
+      });
+    }
+
+    window.dispatchEvent(
+      new CustomEvent("cookieConsentUpdated", { detail: prefs })
+    );
+  }, []);
+
+  // ── Accept all cookies ──────────────────────────────────────────────
+  const acceptAll = useCallback(() => {
     const allAccepted = {
       essential: true,
       analytics: true,
@@ -49,13 +177,13 @@ export default function CookieConsent() {
     };
     setPreferences(allAccepted);
     saveConsent(allAccepted);
+    applyConsent(allAccepted);
     setShowBanner(false);
     setShowPreferences(false);
-    applyConsent(allAccepted);
-  };
+  }, [saveConsent, applyConsent]);
 
-  // Accept only essential cookies
-  const acceptEssential = () => {
+  // ── Accept only essential ────────────────────────────────────────────
+  const acceptEssential = useCallback(() => {
     const essentialOnly = {
       essential: true,
       analytics: false,
@@ -64,170 +192,90 @@ export default function CookieConsent() {
     };
     setPreferences(essentialOnly);
     saveConsent(essentialOnly);
-    setShowBanner(false);
-    setShowPreferences(false);
     applyConsent(essentialOnly);
-  };
-
-  // Save custom preferences
-  const savePreferences = () => {
-    saveConsent(preferences);
     setShowBanner(false);
     setShowPreferences(false);
+  }, [saveConsent, applyConsent]);
+
+  // ── Save custom preferences ──────────────────────────────────────────
+  const savePreferences = useCallback(() => {
+    saveConsent(preferences);
     applyConsent(preferences);
-  };
-
-  // Save to localStorage
-  const saveConsent = (prefs) => {
-    localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify({
-      ...prefs,
-      timestamp: new Date().toISOString(),
-    }));
-  };
-
-  // Apply consent (load/block scripts based on preferences)
-  const applyConsent = (prefs) => {
-    // Analytics — Google Analytics example
-    if (prefs.analytics) {
-      enableAnalytics();
-    } else {
-      disableAnalytics();
-    }
-
-    // Marketing — Facebook Pixel, Google Ads, etc.
-    if (prefs.marketing) {
-      enableMarketing();
-    } else {
-      disableMarketing();
-    }
-
-    // Preferences — Theme, language, etc.
-    if (prefs.preferences) {
-      enablePreferenceCookies();
-    }
-
-    // Dispatch custom event for other components to react
-    window.dispatchEvent(new CustomEvent("cookieConsentUpdated", { 
-      detail: prefs 
-    }));
-  };
-
-  const enableAnalytics = () => {
-    // Google Analytics gtag example
-    if (typeof window.gtag === "function") {
-      window.gtag("consent", "update", {
-        analytics_storage: "granted",
-      });
-    }
-    console.log("Analytics cookies enabled");
-  };
-
-  const disableAnalytics = () => {
-    if (typeof window.gtag === "function") {
-      window.gtag("consent", "update", {
-        analytics_storage: "denied",
-      });
-    }
-    console.log("Analytics cookies disabled");
-  };
-
-  const enableMarketing = () => {
-    console.log("Marketing cookies enabled");
-  };
-
-  const disableMarketing = () => {
-    console.log("Marketing cookies disabled");
-  };
-
-  const enablePreferenceCookies = () => {
-    console.log("Preference cookies enabled");
-  };
-
-  // Open preferences panel
-  const openPreferences = () => {
-    setShowPreferences(true);
-  };
-
-  // Toggle individual preference
-  const togglePreference = (key) => {
-    if (key === "essential") return; // Cannot toggle essential
-    setPreferences(prev => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
-
-  // Reset consent (for testing or if user wants to change)
-  const resetConsent = () => {
-    localStorage.removeItem(COOKIE_CONSENT_KEY);
-    setShowBanner(true);
+    setShowBanner(false);
     setShowPreferences(false);
-  };
+  }, [preferences, saveConsent, applyConsent]);
+
+  // ── Toggle individual preference ─────────────────────────────────────
+  const togglePreference = useCallback((key) => {
+    if (key === "essential") return;
+    setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
+
+  // ── Open/close preferences panel ─────────────────────────────────────
+  const openPreferences = useCallback(() => setShowPreferences(true), []);
+
+  const closePreferences = useCallback(() => {
+    setShowPreferences(false);
+    if (!hasExistingConsent) {
+      setShowBanner(true);
+    }
+  }, [hasExistingConsent]);
+
+  const handleOverlayClick = useCallback(
+    (e) => {
+      if (e.target === e.currentTarget) closePreferences();
+    },
+    [closePreferences]
+  );
 
   return (
     <>
+      <style>{CSS}</style>
+
       {/* ─── MAIN COOKIE BANNER ─── */}
       <AnimatePresence>
         {showBanner && !showPreferences && (
           <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
-            className="cookie-banner"
+            className="cc-banner"
+            variants={BANNER_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
             role="dialog"
-            aria-labelledby="cookie-title"
-            aria-describedby="cookie-description"
+            aria-labelledby="cc-title"
+            aria-describedby="cc-description"
           >
-            <div className="cookie-banner-inner">
-              {/* Cookie Icon */}
-              <div className="cookie-icon-wrapper">
+            <div className="cc-banner-inner">
+              <div className="cc-icon-wrap" aria-hidden="true">
                 <Cookie size={20} strokeWidth={1.5} />
               </div>
 
-              <div className="cookie-content">
-                <h3 id="cookie-title" className="cookie-title">
+              <div className="cc-content">
+                <h3 id="cc-title" className="cc-title">
                   We Value Your Privacy
                 </h3>
-                <p id="cookie-description" className="cookie-description">
-                  We use cookies to enhance your browsing experience, analyze site traffic, 
-                  and personalize content. By clicking "Accept All", you consent to our use 
-                  of all cookies. You can manage your preferences or learn more in our{" "}
-                  <a href="/cookie-policy" className="cookie-link">
+                <p id="cc-description" className="cc-description">
+                  We use cookies to enhance your browsing experience, analyze
+                  site traffic, and personalize content. By clicking &ldquo;Accept
+                  All&rdquo;, you consent to our use of all cookies. You can manage
+                  your preferences in our{" "}
+                  <a href="/cookie-policy" className="cc-link">
                     Cookie Policy
                   </a>
                   .
                 </p>
 
-                {/* Buttons */}
-                <div className="cookie-buttons">
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={acceptAll}
-                    className="cookie-btn cookie-btn-primary"
-                  >
+                <div className="cc-buttons">
+                  <button onClick={acceptAll} className="cc-btn cc-btn--primary">
                     Accept All
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={acceptEssential}
-                    className="cookie-btn cookie-btn-secondary"
-                  >
+                  </button>
+                  <button onClick={acceptEssential} className="cc-btn cc-btn--secondary">
                     Essential Only
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={openPreferences}
-                    className="cookie-btn cookie-btn-outline"
-                  >
-                    <Settings size={13} />
+                  </button>
+                  <button onClick={openPreferences} className="cc-btn cc-btn--outline">
+                    <Settings size={13} aria-hidden="true" />
                     Customize
-                  </motion.button>
+                  </button>
                 </div>
               </div>
             </div>
@@ -239,74 +287,67 @@ export default function CookieConsent() {
       <AnimatePresence>
         {showPreferences && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="cookie-overlay"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowPreferences(false);
-                if (!localStorage.getItem(COOKIE_CONSENT_KEY)) {
-                  setShowBanner(true);
-                }
-              }
-            }}
+            className="cc-overlay"
+            variants={OVERLAY_VARIANTS}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            onClick={handleOverlayClick}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 20 }}
-              className="cookie-panel"
+              className="cc-panel"
+              variants={PANEL_VARIANTS}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
               onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-labelledby="cc-panel-title"
             >
               {/* Header */}
-              <div className="cookie-panel-header">
-                <div className="cookie-panel-title-wrap">
-                  <div className="cookie-panel-icon">
+              <div className="cc-panel-header">
+                <div className="cc-panel-title-wrap">
+                  <div className="cc-panel-icon" aria-hidden="true">
                     <Settings size={18} strokeWidth={1.5} />
                   </div>
-                  <h3 className="cookie-panel-title">Cookie Preferences</h3>
+                  <h3 id="cc-panel-title" className="cc-panel-title">
+                    Cookie Preferences
+                  </h3>
                 </div>
                 <button
-                  onClick={() => {
-                    setShowPreferences(false);
-                    if (!localStorage.getItem(COOKIE_CONSENT_KEY)) {
-                      setShowBanner(true);
-                    }
-                  }}
-                  className="cookie-close-btn"
+                  onClick={closePreferences}
+                  className="cc-close-btn"
                   aria-label="Close preferences"
                 >
-                  <X size={20} />
+                  <X size={20} aria-hidden="true" />
                 </button>
               </div>
 
-              <p className="cookie-panel-sub">
-                Choose which cookies you want to allow. Essential cookies are always 
-                enabled as they are required for the website to function properly.
+              <p className="cc-panel-sub">
+                Choose which cookies you want to allow. Essential cookies are
+                always enabled as they are required for the website to function
+                properly.
               </p>
 
               {/* Cookie Options */}
-              <div className="cookie-options">
-                {/* Essential */}
-                <div className="cookie-option cookie-option-essential">
-                  <div className="cookie-option-icon essential">
+              <div className="cc-options">
+                {/* Essential — Always On */}
+                <div className="cc-option cc-option--essential">
+                  <div className="cc-option-icon cc-option-icon--essential">
                     <Shield size={16} />
                   </div>
-                  <div className="cookie-option-content">
-                    <div className="cookie-option-header">
-                      <span className="cookie-option-title">Essential</span>
-                      <span className="cookie-badge">Always On</span>
+                  <div className="cc-option-content">
+                    <div className="cc-option-header">
+                      <span className="cc-option-title">Essential</span>
+                      <span className="cc-badge">Always On</span>
                     </div>
-                    <p className="cookie-option-desc">
-                      Required for the website to function. Includes session management, security, 
-                      and form submissions.
+                    <p className="cc-option-desc">
+                      Required for the website to function. Includes session
+                      management, security, and form submissions.
                     </p>
                   </div>
                 </div>
 
-                {/* Analytics */}
                 <CookieOption
                   icon={<Cookie size={16} />}
                   title="Analytics"
@@ -315,7 +356,6 @@ export default function CookieConsent() {
                   onToggle={() => togglePreference("analytics")}
                 />
 
-                {/* Marketing */}
                 <CookieOption
                   icon={<Cookie size={16} />}
                   title="Marketing"
@@ -324,7 +364,6 @@ export default function CookieConsent() {
                   onToggle={() => togglePreference("marketing")}
                 />
 
-                {/* Preferences */}
                 <CookieOption
                   icon={<Cookie size={16} />}
                   title="Preferences"
@@ -335,40 +374,32 @@ export default function CookieConsent() {
               </div>
 
               {/* Action Buttons */}
-              <div className="cookie-panel-actions">
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+              <div className="cc-panel-actions">
+                <button
                   onClick={savePreferences}
-                  className="cookie-panel-btn cookie-panel-btn-primary"
+                  className="cc-panel-btn cc-panel-btn--primary"
                 >
                   Save Preferences
-                </motion.button>
+                </button>
 
-                <div className="cookie-panel-btn-group">
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
+                <div className="cc-panel-btn-group">
+                  <button
                     onClick={acceptAll}
-                    className="cookie-panel-btn cookie-panel-btn-secondary"
+                    className="cc-panel-btn cc-panel-btn--secondary"
                   >
                     Accept All
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
+                  </button>
+                  <button
                     onClick={acceptEssential}
-                    className="cookie-panel-btn cookie-panel-btn-secondary"
+                    className="cc-panel-btn cc-panel-btn--secondary"
                   >
                     Essential Only
-                  </motion.button>
+                  </button>
                 </div>
               </div>
 
-              {/* Cookie Policy Link */}
-              <p className="cookie-panel-footer">
-                <a href="/cookie-policy" className="cookie-link">
+              <p className="cc-panel-footer">
+                <a href="/cookie-policy" className="cc-link">
                   Learn more in our Cookie Policy
                 </a>
               </p>
@@ -376,578 +407,649 @@ export default function CookieConsent() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <style>{`
-        /* ─── COOKIE BANNER ─── */
-        .cookie-banner {
-          position: fixed;
-          bottom: 16px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 9999;
-          width: calc(100% - 24px);
-          max-width: 640px;
-          background: rgba(255, 255, 255, 0.98);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border-radius: 20px;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
-          border: 1px solid rgba(196,151,42,0.15);
-          padding: clamp(16px, 4vw, 28px);
-        }
-
-        .cookie-banner-inner {
-          display: flex;
-          gap: 14px;
-          align-items: flex-start;
-        }
-
-        .cookie-icon-wrapper {
-          width: 40px;
-          height: 40px;
-          border-radius: 12px;
-          background: rgba(196,151,42,0.1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #C4972A;
-          flex-shrink: 0;
-          align-self: center;
-        }
-
-        .cookie-content {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .cookie-title {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(14px, 2.5vw, 15px);
-          font-weight: 700;
-          color: #0f1d3d;
-          margin: 0 0 4px 0;
-          text-align: left;
-        }
-
-        .cookie-description {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(12px, 2vw, 13px);
-          color: #64748b;
-          line-height: 1.6;
-          margin: 0;
-          text-align: left;
-        }
-
-        .cookie-link {
-          color: #C4972A;
-          text-decoration: underline;
-          font-weight: 600;
-        }
-
-        .cookie-buttons {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-          margin-top: 16px;
-        }
-
-        .cookie-btn {
-          padding: 10px 18px;
-          border-radius: 50px;
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(11px, 1.5vw, 13px);
-          font-weight: 700;
-          border: none;
-          cursor: pointer;
-          flex: 1 1 auto;
-          min-width: 80px;
-          text-align: center;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          transition: all 0.2s ease;
-        }
-
-        .cookie-btn-primary {
-          background: linear-gradient(135deg, #C4972A, #8B6914);
-          color: #fff;
-          box-shadow: 0 2px 8px rgba(196,151,42,0.25);
-        }
-
-        .cookie-btn-primary:hover {
-          box-shadow: 0 4px 16px rgba(196,151,42,0.4);
-          transform: translateY(-1px);
-        }
-
-        .cookie-btn-secondary {
-          background: #f1f5f9;
-          color: #475569;
-          border: 1px solid #e2e8f0;
-        }
-
-        .cookie-btn-secondary:hover {
-          background: #e2e8f0;
-        }
-
-        .cookie-btn-outline {
-          background: transparent;
-          color: #C4972A;
-          border: 1.5px solid #C4972A;
-        }
-
-        .cookie-btn-outline:hover {
-          background: rgba(196,151,42,0.08);
-        }
-
-        /* ─── PREFERENCES OVERLAY ─── */
-        .cookie-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 10000;
-          background: rgba(0,0,0,0.5);
-          backdrop-filter: blur(4px);
-          -webkit-backdrop-filter: blur(4px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 16px;
-        }
-
-        .cookie-panel {
-          width: 100%;
-          max-width: 500px;
-          max-height: 90vh;
-          overflow-y: auto;
-          background: #fff;
-          border-radius: 24px;
-          padding: clamp(20px, 4vw, 32px);
-          box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-          margin: 0 8px;
-        }
-
-        .cookie-panel-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-
-        .cookie-panel-title-wrap {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .cookie-panel-icon {
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
-          background: rgba(196,151,42,0.1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #C4972A;
-          flex-shrink: 0;
-        }
-
-        .cookie-panel-title {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(16px, 3vw, 17px);
-          font-weight: 700;
-          color: #0f1d3d;
-          margin: 0;
-        }
-
-        .cookie-close-btn {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: #94a3b8;
-          padding: 4px;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-        }
-
-        .cookie-close-btn:hover {
-          background: #f1f5f9;
-          color: #475569;
-        }
-
-        .cookie-panel-sub {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(12px, 2vw, 13px);
-          color: #64748b;
-          line-height: 1.6;
-          margin: 0 0 20px 0;
-          text-align: left;
-        }
-
-        .cookie-options {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          margin-bottom: 20px;
-        }
-
-        /* ─── COOKIE OPTION ─── */
-        .cookie-option {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          padding: clamp(12px, 2vw, 16px);
-          border-radius: 14px;
-          background: #fff;
-          border: 1.5px solid #e2e8f0;
-          transition: all 0.2s ease;
-          cursor: pointer;
-        }
-
-        .cookie-option-essential {
-          background: #f8fafc;
-          border-color: #e2e8f0;
-          cursor: default;
-        }
-
-        .cookie-option-icon {
-          width: 32px;
-          height: 32px;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #94a3b8;
-          flex-shrink: 0;
-          transition: all 0.2s ease;
-        }
-
-        .cookie-option-icon.essential {
-          background: rgba(22,163,74,0.1);
-          color: #16a34a;
-        }
-
-        .cookie-option-content {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .cookie-option-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 4px;
-        }
-
-        .cookie-option-title {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(13px, 2vw, 14px);
-          font-weight: 600;
-          color: #0f1d3d;
-        }
-
-        .cookie-badge {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          font-weight: 600;
-          color: #16a34a;
-          background: rgba(22,163,74,0.1);
-          padding: 3px 10px;
-          border-radius: 20px;
-          white-space: nowrap;
-        }
-
-        .cookie-option-desc {
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(11px, 1.5vw, 12px);
-          color: #94a3b8;
-          margin: 4px 0 0 0;
-          line-height: 1.5;
-        }
-
-        .cookie-toggle {
-          width: 36px;
-          height: 20px;
-          border-radius: 10px;
-          background: #cbd5e1;
-          position: relative;
-          flex-shrink: 0;
-          transition: background 0.2s ease;
-          cursor: pointer;
-        }
-
-        .cookie-toggle.active {
-          background: #C4972A;
-        }
-
-        .cookie-toggle-knob {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #fff;
-          position: absolute;
-          top: 2px;
-          left: 2px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-          transition: transform 0.2s ease;
-        }
-
-        .cookie-toggle.active .cookie-toggle-knob {
-          transform: translateX(16px);
-        }
-
-        /* ─── PANEL ACTIONS ─── */
-        .cookie-panel-actions {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .cookie-panel-btn {
-          padding: 12px 24px;
-          border-radius: 50px;
-          font-family: 'Inter', sans-serif;
-          font-size: clamp(12px, 1.5vw, 13px);
-          font-weight: 700;
-          border: none;
-          cursor: pointer;
-          width: 100%;
-          text-align: center;
-          transition: all 0.2s ease;
-        }
-
-        .cookie-panel-btn-primary {
-          background: linear-gradient(135deg, #C4972A, #8B6914);
-          color: #fff;
-          box-shadow: 0 2px 8px rgba(196,151,42,0.25);
-        }
-
-        .cookie-panel-btn-primary:hover {
-          box-shadow: 0 4px 16px rgba(196,151,42,0.4);
-          transform: translateY(-1px);
-        }
-
-        .cookie-panel-btn-secondary {
-          background: #f1f5f9;
-          color: #475569;
-          border: 1px solid #e2e8f0;
-        }
-
-        .cookie-panel-btn-secondary:hover {
-          background: #e2e8f0;
-        }
-
-        .cookie-panel-btn-group {
-          display: flex;
-          gap: 8px;
-          width: 100%;
-        }
-
-        .cookie-panel-btn-group .cookie-panel-btn {
-          flex: 1;
-        }
-
-        .cookie-panel-footer {
-          text-align: center;
-          margin: 16px 0 0 0;
-        }
-
-        /* ─── RESPONSIVE ─── */
-        @media (max-width: 600px) {
-          .cookie-banner {
-            bottom: 8px;
-            padding: 16px;
-            border-radius: 16px;
-          }
-
-          .cookie-banner-inner {
-            flex-direction: column;
-            gap: 10px;
-            align-items: stretch;
-          }
-
-          .cookie-icon-wrapper {
-            align-self: center;
-            width: 36px;
-            height: 36px;
-          }
-
-          .cookie-title {
-            text-align: center;
-          }
-
-          .cookie-description {
-            text-align: center;
-            font-size: 12px;
-          }
-
-          .cookie-buttons {
-            flex-direction: column;
-          }
-
-          .cookie-btn {
-            width: 100%;
-            padding: 12px;
-            font-size: 13px;
-          }
-
-          .cookie-overlay {
-            padding: 8px;
-          }
-
-          .cookie-panel {
-            padding: 16px;
-            margin: 0;
-            border-radius: 16px;
-            max-height: 95vh;
-          }
-
-          .cookie-panel-header {
-            margin-bottom: 16px;
-          }
-
-          .cookie-panel-sub {
-            font-size: 12px;
-            margin-bottom: 16px;
-          }
-
-          .cookie-option {
-            padding: 12px;
-            gap: 10px;
-          }
-
-          .cookie-option-icon {
-            width: 28px;
-            height: 28px;
-          }
-
-          .cookie-option-icon svg {
-            width: 14px;
-            height: 14px;
-          }
-
-          .cookie-panel-btn-group {
-            flex-direction: column;
-          }
-
-          .cookie-panel-btn {
-            padding: 14px;
-            font-size: 13px;
-          }
-
-          .cookie-panel-footer {
-            margin-top: 12px;
-          }
-        }
-
-        @media (max-width: 400px) {
-          .cookie-banner {
-            padding: 12px;
-            border-radius: 12px;
-            bottom: 4px;
-          }
-
-          .cookie-title {
-            font-size: 13px;
-          }
-
-          .cookie-description {
-            font-size: 11px;
-          }
-
-          .cookie-btn {
-            padding: 10px;
-            font-size: 12px;
-            min-width: 60px;
-          }
-
-          .cookie-panel {
-            padding: 12px;
-            border-radius: 12px;
-          }
-
-          .cookie-panel-title {
-            font-size: 14px;
-          }
-
-          .cookie-option {
-            padding: 10px;
-            gap: 8px;
-          }
-
-          .cookie-option-title {
-            font-size: 12px;
-          }
-
-          .cookie-option-desc {
-            font-size: 10px;
-          }
-
-          .cookie-toggle {
-            width: 30px;
-            height: 18px;
-          }
-
-          .cookie-toggle-knob {
-            width: 14px;
-            height: 14px;
-            top: 2px;
-            left: 2px;
-          }
-
-          .cookie-toggle.active .cookie-toggle-knob {
-            transform: translateX(12px);
-          }
-
-          .cookie-panel-btn {
-            padding: 10px;
-            font-size: 12px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .cookie-banner,
-          .cookie-overlay,
-          .cookie-panel,
-          .cookie-btn,
-          .cookie-panel-btn,
-          .cookie-toggle,
-          .cookie-toggle-knob {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
     </>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Cookie Option Sub-Component
-// ─────────────────────────────────────────────────────────────────────────────
-function CookieOption({ icon, title, description, enabled, onToggle }) {
-  return (
-    <div
-      className={`cookie-option ${enabled ? 'active' : ''}`}
-      onClick={onToggle}
-    >
-      <div className={`cookie-option-icon ${enabled ? 'active' : ''}`}>
-        {icon}
-      </div>
-      <div className="cookie-option-content">
-        <div className="cookie-option-header">
-          <span className="cookie-option-title">{title}</span>
-          <div className={`cookie-toggle ${enabled ? 'active' : ''}`}>
-            <div className="cookie-toggle-knob" />
-          </div>
-        </div>
-        <p className="cookie-option-desc">{description}</p>
-      </div>
-    </div>
-  );
-}
+// ══════════════════════════════════════════════════════════════════════════
+// Premium CSS — Fully responsive 320px→2560px
+// ══════════════════════════════════════════════════════════════════════════
+const CSS = `
+  /* ═══════════════════════════════════════════════════════════════════════ */
+  /* COOKIE BANNER — Bottom sheet, fully visible on all devices           */
+  /* ═══════════════════════════════════════════════════════════════════════ */
+
+  .cc-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.98);
+    border-top: 1px solid rgba(196,151,42,0.15);
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.08);
+    padding: clamp(14px, 2.5vw, 24px) clamp(14px, 3vw, 28px);
+    max-height: 85vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  @supports (backdrop-filter: blur(20px)) {
+    .cc-banner {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+  }
+
+  .cc-banner-inner {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .cc-icon-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(196,151,42,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #C4972A;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .cc-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cc-title {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: clamp(13px, 1.8vw, 15px);
+    font-weight: 700;
+    color: #0f1d3d;
+    margin: 0 0 3px 0;
+    line-height: 1.3;
+  }
+
+  .cc-description {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: clamp(11px, 1.3vw, 13px);
+    color: #64748b;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .cc-link {
+    color: #C4972A;
+    text-decoration: underline;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .cc-link:hover {
+    color: #8B6914;
+  }
+
+  .cc-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .cc-btn {
+    padding: 9px 16px;
+    border-radius: 50px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: clamp(11px, 1.1vw, 12px);
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    flex: 1 1 auto;
+    min-width: 80px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    outline: none;
+    min-height: 40px;
+    white-space: nowrap;
+  }
+
+  .cc-btn:focus-visible {
+    outline: 2px solid #C4972A;
+    outline-offset: 2px;
+  }
+
+  .cc-btn--primary {
+    background: linear-gradient(135deg, #C4972A, #8B6914);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(196,151,42,0.25);
+  }
+
+  .cc-btn--primary:hover {
+    box-shadow: 0 4px 16px rgba(196,151,42,0.4);
+    transform: translateY(-1px);
+  }
+
+  .cc-btn--secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+  }
+
+  .cc-btn--secondary:hover {
+    background: #e2e8f0;
+  }
+
+  .cc-btn--outline {
+    background: transparent;
+    color: #C4972A;
+    border: 1.5px solid #C4972A;
+  }
+
+  .cc-btn--outline:hover {
+    background: rgba(196,151,42,0.08);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════ */
+  /* PREFERENCES OVERLAY — Scrollable modal                                */
+  /* ═══════════════════════════════════════════════════════════════════════ */
+
+  .cc-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(8px, 2vw, 20px);
+  }
+
+  @supports (backdrop-filter: blur(4px)) {
+    .cc-overlay {
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+  }
+
+  .cc-panel {
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #fff;
+    border-radius: 20px;
+    padding: clamp(16px, 3vw, 28px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+
+  .cc-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+    padding-bottom: 8px;
+  }
+
+  .cc-panel-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cc-panel-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(196,151,42,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #C4972A;
+    flex-shrink: 0;
+  }
+
+  .cc-panel-title {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: clamp(15px, 2vw, 16px);
+    font-weight: 700;
+    color: #0f1d3d;
+    margin: 0;
+  }
+
+  .cc-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .cc-close-btn:hover {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  .cc-panel-sub {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: clamp(11px, 1.3vw, 13px);
+    color: #64748b;
+    line-height: 1.55;
+    margin: 0 0 16px 0;
+  }
+
+  .cc-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════ */
+  /* COOKIE OPTION CARD                                                     */
+  /* ═══════════════════════════════════════════════════════════════════════ */
+
+  .cc-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: clamp(10px, 1.5vw, 14px);
+    border-radius: 12px;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    cursor: pointer;
+  }
+
+  .cc-option--essential {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    cursor: default;
+  }
+
+  .cc-option--enabled {
+    border-color: rgba(196,151,42,0.3);
+    background: rgba(196,151,42,0.02);
+  }
+
+  .cc-option-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    flex-shrink: 0;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  .cc-option-icon--essential {
+    background: rgba(22,163,74,0.1);
+    color: #16a34a;
+  }
+
+  .cc-option-icon--active {
+    background: rgba(196,151,42,0.1);
+    color: #C4972A;
+  }
+
+  .cc-option-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cc-option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .cc-option-title {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: clamp(12px, 1.3vw, 13px);
+    font-weight: 600;
+    color: #0f1d3d;
+  }
+
+  .cc-badge {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    color: #16a34a;
+    background: rgba(22,163,74,0.1);
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .cc-option-desc {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: clamp(10px, 1.1vw, 11px);
+    color: #94a3b8;
+    margin: 3px 0 0 0;
+    line-height: 1.45;
+  }
+
+  /* Toggle Switch */
+  .cc-toggle {
+    width: 34px;
+    height: 20px;
+    border-radius: 10px;
+    background: #cbd5e1;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+    cursor: pointer;
+  }
+
+  .cc-toggle--active {
+    background: #C4972A;
+  }
+
+  .cc-toggle-knob {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+  }
+
+  .cc-toggle--active .cc-toggle-knob {
+    transform: translateX(14px);
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════ */
+  /* PANEL ACTIONS                                                          */
+  /* ═══════════════════════════════════════════════════════════════════════ */
+
+  .cc-panel-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cc-panel-btn {
+    padding: 11px 20px;
+    border-radius: 50px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: clamp(12px, 1.2vw, 13px);
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    min-height: 44px;
+  }
+
+  .cc-panel-btn:focus-visible {
+    outline: 2px solid #C4972A;
+    outline-offset: 2px;
+  }
+
+  .cc-panel-btn--primary {
+    background: linear-gradient(135deg, #C4972A, #8B6914);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(196,151,42,0.25);
+  }
+
+  .cc-panel-btn--primary:hover {
+    box-shadow: 0 4px 16px rgba(196,151,42,0.4);
+    transform: translateY(-1px);
+  }
+
+  .cc-panel-btn--secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+  }
+
+  .cc-panel-btn--secondary:hover {
+    background: #e2e8f0;
+  }
+
+  .cc-panel-btn-group {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .cc-panel-btn-group .cc-panel-btn {
+    flex: 1;
+  }
+
+  .cc-panel-footer {
+    text-align: center;
+    margin: 14px 0 0 0;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════ */
+  /* RESPONSIVE                                                             */
+  /* ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Tablet / Landscape phones */
+  @media (min-width: 641px) {
+    .cc-banner {
+      bottom: clamp(12px, 2vh, 24px);
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%) translateZ(0);
+      width: min(calc(100% - 32px), 680px);
+      border-radius: 18px;
+      border: 1px solid rgba(196,151,42,0.15);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+      max-height: 80vh;
+    }
+  }
+
+  /* Mobile — Full-width bottom sheet */
+  @media (max-width: 640px) {
+    .cc-banner-inner {
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .cc-icon-wrap {
+      align-self: center;
+      width: 34px;
+      height: 34px;
+    }
+
+    .cc-title {
+      text-align: center;
+    }
+
+    .cc-description {
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .cc-buttons {
+      flex-direction: column;
+    }
+
+    .cc-btn {
+      width: 100%;
+      padding: 11px;
+      font-size: 12px;
+    }
+
+    .cc-panel {
+      border-radius: 16px;
+      padding: 14px;
+      max-height: 92vh;
+    }
+
+    .cc-panel-header {
+      padding-bottom: 6px;
+    }
+
+    .cc-panel-btn-group {
+      flex-direction: column;
+    }
+
+    .cc-panel-btn {
+      padding: 12px;
+    }
+  }
+
+  /* Small phones */
+  @media (max-width: 400px) {
+    .cc-banner {
+      padding: 10px 10px;
+      max-height: 80vh;
+    }
+
+    .cc-title {
+      font-size: 12px;
+    }
+
+    .cc-description {
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .cc-btn {
+      padding: 9px;
+      font-size: 11px;
+      min-height: 38px;
+    }
+
+    .cc-panel {
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .cc-panel-title {
+      font-size: 14px;
+    }
+
+    .cc-option {
+      padding: 8px;
+      gap: 8px;
+    }
+
+    .cc-option-icon {
+      width: 26px;
+      height: 26px;
+    }
+
+    .cc-option-icon svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .cc-option-title {
+      font-size: 11px;
+    }
+
+    .cc-option-desc {
+      font-size: 9px;
+    }
+
+    .cc-toggle {
+      width: 30px;
+      height: 18px;
+    }
+
+    .cc-toggle-knob {
+      width: 14px;
+      height: 14px;
+    }
+
+    .cc-toggle--active .cc-toggle-knob {
+      transform: translateX(12px);
+    }
+
+    .cc-panel-btn {
+      padding: 10px;
+      font-size: 11px;
+      min-height: 40px;
+    }
+  }
+
+  /* Extra small phones */
+  @media (max-width: 340px) {
+    .cc-banner {
+      padding: 8px 8px;
+    }
+
+    .cc-buttons {
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .cc-btn {
+      padding: 8px;
+      font-size: 10px;
+      min-height: 36px;
+    }
+
+    .cc-panel {
+      padding: 8px;
+    }
+
+    .cc-option {
+      padding: 6px;
+      gap: 6px;
+    }
+
+    .cc-panel-btn {
+      padding: 9px;
+      font-size: 10px;
+      min-height: 38px;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════ */
+  /* REDUCED MOTION                                                         */
+  /* ═══════════════════════════════════════════════════════════════════════ */
+
+  @media (prefers-reduced-motion: reduce) {
+    .cc-banner,
+    .cc-overlay,
+    .cc-panel,
+    .cc-btn,
+    .cc-panel-btn,
+    .cc-toggle,
+    .cc-toggle-knob,
+    .cc-option {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+`;
