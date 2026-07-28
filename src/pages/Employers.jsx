@@ -460,8 +460,8 @@ const BENEFITS = [
   },
   {
     icon: Users,
-    title: "5,000+ Professionals",
-    desc: "Access a growing network of over 5,000 healthcare professionals across the UK.",
+    title: "Many Professionals",
+    desc: "Access a growing network of many healthcare professionals across the UK.",
   },
   {
     icon: Headphones,
@@ -556,10 +556,10 @@ function HeroBanner() {
   }, []);
 
   const heroStats = [
-    { num: `${professionals.toLocaleString()}+`, label: "Healthcare Professionals" },
-    { num: `${satisfaction}%`,                   label: "Client Satisfaction"      },
-    { num: "24/7",                               label: "Support Available"        },
-    { num: `${partners}+`,                       label: "Partner Sites"            },
+    { num: "Many", label: "Healthcare Professionals" },
+    { num: `${satisfaction}%`, label: "Client Satisfaction" },
+    { num: "24/7", label: "Support Available" },
+    { num: `${partners}+`, label: "Partner Sites" },
   ];
 
   return (
@@ -603,7 +603,7 @@ function HeroBanner() {
         </h1>
 
         <p className="emp-hero-sub">
-          Access a growing network of over 5,000 fully vetted healthcare professionals.
+          Access a growing network of many fully vetted healthcare professionals.
           From emergency cover to permanent placements - we deliver quality staff, fast.
         </p>
 
@@ -1185,7 +1185,7 @@ function RequestForm() {
           </p>
           <div className="rf-success-ticks" aria-label="What happens next">
             <div className="rf-success-tick"><Clock size={15} aria-hidden="true" /><span>Response within 2 hours</span></div>
-            <div className="rf-success-tick"><Users size={15} aria-hidden="true" /><span>5,000+ professionals available</span></div>
+            <div className="rf-success-tick"><Users size={15} aria-hidden="true" /><span>Many professionals available</span></div>
             <div className="rf-success-tick"><CheckCircle size={15} aria-hidden="true" /><span>98% client satisfaction</span></div>
           </div>
           <button
