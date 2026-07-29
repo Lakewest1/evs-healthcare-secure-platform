@@ -1,17 +1,125 @@
-# React + Vite
+# EVS Healthcare Solutions Ltd Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+This project is the official website developed for EVS Healthcare Solutions Ltd.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The website was designed to provide a modern, responsive, and secure platform for healthcare recruitment, allowing applicants to submit their details while maintaining security best practices.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
 
-## Expanding the ESLint configuration
+- Responsive Design
+- Secure Application Form
+- CV Upload
+- WhatsApp Integration
+- Email Notifications
+- Cloudflare Security Integration
+- Content Security Policy
+- Netlify Deployment
+- Modern User Interface
+- Google Business
+- Google analytics
+- Netlify secure Channel
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# EVS-HEALTH
+---
+
+## Technologies Used
+
+- React.js
+- Vite
+- JavaScript
+- HTML5
+- CSS3
+- Netlify
+- Cloudflare
+- EmailJS
+
+---
+
+## Project Structure
+
+```
+frontend/
+public/
+src/
+package.json
+README.md
+```
+
+---
+
+## Installation
+
+1. Clone or extract the project.
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Create a `.env` file using the `.env.example` template.
+
+4. Start the development server
+
+```bash
+npm run dev
+```
+
+---
+
+## Build
+
+```bash
+npm run build
+```
+
+---
+
+## Deployment
+
+The website is designed for deployment on Netlify.
+
+Configure the required environment variables before deployment.
+
+---
+
+## Security Notes
+
+For security reasons, this package does **NOT** include:
+
+- Environment variables (.env)
+- API Keys
+- Secrets
+- Passwords
+- node_modules
+
+These should be configured separately before deployment.
+
+---
+
+## Maintenance
+
+For future updates, maintenance, security improvements, or additional features, please contact the developer.
+
+---
+
+## Version
+
+Version 1.0
+
+Project Status: Production Release
+
+---
+
+Developed for:
+
+**EVS Healthcare Solutions Ltd**
+
+Developed by:
+
+**Sir Lakewest**
+Lakewe$t Technology
+Software Engineer | Cloud Security Engineer | DevSecOps Engineer# evs-healthcare-solution-ltd
