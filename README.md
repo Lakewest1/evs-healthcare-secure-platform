@@ -326,9 +326,8 @@ GitHub
 
 https://github.com/Lakewest1
 
-LinkedIn
 
-(Add your LinkedIn URL)
+
 
 ---
 
